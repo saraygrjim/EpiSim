@@ -10,7 +10,7 @@ class Cell:
         self.duration   = -1             # How many days to finish and recover or to get worse
         self.inmunity   = -1             # How inmune the cell is to infection after recovery or not
         self.medication = False          # If the cell has taken its medication or not
-        self.quaratined = False          # If the cell is in quarantine
+        self.quarantined = False          # If the cell is in quarantine
         self.color      = (255,255,255)  # White
 
     # Cell become infected  
@@ -38,8 +38,8 @@ class Cell:
         self.quarantined = True
         self.color = (102, 204, 255) # Blue
 
-    def medicate(self, med_efficacy):
-        if random.random() < med_efficacy:
+    def medicate(self, medEfficacy):
+        if random.random() < medEfficacy:
             return True # The medication works and the cell recover
         else:
             self.medication = True
@@ -49,13 +49,17 @@ class Cell:
         if self.infected:
             if self.incubation > 0:
                 self.incubation = self.incubation - 1
+                return 0 # The cell stay incubating
             else:
                 self.color = (255,0,0)   # Red Ya ha incubado el virus por lo que ya es infeccioso
                 if self.duration > 0:
                     self.duration = self.duration - 1
                 else: # If the viris has been incubated and the duration of the disease ends
                     if random.random() < deadliness:
-                        return True # The cell recovers
+                        return 1 # The cell recovers
                     else:
-                        return False # The cell dies
+                        return 2 # The cell dies
+
+
+
 
