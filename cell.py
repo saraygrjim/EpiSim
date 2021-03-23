@@ -1,5 +1,14 @@
 import random
 
+# Colours
+WHITE  = (255,255,255)
+RED    = (255, 0, 0)     # Infected and infectious
+ORANGE = (255, 128, 0)   # Infected but not infectious
+GREEN  = (51, 204, 51)   # Recover
+BLACK  = (0, 0, 0)       # Dead
+BLUE   = (102, 204, 255) # Quarantine
+BG     = (128, 128, 128) # Background color
+
 class Cell:
     def __init__(self, x, y):
         self.x = x
@@ -10,13 +19,34 @@ class Cell:
         self.duration   = -1             # How many days to finish and recover or to get worse
         self.inmunity   = -1             # How inmune the cell is to infection after recovery or not
         self.medication = False          # If the cell has taken its medication or not
-        self.quarantined = False          # If the cell is in quarantine
-        self.color      = (255,255,255)  # White
+        self.quarantined = False         # If the cell is in quarantine
+        self.color      = WHITE
+
+    def __str__(self):
+        out = "Cell " + str(self.x) + ", " + str(self.y) + " is: "
+        if self.alive:
+            if self.infected:
+                out = out + "Infected" 
+                if self.incubation > -1:
+                    out = out + "\n\tIncubation days remaining: " + str(self.incubation) + "\n\tThe days to finish or recover are " + str(self.duration)
+                if self.quarantined:
+                    out = out + "\n\tThe cell is in quarantine" 
+                if self.medication:
+                    out = out + "\n\tThe cell has take a medication" 
+                   
+            else:
+                if self.color == WHITE:
+                    out = out + "Not Infected yet"
+                if self.color == GREEN:
+                    out = out + "Infected but recover \n\t The inmunity is " + str(self.inmunity)
+        else:
+            out = out + "Die"
+        return out
 
     # Cell become infected  
     def infect(self, incubation, duration):
         self.infected   = True
-        self.color      = (255, 128, 0)  #Orange Infectado pero aún no infeccioso
+        self.color      = ORANGE
         self.incubation = incubation
         self.duration   = duration
 
@@ -26,17 +56,17 @@ class Cell:
         self.incubation = -1
         self.duration   = -1
         self.inmunity   = inmunity
-        self.color      = (51, 204, 51) # Green
+        self.color      = GREEN
 
     def die(self):
         self.alive    = False
         self.infected = False
         self.duration   = -1
-        self.color = (0,0,0)  # Black
+        self.color = BLACK
 
     def quarantine(self):
         self.quarantined = True
-        self.color = (102, 204, 255) # Blue
+        self.color = BLUE
 
     def medicate(self, medEfficacy):
         if random.random() < medEfficacy:
@@ -51,11 +81,14 @@ class Cell:
                 self.incubation = self.incubation - 1
                 return 0 # The cell stay incubating
             else:
-                self.color = (255,0,0)   # Red Ya ha incubado el virus por lo que ya es infeccioso
+                self.color = RED   # Red Ya ha incubado el virus por lo que ya es infeccioso
                 if self.duration > 0:
                     self.duration = self.duration - 1
+                    return 3 # The cell stay infected
                 else: # If the viris has been incubated and the duration of the disease ends
-                    if random.random() < deadliness:
+                    number = random.random()
+                    print("La probabilidad de morir es " + str(deadliness) + "y ha salido " + str(number))
+                    if number > deadliness:
                         return 1 # The cell recovers
                     else:
                         return 2 # The cell dies
