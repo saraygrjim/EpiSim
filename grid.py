@@ -14,7 +14,7 @@ def c8(x, y): return (x-1, y  )
 
 def searchNeighbours(width, heigh, cells, x, y):
     neighbours = []
-    c
+
     # Case 1: Top left corner
     if x == 0 and y == 0:
         neighbours.append(c4(x, y)) 

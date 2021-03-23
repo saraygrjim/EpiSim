@@ -14,7 +14,7 @@ class Cell:
         self.color      = (255,255,255)  # White
 
     # Cell become infected  
-    def infected(self, incubation, duration):
+    def infect(self, incubation, duration):
         self.infected   = True
         self.color      = (255, 128, 0)  #Orange Infectado pero aún no infeccioso
         self.incubation = incubation
