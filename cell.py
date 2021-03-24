@@ -1,13 +1,5 @@
 import random
-
-# Colours
-WHITE  = (255,255,255)
-RED    = (255, 0, 0)     # Infected and infectious
-ORANGE = (255, 128, 0)   # Infected but not infectious
-GREEN  = (51, 204, 51)   # Recover
-BLACK  = (0, 0, 0)       # Dead
-BLUE   = (102, 204, 255) # Quarantine
-BG     = (128, 128, 128) # Background color
+from colours import *
 
 class Cell:
     def __init__(self, x, y):
@@ -21,6 +13,7 @@ class Cell:
         self.medication = False          # If the cell has taken its medication or not
         self.quarantined = False         # If the cell is in quarantine
         self.color      = WHITE
+        self.quaratineDays = -1 
 
     def __str__(self):
         out = "Cell " + str(self.x) + ", " + str(self.y) + " is: "
@@ -46,12 +39,13 @@ class Cell:
     # Cell become infected  
     def infect(self, incubation, duration):
         self.infected   = True
-        self.color      = ORANGE
+        self.color      = YELLOW
         self.incubation = incubation
         self.duration   = duration
 
     # Cell become recovered
     def recover(self, inmunity):
+        # print("me he recuperado")
         self.infected = False
         self.incubation = -1
         self.duration   = -1
@@ -67,6 +61,7 @@ class Cell:
     def quarantine(self):
         self.quarantined = True
         self.color = BLUE
+        self.quaratineDays = 10
 
     def medicate(self, medEfficacy):
         if random.random() < medEfficacy:
@@ -85,14 +80,24 @@ class Cell:
                 if self.duration > 0:
                     self.duration = self.duration - 1
                     return 3 # The cell stay infected
-                else: # If the viris has been incubated and the duration of the disease ends
-                    number = random.random()
-                    print("La probabilidad de morir es " + str(deadliness) + "y ha salido " + str(number))
-                    if number > deadliness:
+                else: # If the virus has been incubated and the duration of the disease ends
+                    if random.random() > deadliness:
                         return 1 # The cell recovers
                     else:
                         return 2 # The cell dies
 
 
 
-
+    def processQuarantine(self, quarentEfficacy):
+        if self.quaratineDays > 0:
+            self.quaratineDays = self.quaratineDays -1
+            return 3  # The cell stay in quarantine
+        else:
+            self.quaratineDays = -1
+            self.quarantine = False
+            if random.random() < quarentEfficacy:
+                return 1 # The cell recovers
+            else:
+                self.color = RED
+                return 2 # The cell stay infected
+            

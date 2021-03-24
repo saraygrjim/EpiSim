@@ -7,8 +7,9 @@ import numpy as np
 import time
 
 sys.path.append(".")
-from cell import Cell
-from grid import *
+from colours import *
+from cell    import Cell
+from grid    import *
 
 # @click.command()
 # @click.option('--count', default=1, help='Number of greetings.')
@@ -16,14 +17,6 @@ from grid import *
 #               help='The person to greet.')
 
 pygame.init()
-# Colours
-WHITE  = (255,255,255)
-RED    = (255, 0, 0)     # Infected and infectious
-ORANGE = (255, 128, 0)   # Infected but not infectious
-GREEN  = (51, 204, 51)   # Recover
-BLACK  = (0, 0, 0)       # Dead
-BLUE   = (102, 204, 255) # Quarantine
-BG     = (128, 128, 128) # Background color
 
 
 # For the simulation
@@ -32,21 +25,22 @@ height = 800  # Size of the grid
 n      = 50
 sizeX  = width/n  # Size of cell
 sizeY  = height/n # Size of cell 
-days   = 300  # Days to simulate
+days   = 700  # Days to simulate
 output = '' # Name of the output file
 
 # Simulation parameters
-probability = 0.15 # Probability that infections happens
-incubation  = 3    # Days of incubation before the cell is infectious
-duration    = 4    # How man days to finish and recover or to get worse
-deadliness  = 0.02 # How deadly is the disease
-inmunity    = 0.5  #  How inmune the cell is to infection after recovery
+probability = 0.15  # Probability that infections happens
+incubation  = 3     # Days of incubation before the cell is infectious
+duration    = 10    # How man days to finish and recover or to get worse
+deadliness  = 0.02  # How deadly is the disease
+inmunity    = 0.5   # How inmune the cell is to infection after recovery
 
 # Measures
-medDay          = days     # Day when the cell take the medicine
-medEfficacy     = 0.0   # Efficacy of the medicine
+medDay          = 150    # Day when the cell take the medicine
+medEfficacy     = 0.5    # Efficacy of the medicine
 quarentDay      = days     # Day when the cell start quarentine
-quarentEfficacy = 0.0  # Efficacy of the quarentine
+quarentEfficacy = 0.3    # Efficacy of the quarentine
+quarentProb     = 0.7
 
 cells = []
 
@@ -67,17 +61,22 @@ def newPopulation():
 
 # Infect the middle cell
 def infectOneCell():
-    i = int(n/2)
-    j = int(n/2)
+    i = random.randint(0, n-1)
+    j = random.randint(0, n-1)
     cells[i][j].infect(incubation, duration)
     print ("First is " + str(i) + " " + str(j))
 
-def calculatePoly(x,y):
+def drawCircle(color, x, y):
+    poly = (int((x*sizeX) + (sizeX/2)), int((y*sizeY) + (sizeY/2)))
+    pygame.draw.circle(screen, color, poly, (sizeX/2.5), 0)
+
+def drawPoly(color, x, y):
     poly = [(int(x     * sizeX), int(y     * sizeY)),
             (int((x+1) * sizeX), int(y     * sizeY)),
             (int((x+1) * sizeX), int((y+1) * sizeY)),
             (int(x     * sizeX), int((y+1) * sizeY))]
-    return poly
+    pygame.draw.polygon(screen, color, poly, 0)
+    pygame.draw.polygon(screen, BG, poly, 1)
 
 def main():
     ###############
@@ -90,71 +89,73 @@ def main():
     infectOneCell()
     
     currentTime = 0
-
+    screen.fill(BG)
     # Fill the screen
     for a in cells:
         for cell in a:
-            pygame.draw.polygon(screen, cell.color, calculatePoly(cell.x, cell.y), 0)
-            pygame.draw.polygon(screen, BG, calculatePoly(cell.x, cell.y), 1)
+            drawPoly(cell.color, cell.x, cell.y)
+        
 
         
     while (not endSimulation) and currentTime < days:
+        screen.fill(BG)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 endSimulation = True
         
+        print(currentTime)
 
         for a in cells:
             for cell in a:
-                print(currentTime)
-                print(str(cell))
+                if cell.color == BLUE:
+                    print(str(cell))
+                # print(str(cell))
                 #If the cell is not infected then we can pass to the next
-                if not cell.infected: 
-                    # print(str(cell.x) + ", " + str(cell.y) + " no estoy infectada o estoy muerta en " + str(currentTime) + ", paso a la siguiente")
-                    pygame.draw.polygon(screen, cell.color, calculatePoly(cell.x, cell.y), 0)
-                    pygame.draw.polygon(screen, BG, calculatePoly(cell.x, cell.y), 1)
+                if not cell.infected : 
+                    drawPoly(cell.color, cell.x, cell.y)
                     continue
+                
+                #If the cell is in quarantine we can pass to the next
+                if cell.quarantined: 
+                    processQResult = cell.processQuarantine(quarentEfficacy)
+                    if processQResult == 1:
+                        cell.recover(inmunity)
+                        # drawPoly(cell.color, cell.x, cell.y)
+                    
 
                 # If the cell is infected then we have to process 
                 processResult = cell.process(deadliness)
 
                 if processResult == 0 : #If the cell is still incubating then we can pass to the next
-                    # print(str(cell.x) + ", " + str(cell.y) + " sigo incubando en " + str(currentTime) + " debo tener color naranja " + str(cell.color))
-                    pygame.draw.polygon(screen, cell.color, calculatePoly(cell.x, cell.y), 0)
-                    pygame.draw.polygon(screen, BG, calculatePoly(cell.x, cell.y), 1)
+                    drawPoly(cell.color, cell.x, cell.y)
                     continue
                 elif processResult == 1 : #If the cell has recovered then we can pass to the next
                     cell.recover(inmunity)
-                    # print(str(cell.x) + ", " + str(cell.y) + " me he recuperado en " + str(currentTime) + ", debo tener color verde " + str(cell.color))
-                    pygame.draw.polygon(screen, cell.color, calculatePoly(cell.x, cell.y), 0)
-                    pygame.draw.polygon(screen, BG, calculatePoly(cell.x, cell.y), 1)
+                    drawPoly(cell.color, cell.x, cell.y)
                     continue
                 elif processResult == 2: #The cell hasnt recovered so dead
-                    # print(str(cell.x) + ", " + str(cell.y) + " he muerto en " + str(currentTime) + ", debo tener color negro " + str(cell.color))
                     cell.die()
-                else: #The cell stay infected
-                    pygame.draw.polygon(screen, cell.color, calculatePoly(cell.x, cell.y), 0)
-                    pygame.draw.polygon(screen, BG, calculatePoly(cell.x, cell.y), 1)
+                    # drawPoly(cell.color, cell.x, cell.y)
+                # else: #The cell stay infected
+                #     drawPoly(cell.color, cell.x, cell.y)
 
                 # Medicine aplication when its time
                 if not cell.medication and (currentTime > medDay):
                     medicationResult = cell.medicate(medEfficacy) 
                     if medicationResult: # If medicine is successful then the cell recover and pass to the next
                         cell.recover(inmunity)
-                        print(str(cell.x) + ", " + str(cell.y) + " me han medicado y me he recuperado en " + str(currentTime) + ", debo tener color verde " + str(cell.color))
-                        pygame.draw.polygon(screen, cell.color, calculatePoly(cell.x, cell.y), 0)
-                        pygame.draw.polygon(screen, BG, calculatePoly(cell.x, cell.y), 1)
+                        # print(str(cell.x) + ", " + str(cell.y) + " me han medicado y me he recuperado en " + str(currentTime) + ", debo tener color verde " + str(cell.color))
+                        drawPoly(cell.color, cell.x, cell.y)
                         continue
-                    # print(str(cell.x) + ", " + str(cell.y) + " me han medicado y no ha funcionado " + str(currentTime) + ", debo tener color rojo " + str(cell.color))
 
-                if not cell.quarantined and (currentTime > quarentDay) and random.random() < quarentEfficacy : 
+                if not cell.quarantined and (currentTime > quarentDay) and random.random() > quarentProb and cell.alive: 
                    cell.quarantine()
-                #    print(str(cell.x) + ", " + str(cell.y) + " estoy en cuarentena en " + str(currentTime) + ", debo tener color azul " + str(cell.color))
 
                 # unless quarantined, look for neighbours and infect them
                 if not cell.quarantined:
-                    print("ENTRO AQUIIIIIIIIIII")
-                    print(str(cell.x) + ", " + str(cell.y) + " no estoy en cuarentena y chequeo a mis vecinos en " + str(currentTime) + ", debo tener un color diferente a azul, verde o blanco " + str(cell.color))
+                    # print("ENTRO AQUIIIIIIIIIII")
+                    # print(str(cell.x) + ", " + str(cell.y) + " no estoy en cuarentena y chequeo a mis vecinos en " + str(currentTime) + ", debo tener un color diferente a azul, verde o blanco " + str(cell.color))
+                    
                     # find all the cell's neighbours
                     neighbours = searchNeighbours(n, cells, cell.x, cell.y)
 
@@ -170,11 +171,9 @@ def main():
                                 # if probability less than infection rate then cell gets infected
                                 if random.random() < probability:
                                     cells[x][y].infect(incubation, duration)
-                                    pygame.draw.polygon(screen, cells[x][y].color, calculatePoly(cells[x][y].x, cells[x][y].y), 0)
-                                    pygame.draw.polygon(screen, BG, calculatePoly(cells[x][y].x, cells[x][y].y), 1)
-
-                pygame.draw.polygon(screen, cell.color, calculatePoly(cell.x, cell.y), 0)
-                pygame.draw.polygon(screen, BG, calculatePoly(cell.x, cell.y), 1)
+                                    drawPoly(cells[x][y].color, cells[x][y].x, cells[x][y].y)
+                
+                drawPoly(cell.color, cell.x, cell.y)
 
 
         
