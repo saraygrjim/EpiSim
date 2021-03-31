@@ -1,25 +1,24 @@
 import random
-from colours import *
 
 class Cell:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.alive      = True
-        self.incubation = -1             # Days of incubation before the cell is infectious
-        self.infected   = False          # If the cell is infected or not
-        self.duration   = -1             # How many days to finish and recover or to get worse
-        self.inmunity   = -1             # How inmune the cell is to infection after recovery or not
-        self.medication = False          # If the cell has taken its medication or not
-        self.quarantined = False         # If the cell is in quarantine
-        self.color      = WHITE
+        self.alive         = True
+        self.incubation    = -1             # Days of incubation before the cell is infectious
+        self.infected      = False          # If the cell is infected or not
+        self.duration      = -1             # How many days to finish and recover or to get worse
+        self.inmunity      = -1             # How inmune the cell is to infection after recovery or not
+        self.medication    = False          # If the cell has taken its medication or not
+        self.quarantined   = False         # If the cell is in quarantine
+        self.state         = 0
         self.quaratineDays = -1 
 
     def __str__(self):
         out = "Cell " + str(self.x) + ", " + str(self.y) + " is: "
         if self.alive:
             if self.infected:
-                out = out + "Infected" 
+                out = out + "Infected \n\t" + str(self.state)
                 if self.incubation > -1:
                     out = out + "\n\tIncubation days remaining: " + str(self.incubation) + "\n\tThe days to finish or recover are " + str(self.duration)
                 if self.quarantined:
@@ -28,9 +27,9 @@ class Cell:
                     out = out + "\n\tThe cell has take a medication" 
                    
             else:
-                if self.color == WHITE:
+                if self.state == 0:
                     out = out + "Not Infected yet"
-                if self.color == GREEN:
+                if self.state == 3:
                     out = out + "Infected but recover \n\t The inmunity is " + str(self.inmunity)
         else:
             out = out + "Die"
@@ -39,7 +38,7 @@ class Cell:
     # Cell become infected  
     def infect(self, incubation, duration):
         self.infected   = True
-        self.color      = YELLOW
+        self.state      = 1
         self.incubation = incubation
         self.duration   = duration
 
@@ -50,17 +49,17 @@ class Cell:
         self.incubation = -1
         self.duration   = -1
         self.inmunity   = inmunity
-        self.color      = GREEN
+        self.state      = 3
 
     def die(self):
         self.alive    = False
         self.infected = False
-        self.duration   = -1
-        self.color = BLACK
+        self.duration = -1
+        self.state    = 5
 
     def quarantine(self):
-        self.quarantined = True
-        self.color = BLUE
+        self.quarantined   = True
+        self.state         = 4
         self.quaratineDays = 10
 
     def medicate(self, medEfficacy):
@@ -76,7 +75,8 @@ class Cell:
                 self.incubation = self.incubation - 1
                 return 0 # The cell stay incubating
             else:
-                self.color = RED   # Red Ya ha incubado el virus por lo que ya es infeccioso
+                self.state = 2   # Red Ya ha incubado el virus por lo que ya es infeccioso
+                # print("ahora soy rojoo")
                 if self.duration > 0:
                     self.duration = self.duration - 1
                     return 3 # The cell stay infected
@@ -98,6 +98,9 @@ class Cell:
             if random.random() < quarentEfficacy:
                 return 1 # The cell recovers
             else:
-                self.color = RED
+                if self.incubation > 0:
+                    self.state = 1
+                else:
+                    self.state = 2
                 return 2 # The cell stay infected
             

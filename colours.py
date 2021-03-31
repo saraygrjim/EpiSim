@@ -15,3 +15,25 @@ BG     = (71, 71, 71)     # Background color
 # BLACK  = (106, 109,113)        # Dead
 # BLUE   = (112, 159, 207)   # Quarantine
 # BG     = (0, 0, 0)     # Background color
+
+
+def white():
+    return (255, 255, 255)
+
+def red():
+    return (215, 9, 38)
+
+def yellow():
+    return (250, 198, 0) 
+
+def green():
+    return (24, 141, 64)  
+
+def blue():
+    return (52, 187, 218)
+
+def black():
+    return (0, 0, 0)
+
+def default():
+    return "Opcion Invalida"
