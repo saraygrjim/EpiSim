@@ -94,7 +94,7 @@ class Cell:
             return 3  # The cell stay in quarantine
         else:
             self.quaratineDays = -1
-            self.quarantine = False
+            self.quarantined = False
             if random.random() < quarentEfficacy:
                 return 1 # The cell recovers
             else:

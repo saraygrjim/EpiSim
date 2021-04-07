@@ -142,7 +142,7 @@ def main():
                                 continue
                             
                             # probability of re-infection
-                            if random.random() > cells[x][y].inmunity:
+                            if .random() > cells[x][y].inmunity:
                                 # if probability less than infection rate then cell gets infected
                                 if random.random() < probability:
                                     cells[x][y].infect(incubation, duration)
