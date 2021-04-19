@@ -11,15 +11,11 @@
 // #define COLUMNS 40
 // #define ROWS    40
 #define FPS        10
+#define MAX_NEIGH  8
 
-
-extern short sDirection;
-
-
-
+// extern short sDirection;
 
 //int state[N][N];
-
 
 void timerCallback(int);
 void displayCallback();
@@ -38,24 +34,26 @@ void simulation();
 // int n      = 50;
 // int sizeX  = width/N;  // Size of cell
 // int sizeY  = height/N; // Size of cell 
-int days   = 700;  // Days to simulate
+int days       = 700;  // Days to simulate
 int currentDay = 0;
+int neighType  = EXTENDED;
 // string output = ""; // Name of the output file
 
 // Simulation parameters
-double probability = 0.15;  // Probability that infections happens
-int incubation     = 3;     // Days of incubation before the cell is infectious
-int duration       = 10;    // How man days to finish and recover or to get worse
+double probability = 0.6;   // Probability that infections happens
+int    incubation  = 3;     // Days of incubation before the cell is infectious
+int    duration    = 10;    // How man days to finish and recover or to get worse
 double deadliness  = 0.02;  // How deadly is the disease
 double inmunity    = 0.5;   // How inmune the cell is to infection after recovery
+int    daysToInfect = 4;
 
 // Measures
-int medDay             = 150;   // Day when the cell take the medicine
+int    medDay          = 150;   // Day when the cell take the medicine
 double medEfficacy     = 0.5;   // Efficacy of the medicine
-int quarentDay         = 100;   // Day when the cell start quarentine
+int    quarentDay      = 100;   // Day when the cell start quarentine
 double quarentEfficacy = 0.3;   // Efficacy of the quarentine
 double quarentProb     = 0.7;
-Cell cells[50][50];
+Cell cells[N][N];
 
 void init(){
     glClearColor(1.0,1.0,1.0,1.0); //Color de fondo
@@ -66,7 +64,7 @@ int main(int argc, char **argv){
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
-    glutInitWindowSize(500,500);
+    glutInitWindowSize(1000,1000);
     glutCreateWindow("Epidemic Simulation");
     glutDisplayFunc(displayCallback);
     glutReshapeFunc(reshapeCallback);
@@ -84,7 +82,6 @@ int main(int argc, char **argv){
 void displayCallback(){
 
     //prueba a poner aqui la ejecución
-    // cerr << "hola" << endl;
     // simulation();
     glClear(GL_COLOR_BUFFER_BIT);
     drawGrid();
@@ -122,7 +119,6 @@ void infectOneCell(){
     int i = N/2;
     int j = N/2;
     cells[i][j].infect(incubation, duration);
-    // cerr << cells[i][j].infected << endl;
 }
  
 bool search(int** neighbours, int state){
@@ -130,9 +126,9 @@ bool search(int** neighbours, int state){
     int x = neighbours[i][0];
     int y = neighbours[i][1];
     bool found = false;
-    while (found == false && i < 8){ 
+    while (found == false && i < MAX_NEIGH){ 
         if (x != -1){
-            if(cells[x][y].state == state){
+            if(cells[x][y].state == state && (duration - cells[x][y].duration) >= daysToInfect){
                 found = true;
             }
         }
@@ -140,6 +136,7 @@ bool search(int** neighbours, int state){
         y = neighbours[i][1];
         i++;
     }
+
 
     return found;
 }
@@ -149,7 +146,7 @@ int sum_quarantined(int** neighbours){
     int x = neighbours[i][0];
     int y = neighbours[i][1];
     int sum = 0;
-    while (i < 8){ 
+    while (i < MAX_NEIGH){ 
         if(x != -1 && cells[x][y].quarantined){
             sum++;
         }
@@ -168,29 +165,31 @@ void simulation(){
     }
     for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++){   
-
             // CAMBIO DE ESTADO DEPENDIENDO DE VECINOS  
             int** c_neighbours;
-            c_neighbours = (int**)malloc(8*sizeof(int *));
-            for (int i = 0; i<8; i++){
+            c_neighbours = (int**)malloc(MAX_NEIGH*sizeof(int *));
+            for (int i = 0; i<MAX_NEIGH; i++){
                 c_neighbours[i] = (int *)malloc(2*sizeof(int));
             }
-            for (int i = 0; i<8; i++){
+            for (int i = 0; i<MAX_NEIGH; i++){
                 for (int j = 0; j<2; j++){
                     c_neighbours[i][j] = -1;
                 }
             }
-            searchNeighbours(c_neighbours, N, i, j);
-            // cout << "hola";
+            searchNeighbours(c_neighbours, N, i, j, neighType);
+
             if (cells[i][j].state == NO_CHANGE && search(c_neighbours, INFECTED)){ //The cell has never been infected
-                cells[i][j].state      = NO_INFECTIOUS; //Yellow
-                cells[i][j].infected   = true;
-                cells[i][j].incubation = incubation;
-                cells[i][j].duration   = duration;
-            
+                double num = (rand() % (1001))/1000.0;
+                if (num < probability){
+                    cells[i][j].state      = NO_INFECTIOUS; //Yellow
+                    cells[i][j].infected   = true;
+                    cells[i][j].incubation = incubation;
+                    cells[i][j].duration   = duration;
+                }
                 continue;
+
             }
-            // cout << "adios";
+
             if (cells[i][j].state == RECOVER && search(c_neighbours, INFECTED)){
                 
                 double num = (rand() % (1001))/1000.0;
