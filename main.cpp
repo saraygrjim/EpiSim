@@ -5,54 +5,48 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
-#include "sim.cpp"
-#include "grid.cpp"
+#include <iostream>
+#include "sim.h"
+#include "grid.h"
+#include "cell.h"
 
-// #define COLUMNS 40
-// #define ROWS    40
+using namespace std;
+
 #define FPS        10
 #define MAX_NEIGH  8
-
-// extern short sDirection;
-
-//int state[N][N];
 
 void timerCallback(int);
 void displayCallback();
 void reshapeCallback(int, int);
-// void keyboardCallback(int,int,int);
 void newPopulation();
 void infectOneCell();
 bool search(int**, int);
 int  sum_quarantined(int**);
 void simulation();
+int currentDay = 0;
 
 
 // For the simulation
-// int width  = 700;  // Size of the grid
-// int height = 800;  // Size of the grid
-// int n      = 50;
-// int sizeX  = width/N;  // Size of cell
-// int sizeY  = height/N; // Size of cell 
+int n          = 50;
 int days       = 700;  // Days to simulate
-int currentDay = 0;
-int neighType  = EXTENDED;
-// string output = ""; // Name of the output file
+int neighType  = NEUMANN;
 
 // Simulation parameters
-double probability = 0.6;   // Probability that infections happens
-int    incubation  = 3;     // Days of incubation before the cell is infectious
-int    duration    = 10;    // How man days to finish and recover or to get worse
-double deadliness  = 0.02;  // How deadly is the disease
-double inmunity    = 0.5;   // How inmune the cell is to infection after recovery
-int    daysToInfect = 4;
+double probability  = 0.6;   // Probability that infections happens
+int    daysToInfect = 4;     // Days to become infect
+int    incubation   = 3;     // Days of incubation before the cell is infectious
+int    duration     = 10;    // How man days to finish and recover or to get worse
+double deadliness   = 0.02;  // How deadly is the disease
+double inmunity     = 0.5;   // How inmune the cell is to infection after recovery
 
 // Measures
-int    medDay          = 150;   // Day when the cell take the medicine
-double medEfficacy     = 0.5;   // Efficacy of the medicine
-int    quarentDay      = 100;   // Day when the cell start quarentine
-double quarentEfficacy = 0.3;   // Efficacy of the quarentine
-double quarentProb     = 0.7;
+// int    medDay          = 150;   // Day when the cell take the medicine
+// double medEfficacy     = 0.5;   // Efficacy of the medicine
+int    quaratineInit       = 100;   // Day when the cell start quarentine
+int    quaratineDays       = 7;
+// double quarentEfficacy = 0.3;   // Efficacy of the quarentine
+// double quarentProb     = 0.7;
+
 Cell cells[N][N];
 
 void init(){
@@ -205,14 +199,14 @@ void simulation(){
             if (cells[i][j].state == INFECTED && sum_quarantined(c_neighbours) > 2){
                 cells[i][j].state         = QUARANTINE; //Blue
                 cells[i][j].quarantined   = true;
-                cells[i][j].quaratineDays = 10;
+                cells[i][j].quaratineDays = quaratineDays;
                 continue;
             }
 
-            if (cells[i][j].state != INFECTED && cells[i][j].state != DIE && cells[i][j].state != RECOVER && search(c_neighbours, INFECTED) && quarentDay < currentDay){
+            if (cells[i][j].state != INFECTED && cells[i][j].state != DIE && cells[i][j].state != RECOVER && search(c_neighbours, INFECTED) && quaratineInit < currentDay){
                 cells[i][j].state         = QUARANTINE; //Blue
                 cells[i][j].quarantined   = true;
-                cells[i][j].quaratineDays = 10;
+                cells[i][j].quaratineDays = quaratineDays;
                 continue;
             }
 

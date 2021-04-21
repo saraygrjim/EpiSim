@@ -9,7 +9,8 @@ init:
 	@echo ""
 
 compilar: 
-	g++ main.cpp -lglut -lGLU -lGL
+	# g++ main.cpp -lglut -lGLU -lGL
+	g++ main.cpp grid.cpp sim.cpp cell.cpp -lglut -lGLU -lGL
 	./a.out
 
 clean:

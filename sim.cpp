@@ -1,28 +1,10 @@
 #include <GL/glut.h>
 #include <iostream>
-#include "cell.cpp"
-
-#define N     100
-// Types of cell states
-#define NO_CHANGE     0
-#define NO_INFECTIOUS 1
-#define INFECTED      2
-#define RECOVER       3
-#define QUARANTINE    4
-#define DIE           5
-
-// Types of neighborhood
-#define MOORE         0
-#define NEUMANN       1
-#define EXTENDED      2
+#include "sim.h"
 
 using namespace std;
 
-
 int gridX, gridY;
-// short sDirection = RIGHT;
-
-int posX=20, posY=20;
 
 void initGrid(int x, int y){
     gridX = x;

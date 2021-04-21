@@ -3,9 +3,9 @@
 #include <string.h>
 #include <pthread.h>
 #include <iostream>
+#include "grid.h"
 
 using namespace std;
-
 
 int* c1(int x, int y){ 
     static int r[2];
@@ -609,7 +609,6 @@ int** extended(int** matrix, int n, int x, int y){
     }
 
 }
-
 
 int** searchNeighbours(int** matrix, int n, int x, int y, int type){
     if (type == MOORE){
