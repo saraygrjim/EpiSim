@@ -23,8 +23,17 @@ char *genera_cadena();
 
 %token <valor>  NUMERO         // Todos los token tienen un tipo para la pila
 %token <cadena> INTEGER       // identifica la definicion de un entero
+%token <cadena> STRING
+%token <cadena> DOUBLE
+%token <cadena> NGH
+%token <cadena> CELLS
+%token <cadena> TICKS
 
 %type  <cadena>  programa
+%type  <cadena>  header
+%type  <cadena>  neighbourhood
+%type  <cadena>  n_cells
+%type  <cadena>  time
 
 // %right '='                // es la ultima operacion que se debe realizar
 // %left OR                  // menor orden de precedencia
@@ -38,31 +47,40 @@ char *genera_cadena();
 %%
 // Seccion 3 Gramatica - Semantico
 /*--------Estructura de un programa--------*/
-programa:       header                  { } 
-                cell_properties         { } 
-                cell_states             { }
-                simulation_variables    { }   
-                rules                   { }                
+programa:       header                     { sprintf(temp, "%s fin", $1);
+                                                 printf("%s\n", temp);} 
+                // cell_properties         { } 
+                // cell_states             { }
+                // simulation_variables    { }   
+                // rules                   { }                
                 ; 
 
-header:         neighbourhood           { }
-                n_cells                 { }   
-                ticks                   { }
+header:         neighbourhood  n_cells time       { sprintf(temp, "%s %s %s", $1, $2, $3);
+                                                 printf("%s\n", temp);}
+                
                 ;
 
 //Cambiar a palabras reservadas y cosas asi
-neighbourhood:  /*lambda*/              { } //MOORE default
-                | 'ngh NEUMANN'         { }
-                | 'ngh MOORE'           { }
-                | 'ngh EXTENDED'        { }
+neighbourhood:  /*lambda*/                {sprintf (temp, "ngh NEUMANN\n");
+                                            $$ = genera_cadena (temp);  } //MOORE default
+                | NGH 'NEUMANN'           {sprintf (temp, "%s %s\n", $1, $2);
+                                           $$ = genera_csadena (temp);  }
+                | NGH 'MOORE'             {sprintf (temp, "%s %s\n", $1, $2);
+                                           $$ = genera_csadena (temp); }
+                | NGH 'EXTENDED'          { sprintf (temp, "%s %s\n", $1, $2);
+                                           $$ = genera_csadena (temp);}
                 ;
 
-n_cells:        /*lambda*/              { }
-                | 'cells INTEGER'       { }
+n_cells:        /*lambda*/              { sprintf (temp, "cells 500\n");
+                                        $$ = genera_cadena (temp);  } //500 default
+                | CELLS NUMERO          { sprintf (temp, "%s %d\n", $1, $2);
+                                        $$ = genera_cadena (temp); }
                 ;
 
-ticks:          /*lambda*/              { }
-                | 'ticks INTEGER'       { }
+time:           /*lambda*/              { sprintf (temp, "ticks 500\n");
+                                        $$ = genera_cadena (temp); } 
+                | TICKS NUMERO          { sprintf (temp, "%s %d\n", $1, $2);
+                                        $$ = genera_cadena (temp); }
                 ;
 %% 
                             // SECCION 4    Codigo en C
@@ -104,21 +122,11 @@ typedef struct s_pal_reservadas { // para las palabras reservadas de C
 } t_reservada ;
 
 t_reservada pal_reservadas [] = { // define las palabras reservadas y los
-    "main",        MAIN,           // y los token asociados
-    "int",         INTEGER,
-    "puts",        PUTS,
-    "printf",      PRINTF,
-    "while",       WHILE,
-    "&&",          AND,
-    "||",          OR,
-    "==",          EQ,
-    "!=",          NEQ,
-    "<=",          LE,
-    ">=",          GE,
-    "if",          IF,
-    "else",        ELSE,
-    "return",      RETORNO,
-    "for",         FOR,
+    "int",         INTEGER,        // y los token asociados
+    "double",      DOUBLE,
+    "ngh",         NGH,
+    "cells",       CELLS,
+    "ticks",       TICKS,
     NULL,          0               // para marcar el fin de la tabla
 } ;
 
@@ -171,29 +179,29 @@ int yylex ()
     do {
     	c = getchar ();
 
-		if (c == '#') {	// Ignora las lineas que empiezan por #  (#define, #include)
-			do {		//	OJO que puede funcionar mal si una linea contiene #
-			 c = getchar ();	
-			} while (c != '\n');
-		}
+		// if (c == '#') {	// Ignora las lineas que empiezan por #  (#define, #include)
+		// 	do {		//	OJO que puede funcionar mal si una linea contiene #
+		// 	 c = getchar ();	
+		// 	} while (c != '\n');
+		// }
 		
-		if (c == '/') {	// Si la linea contiene un / puede ser inicio de comentario
-			cc = getchar ();
-			if (cc != '/') {   // Si el siguiente char es /  es un comentario, pero...
-				ungetc (cc, stdin);
-		 } else {
-		     c = getchar ();	// ...
-		     if (c == '@') {	// Si es la secuencia //@  ==> transcribimos la linea
-		          do {		// Se trata de codigo inline (Codigo embebido en C)
-		              c = getchar ();
-		              putchar (c);
-		          } while (c != '\n');
-		     } else {		// ==> comentario, ignorar la linea
-		          while (c != '\n') {
-		              c = getchar ();
-		          }
-		     }
-		 }
+		// if (c == '/') {	// Si la linea contiene un / puede ser inicio de comentario
+		// 	cc = getchar ();
+		// 	if (cc != '/') {   // Si el siguiente char es /  es un comentario, pero...
+		// 		ungetc (cc, stdin);
+		//  } else {
+		//      c = getchar ();	// ...
+		//      if (c == '@') {	// Si es la secuencia //@  ==> transcribimos la linea
+		//           do {		// Se trata de codigo inline (Codigo embebido en C)
+		//               c = getchar ();
+		//               putchar (c);
+		//           } while (c != '\n');
+		//      } else {		// ==> comentario, ignorar la linea
+		//           while (c != '\n') {
+		//               c = getchar ();
+		//           }
+		//      }
+		//  }
 		}
 		
 		if (c == '\n')
