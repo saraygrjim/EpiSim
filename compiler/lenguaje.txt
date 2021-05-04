@@ -1,0 +1,93 @@
+Idea: pueden añadirse en diferentes archivos como en clips
+
+# Cabecera
+ngh NEUMANN | MOORE | EXTENDED (MOORE default)
+cells INTEGER (100 default)
+days INTEGER  (500 default)
+
+# PROPIEDADES DE LA CÉLULA (ejemplos)
+prop bool alive = true
+prop int days = 1
+prop double probability = 0.7
+
+# ESTADOS DE LA CELULA 
+    - los nombres de las variables anteriores se almacenan en un array y se comprueba que use variables que existan
+    - se puede asignar un color en rgb o se elige aleatoriamente (?)
+state (0,0,0) {
+    alive = false
+}
+
+state (1,0,0) {
+    alive = true
+}
+
+# VARIABLES GLOBALES
+global int double probability  = 0.6 
+global int daysToInfect = 4
+
+# REGLAS
+    - buscar manera de representar el vecindario, una opcion es:
+        + Norte, sur, este y oeste: ngh(n), ngh(s), ngh(e), ngh(w)
+        + Noreste, noroeste, sureste y suroeste: ngh(ne), ngh(nw), ng(se), ngh(sw)
+        + Para el caso de vecindario extendido:  ngh(n+), ngh(s+), ngh(e+), ngh(w+)
+    - habría que tener en cuenta continuamente qué tipo de vecindario se tiene, si es de tipo Neumann no podría usarse ng(se) o ng(s+)
+    - necesario una palabra reservada para decir que algun vecino cumpla una condicion sin importar que vecino o que minimo x vecinos la cumpla sin importar qué vecino
+
+rule {
+    condition: ngh(n).alive = false
+    effect: alive = false
+}
+
+
+
+
+
+
+%token <valor>  NUMERO         // Todos los token tienen un tipo para la pila
+%token <cadena> INTEGER       // identifica la definicion de un entero
+%token <cadena> DOUBLE
+%token <cadena> NGH
+%token <cadena> CELLS
+%token <cadena> TICKS
+
+%type  <cadena>  programa
+%type  <cadena>  header
+%type  <cadena>  neighbourhood
+%type  <cadena>  n_cells
+%type  <cadena>  time
+
+programa:       header                     { sprintf(temp, "%s fin", $1);
+                                                 printf("%s\n", temp);} 
+                // cell_properties         { } 
+                // cell_states             { }
+                // simulation_variables    { }   
+                // rules                   { }                
+                ; 
+
+header:         neighbourhood  n_cells time       { sprintf(temp, "%s %s %s", $1, $2, $3);
+                                                 printf("%s\n", temp);}
+                
+                ;
+
+//Cambiar a palabras reservadas y cosas asi
+neighbourhood:  /*lambda*/                {sprintf (temp, "ngh NEUMANN\n");
+                                            $$ = genera_cadena (temp);  } //MOORE default
+                | NGH                     {sprintf (temp, "%s\n", $1);
+                                           $$ = genera_csadena (temp);  }
+                // | NGH 'MOORE'             {sprintf (temp, "%s %s\n", $1, $2);
+                //                            $$ = genera_csadena (temp); }
+                // | NGH 'EXTENDED'          { sprintf (temp, "%s %s\n", $1, $2);
+                //                            $$ = genera_csadena (temp);}
+                ;
+
+n_cells:        /*lambda*/              { sprintf (temp, "cells 500\n");
+                                        $$ = genera_cadena (temp);  } //500 default
+                // | CELLS NUMERO          { sprintf (temp, "%s %d\n", $1, $2);
+                //                         $$ = genera_cadena (temp); }
+                ;
+
+time:           /*lambda*/              { sprintf (temp, "ticks 500\n");
+                                        $$ = genera_cadena (temp); } 
+                // | TICKS NUMERO          { sprintf (temp, "%s %d\n", $1, $2);
+                //                         $$ = genera_cadena (temp); }
+                ;
