@@ -10,9 +10,13 @@ init:
 
 compilar: 
 	# g++ main.cpp -lglut -lGLU -lGL
-	g++ main.cpp grid.cpp sim.cpp cell.cpp -lglut -lGLU -lGL
-	./a.out
+	# g++ main.cpp grid.cpp sim.cpp cell.cpp -lglut -lGLU -lGL
+	# ./a.out
+
+	bison compiler.y
+	gcc compiler.tab.c -o compiler
 
 clean:
 	@echo "Cleaning..."
-	@rm -rf a.out
+	# @rm -rf a.out
+	@rm -rf compiler compiler.tab.c
