@@ -392,7 +392,7 @@ imp:      expresion                         {sprintf (temp, "(print %s)", $1);
         | STRING    ',' imp                 {sprintf (temp, "%s" ,$3);
                                             $$ = genera_cadena (temp);}
         ;
-
+ 
 /*--------Asignación de valores--------*/
 asignacion:  IDENTIF '='                                {   asignacion=TRUE; }
              expresion                                  {   if(Get($1, tipo_aux)==-1 && Get($1, "global")==-1){

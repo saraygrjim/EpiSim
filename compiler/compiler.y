@@ -24,18 +24,24 @@ char *genera_cadena();
 
 
 %token <valor>  NUMERO         // Todos los token tienen un tipo para la pila
-%token <cadena> INTEGER       // identifica la definicion de un entero
+// %token <cadena> INTEGER        // identifica la definicion de un entero
 %token <cadena> STRING
-%token <cadena> IDENTIF       // Identificador=variable
-// %token <cadena> DOUBLE
+%token <cadena> IDENTIF        // Identificador=variable
+%token <cadena> DOUBLE
 %token <cadena> NGH
 %token <cadena> CELLS
 %token <cadena> TICKS
 %token <cadena> MOORE
 %token <cadena> NEUMANN
 %token <cadena> EXTENDED
+%token <cadena> PROP
+%token <cadena> BOOL  //nombres de variables
+%token <cadena> INT
+%token <cadena> TRUE
+%token <cadena> FALSE
 
-%type  <cadena> programa header neighbourhood
+
+%type  <cadena> programa header neighbourhood properties variable bool_value int_value double_value
 
 %right '='                    // es la ultima operacion que se debe realizar
 %left '+' '-'                 // menor orden de precedencia
@@ -44,14 +50,15 @@ char *genera_cadena();
 
 %%
                                           // Seccion 3 Gramatica - Semantico
-programa:       header                      { } 
+programa:       header   properties         { } 
                 ;
 
+/*------------------ header ------------------*/
 header:         neighbourhood n_cells time  { }
                 ;
 
-neighbourhood:  /*lambda*/                  {  sprintf (temp, "int neighType  = NEUMANN;\n");
-                                               printf ("%s", temp); }
+neighbourhood:   /*lambda*/                 {   sprintf (temp, "int neighType  = NEUMANN;\n");
+                                                printf ("%s", temp); }
                 | NGH NEUMANN               {   sprintf (temp, "int neighType = %s;\n", $2);
                                                 printf ("%s", temp); }
                 | NGH MOORE                 {   sprintf (temp, "int neighType = %s;\n", $2);
@@ -59,18 +66,53 @@ neighbourhood:  /*lambda*/                  {  sprintf (temp, "int neighType  = 
                 | NGH EXTENDED              {   sprintf (temp, "int neighType = %s;\n", $2);
                                                 printf ("%s", temp); }
                 ;
-n_cells:        /*lambda*/                  {   sprintf (temp, "int n = 100;\n");
+n_cells:         /*lambda*/                 {   sprintf (temp, "int n = 100;\n");
                                                 printf ("%s", temp);  } 
                 | CELLS NUMERO              {   sprintf (temp, "int n = %d;\n", $2);
                                                 printf ("%s", temp);  }
                 ;
 
-time:           /*lambda*/                  {   sprintf (temp, "int days = 500;\n");
+time:            /*lambda*/                 {   sprintf (temp, "int days = 500;\n");
                                                 printf ("%s", temp);} 
                 | TICKS NUMERO              {   sprintf (temp, "int days = %d;\n", $2);
                                                 printf ("%s", temp); }
                 ;
-                
+
+/*------------------ properties ------------------*/
+
+properties:     PROP  variable                    { }
+                | PROP  variable  properties      { }
+                ;
+
+variable:         BOOL IDENTIF bool_value       { sprintf (temp, "%s %s %s\n", $1, $2, $3);
+                                                  printf ("%s", temp);}
+                | INT IDENTIF int_value         { sprintf (temp, "%s %s %s\n", $1, $2, $3);
+                                                  printf ("%s", temp); }
+                | DOUBLE IDENTIF double_value   { sprintf (temp, "%s %s %s\n", $1, $2, $3);
+                                                  printf ("%s", temp); }
+                ;
+
+bool_value:      /*lambda*/                   {  sprintf (temp, "= false;") ;
+                                                 $$ = genera_cadena (temp); } 
+                | '=' TRUE                    {  sprintf (temp, "= %s;", $2) ;
+                                                 $$ = genera_cadena (temp); }
+                | '=' FALSE                   {  sprintf (temp, "= %s;", $2) ;
+                                                 $$ = genera_cadena (temp); }
+                ;
+
+int_value:       /*lambda*/                   {  sprintf (temp, "= -1;") ;
+                                                 $$ = genera_cadena (temp); } // -1 default 
+                | '=' NUMERO                  {  sprintf (temp, "= %d;", $2) ;
+                                                 $$ = genera_cadena (temp); } 
+                ;
+
+double_value:    /*lambda*/                   {  sprintf (temp, "= 0.0;") ;
+                                                 $$ = genera_cadena (temp); } // 0.0 default 
+                | '=' NUMERO '.' NUMERO       { sprintf (temp, "= %d.%d;", $2, $4) ;
+                                                 $$ = genera_cadena (temp); }
+                | '=' NUMERO                  { sprintf (temp, "= %d.0;", $2) ;
+                                                 $$ = genera_cadena (temp);}
+                ;
 %%
                             // SECCION 4    Codigo en C
 int n_linea = 1 ;
@@ -110,15 +152,19 @@ typedef struct s_pal_reservadas { // para las palabras reservadas de C
     int token ;
 } t_reservada ;
 
-t_reservada pal_reservadas [] = { // define las palabras reservadas y los
-    "int",          INTEGER,
-    "ngh",          NGH,
+t_reservada pal_reservadas [] = { // define las palabras reservadas y los "ngh",          NGH,
     "cells",        CELLS,
     "ticks",        TICKS,
     "moore",        MOORE,
     "neumann",      NEUMANN,
     "extended",     EXTENDED,
-    NULL,          0               // para marcar el fin de la tabla
+    "prop",         PROP,
+    "bool",         BOOL,
+    "double",       DOUBLE,
+    "int",          INT,
+    "true",         TRUE,
+    "false",        FALSE,
+     NULL,          0               // para marcar el fin de la tabla
 } ;
 
 t_reservada *busca_pal_reservada (char *nombre_simbolo)
@@ -214,7 +260,7 @@ int yylex ()
          return (STRING) ;
     }
 
-    if (c == '.' || (c >= '0' && c <= '9')) {
+    if ((c >= '0' && c <= '9')) {
          ungetc (c, stdin) ;
          scanf ("%d", &yylval.valor) ;
 //         printf ("\nDEV: NUMERO %d\n", yylval.valor) ;        // PARA DEPURAR

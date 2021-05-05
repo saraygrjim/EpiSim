@@ -42,7 +42,7 @@ rule {
 
 
 
-
+ 
 %token <valor>  NUMERO         // Todos los token tienen un tipo para la pila
 %token <cadena> INTEGER       // identifica la definicion de un entero
 %token <cadena> DOUBLE

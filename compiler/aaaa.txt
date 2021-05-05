@@ -1,1 +1,4 @@
 ticks 20
+prop bool alive = true
+prop int days = 10
+prop double probability = 0.7
