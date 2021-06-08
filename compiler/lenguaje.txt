@@ -5,6 +5,11 @@ ngh NEUMANN | MOORE | EXTENDED (MOORE default)
 cells INTEGER (100 default)
 days INTEGER  (500 default)
 
+# VARIABLES GLOBALES
+global int double probability  = 0.6 
+global int daysToInfect = 4
+
+
 # PROPIEDADES DE LA CÉLULA (ejemplos)
 prop bool alive = true
 prop int days = 1
@@ -21,9 +26,6 @@ state (1,0,0) {
     alive = true
 }
 
-# VARIABLES GLOBALES
-global int double probability  = 0.6 
-global int daysToInfect = 4
 
 # REGLAS
     - buscar manera de representar el vecindario, una opcion es:

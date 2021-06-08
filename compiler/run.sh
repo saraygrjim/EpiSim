@@ -1,0 +1,1 @@
+./compiler_cell < aaaa.txt > bbb.txt

@@ -39,9 +39,10 @@ char *genera_cadena();
 %token <cadena> INT
 %token <cadena> TRUE
 %token <cadena> FALSE
+%token <cadena> STATE
 
 
-%type  <cadena> programa header neighbourhood properties variable bool_value int_value double_value
+%type  <cadena> programa   properties variable bool_value int_value double_value states color
 
 %right '='                    // es la ultima operacion que se debe realizar
 %left '+' '-'                 // menor orden de precedencia
@@ -50,32 +51,7 @@ char *genera_cadena();
 
 %%
                                           // Seccion 3 Gramatica - Semantico
-programa:       header   properties         { } 
-                ;
-
-/*------------------ header ------------------*/
-header:         neighbourhood n_cells time  { }
-                ;
-
-neighbourhood:   /*lambda*/                 {   sprintf (temp, "int neighType  = NEUMANN;\n");
-                                                printf ("%s", temp); }
-                | NGH NEUMANN               {   sprintf (temp, "int neighType = %s;\n", $2);
-                                                printf ("%s", temp); }
-                | NGH MOORE                 {   sprintf (temp, "int neighType = %s;\n", $2);
-                                                printf ("%s", temp); }
-                | NGH EXTENDED              {   sprintf (temp, "int neighType = %s;\n", $2);
-                                                printf ("%s", temp); }
-                ;
-n_cells:         /*lambda*/                 {   sprintf (temp, "int n = 100;\n");
-                                                printf ("%s", temp);  } 
-                | CELLS NUMERO              {   sprintf (temp, "int n = %d;\n", $2);
-                                                printf ("%s", temp);  }
-                ;
-
-time:            /*lambda*/                 {   sprintf (temp, "int days = 500;\n");
-                                                printf ("%s", temp);} 
-                | TICKS NUMERO              {   sprintf (temp, "int days = %d;\n", $2);
-                                                printf ("%s", temp); }
+programa:       properties  states      { } 
                 ;
 
 /*------------------ properties ------------------*/
@@ -84,34 +60,52 @@ properties:     PROP  variable                    { }
                 | PROP  variable  properties      { }
                 ;
 
-variable:         BOOL IDENTIF bool_value       { sprintf (temp, "%s %s %s\n", $1, $2, $3);
-                                                  printf ("%s", temp);}
-                | INT IDENTIF int_value         { sprintf (temp, "%s %s %s\n", $1, $2, $3);
-                                                  printf ("%s", temp); }
-                | DOUBLE IDENTIF double_value   { sprintf (temp, "%s %s %s\n", $1, $2, $3);
-                                                  printf ("%s", temp); }
+variable:         BOOL IDENTIF bool_value       {  sprintf (temp, "%s %s %s\n", $1, $2, $3);
+                                                   printf ("%s", temp);}
+                | INT IDENTIF int_value         {  sprintf (temp, "%s %s %s\n", $1, $2, $3);
+                                                   printf ("%s", temp); }
+                | DOUBLE IDENTIF double_value   {  sprintf (temp, "%s %s %s\n", $1, $2, $3);
+                                                   printf ("%s", temp); }
                 ;
 
-bool_value:      /*lambda*/                   {  sprintf (temp, "= false;") ;
-                                                 $$ = genera_cadena (temp); } 
-                | '=' TRUE                    {  sprintf (temp, "= %s;", $2) ;
-                                                 $$ = genera_cadena (temp); }
-                | '=' FALSE                   {  sprintf (temp, "= %s;", $2) ;
-                                                 $$ = genera_cadena (temp); }
+bool_value:      /*lambda*/                     {  sprintf (temp, "= false;");
+                                                   $$ = genera_cadena (temp);} 
+                | '=' TRUE                      {  sprintf (temp, "= %s;", $2);
+                                                   $$ = genera_cadena (temp);}
+                | '=' FALSE                     {  sprintf (temp, "= %s;", $2);
+                                                   $$ = genera_cadena (temp);}
                 ;
 
-int_value:       /*lambda*/                   {  sprintf (temp, "= -1;") ;
-                                                 $$ = genera_cadena (temp); } // -1 default 
-                | '=' NUMERO                  {  sprintf (temp, "= %d;", $2) ;
-                                                 $$ = genera_cadena (temp); } 
+int_value:       /*lambda*/                     {  sprintf (temp, "= -1;");
+                                                   $$ = genera_cadena (temp);} // -1 default 
+                | '=' NUMERO                    {  sprintf (temp, "= %d;", $2);
+                                                   $$ = genera_cadena (temp);} 
                 ;
 
-double_value:    /*lambda*/                   {  sprintf (temp, "= 0.0;") ;
-                                                 $$ = genera_cadena (temp); } // 0.0 default 
-                | '=' NUMERO '.' NUMERO       { sprintf (temp, "= %d.%d;", $2, $4) ;
-                                                 $$ = genera_cadena (temp); }
-                | '=' NUMERO                  { sprintf (temp, "= %d.0;", $2) ;
-                                                 $$ = genera_cadena (temp);}
+double_value:    /*lambda*/                     {  sprintf (temp, "= 0.0;");
+                                                   $$ = genera_cadena (temp);} // 0.0 default 
+                | '=' NUMERO '.' NUMERO         {  sprintf (temp, "= %d.%d;", $2, $4);
+                                                   $$ = genera_cadena (temp);}
+                | '=' NUMERO                    {  sprintf (temp, "= %d.0;", $2);
+                                                   $$ = genera_cadena (temp);}
+                ;
+
+/*------------------ states ------------------*/
+states:          STATE color '{' '}'                    { }
+                ;
+
+color:           '(' NUMERO ',' NUMERO ',' NUMERO ')'   { strcpy (temp, ""); 
+                                                          strcat (temp, "(");
+                                                          if ($2 > 255 ) { strcat (temp, "255"); }
+                                                          else { strcat (temp, $2); }
+                                                          strcat (temp, ",");
+                                                          if ($4 > 255 ) { strcat (temp, "255"); }
+                                                          else { strcat (temp, $4); }
+                                                          strcat (temp, ",");
+                                                          if ($6 > 255 ) { strcat (temp, "255"); }
+                                                          else { strcat (temp, $6); }
+                                                          strcat (temp, ")");
+                                                        }
                 ;
 %%
                             // SECCION 4    Codigo en C
@@ -164,6 +158,7 @@ t_reservada pal_reservadas [] = { // define las palabras reservadas y los "ngh",
     "int",          INT,
     "true",         TRUE,
     "false",        FALSE,
+    "state",        STATE,
      NULL,          0               // para marcar el fin de la tabla
 } ;
 

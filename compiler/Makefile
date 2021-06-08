@@ -9,9 +9,11 @@ init:
 	@echo ""
 
 compilar: 
-	bison compiler.y
-	gcc compiler.tab.c -o compiler
+	# bison compiler_general.y
+	# gcc compiler_general.tab.c -o compiler_general
+	bison compiler_cell.y
+	gcc compiler_cell.tab.c -o compiler_cell
 
 clean:
 	@echo "Cleaning..."
-	@rm -rf compiler compiler.tab.c bbb.txt
+	@rm -rf compiler_general compiler_general.tab.c compiler_cell compiler_cell.tab.c b*
