@@ -62,15 +62,4 @@ void drawCell(Cell cells[N][N]){
             glRectd(i, j, i+1, j+1);
         }
     }
-    // // for (int i=0; i<10; i++){
-    //     if(a[i]<5){
-    //         glColor3f(0.0, 1.0, 0.0);
-    //     } else {
-    //         glColor3f(0.0, 0.0, 1.0);
-    //     }
-    //     glRectd(i+1, 15, i+2, 15+1);
-    // }
-    // glColor3f(0.0, 1.0, 0.0);
-    // glRectd(posX, posY, posX+1, posY+1);
-
 }

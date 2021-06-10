@@ -1,0 +1,5 @@
+prop bool alive = true
+prop int days = 1
+prop double probability = 0.7
+state HOLA (300,5,10)
+state ADIOS (300,5.6,10) 

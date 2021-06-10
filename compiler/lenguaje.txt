@@ -3,10 +3,10 @@ Idea: pueden añadirse en diferentes archivos como en clips
 # Cabecera
 ngh NEUMANN | MOORE | EXTENDED (MOORE default)
 cells INTEGER (100 default)
-days INTEGER  (500 default)
+ticks INTEGER  (500 default)
 
 # VARIABLES GLOBALES
-global int double probability  = 0.6 
+global double probability  = 0.6 
 global int daysToInfect = 4
 
 
@@ -18,9 +18,13 @@ prop double probability = 0.7
 # ESTADOS DE LA CELULA 
     - los nombres de las variables anteriores se almacenan en un array y se comprueba que use variables que existan
     - se puede asignar un color en rgb o se elige aleatoriamente (?)
-state (0,0,0) {
+state NAME (0,0,0) {
     alive = false
 }
+
+case NO_CHANGE:
+                glColor3f(1.0, 1.0, 1.0); //white
+                break;
 
 state (1,0,0) {
     alive = true

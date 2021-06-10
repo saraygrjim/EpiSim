@@ -14,7 +14,7 @@ int yylex();
 int yyerror();
 int yyparse();
 char *genera_cadena();
-
+char * toUpper(char aux[]);
 %}
 
 %union {                      // El tipo de la pila tiene caracter dual
@@ -60,11 +60,14 @@ header:         neighbourhood n_cells time { }
 
 neighbourhood:   /*lambda*/                 {   sprintf (temp, "int neighType  = NEUMANN;\n");
                                                 printf ("%s", temp); }
-                | NGH NEUMANN               {   sprintf (temp, "int neighType = %s;\n", $2);
+                | NGH NEUMANN               {   sprintf(temp, "%s", $2);
+                                                sprintf (temp, "int neighType = %s;\n", toUpper(temp));
                                                 printf ("%s", temp); }
-                | NGH MOORE                 {   sprintf (temp, "int neighType = %s;\n", $2);
+                | NGH MOORE                 {   sprintf(temp, "%s", $2);
+                                                sprintf (temp, "int neighType = %s;\n", toUpper(temp));
                                                 printf ("%s", temp); }
-                | NGH EXTENDED              {   sprintf (temp, "int neighType = %s;\n", $2);
+                | NGH EXTENDED              {   sprintf(temp, "%s", $2);
+                                                sprintf (temp, "int neighType = %s;\n", toUpper(temp));
                                                 printf ("%s", temp); }
                 ;
 n_cells:         /*lambda*/                 {   sprintf (temp, "int n = 100;\n");
@@ -155,7 +158,8 @@ typedef struct s_pal_reservadas { // para las palabras reservadas de C
     int token ;
 } t_reservada ;
 
-t_reservada pal_reservadas [] = { // define las palabras reservadas y los "ngh",          NGH,
+t_reservada pal_reservadas [] = { // define las palabras reservadas y los 
+    "ngh",          NGH,
     "cells",        CELLS,
     "ticks",        TICKS,
     "moore",        MOORE,
@@ -315,6 +319,23 @@ int yylex ()
     return c ;
 }
 
+char * toUpper(char aux[]){
+    char *word;
+    word = genera_cadena(aux);
+    // counter for the loop
+    int i = 0;
+
+    // word to convert to uppercase
+    char chr; 
+
+    // Loop
+    while (word[i]) { 
+        chr = word[i];
+        word[i] = toupper(chr); 
+        i++; 
+    } 
+    return word;
+}
 
 int main ()
 {

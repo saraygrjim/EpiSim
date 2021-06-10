@@ -8,12 +8,15 @@
 int memoria [26] ;   	// Se define una zona de memoria para las variables 
 char temp [2048] ;
 
+
+
 #define FF fflush(stdout);    // para forzar la impresion inmediata
 
 int yylex();
 int yyerror();
 int yyparse();
 char *genera_cadena();
+char * toUpper(char aux[]);
 
 %}
 
@@ -42,7 +45,7 @@ char *genera_cadena();
 %token <cadena> STATE
 
 
-%type  <cadena> programa   properties variable bool_value int_value double_value states color
+%type  <cadena> programa properties states variable bool_value int_value double_value color state code
 
 %right '='                    // es la ultima operacion que se debe realizar
 %left '+' '-'                 // menor orden de precedencia
@@ -51,7 +54,9 @@ char *genera_cadena();
 
 %%
                                           // Seccion 3 Gramatica - Semantico
-programa:       properties  states      { } 
+programa:       properties              { } 
+                states                  { 
+                                        }    
                 ;
 
 /*------------------ properties ------------------*/
@@ -91,22 +96,36 @@ double_value:    /*lambda*/                     {  sprintf (temp, "= 0.0;");
                 ;
 
 /*------------------ states ------------------*/
-states:          STATE color '{' '}'                    { }
-                ;
+// tengo que guardar los identificadores para introducirlos luego 
 
-color:           '(' NUMERO ',' NUMERO ',' NUMERO ')'   { strcpy (temp, ""); 
-                                                          strcat (temp, "(");
-                                                          if ($2 > 255 ) { strcat (temp, "255"); }
-                                                          else { strcat (temp, $2); }
-                                                          strcat (temp, ",");
-                                                          if ($4 > 255 ) { strcat (temp, "255"); }
-                                                          else { strcat (temp, $4); }
-                                                          strcat (temp, ",");
-                                                          if ($6 > 255 ) { strcat (temp, "255"); }
-                                                          else { strcat (temp, $6); }
-                                                          strcat (temp, ")");
+states:         STATE IDENTIF color state            {      sprintf(temp, "%s", $2);
+                                                            sprintf(temp, "void drawCell(Cell cells[N][N]){ \n for (int i = 0; i < N; i++){ \n for (int j = 0; j < N; j++){ \n switch (cells[i][j].state){ \n case %s:\n glColor3f%s; \n break;\n %s } \n glRectd(i, j, i+1, j+1); \n }\n }\n  }\n ", toUpper(temp), $3, $4); 
+                                                            printf ("%s", temp);
                                                         }
                 ;
+
+state:          /*lambda*/                              {    }
+                | STATE IDENTIF color  state            {   sprintf(temp, "%s", $2);
+                                                            sprintf (temp, "case %s:\n glColor3f%s; \n break;\n",toUpper(temp), $3);
+                                                            $$ = genera_cadena (temp);  }
+                ;
+
+color:           '(' code ',' code ',' code ')'   {     sprintf(temp, "(%s,%s,%s)", $2, $4, $6);
+                                                        $$ = genera_cadena(temp);
+                                                        }
+                ;
+
+code:        NUMERO '.' NUMERO                  {   char *eptr;
+                                                    sprintf(temp, " %d.%d", $1, $3);
+                                                    double number = strtod(temp, &eptr);
+                                                    if (number > 255.0) { sprintf(temp, "255");}
+                                                    else { sprintf(temp, "%f", number); }
+                                                    $$ = genera_cadena (temp);
+                                                }
+            | NUMERO                            {   if($1 > 255) { sprintf(temp, "255"); } 
+                                                    else { sprintf(temp, "%d", $1); }
+                                                    $$ = genera_cadena (temp);
+                                                }
 %%
                             // SECCION 4    Codigo en C
 int n_linea = 1 ;
@@ -304,6 +323,24 @@ int yylex ()
     }
 
     return c ;
+}
+
+char * toUpper(char aux[]){
+    char *word;
+    word = genera_cadena(aux);
+    // counter for the loop
+    int i = 0;
+
+    // word to convert to uppercase
+    char chr; 
+
+    // Loop
+    while (word[i]) { 
+        chr = word[i];
+        word[i] = toupper(chr); 
+        i++; 
+    } 
+    return word;
 }
 
 

@@ -1,4 +1,0 @@
-ticks 20
-
-global double probability = 0.6 
-global int daysToInfect = 4
