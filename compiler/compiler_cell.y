@@ -7,7 +7,8 @@
 
 int memoria [26] ;   	// Se define una zona de memoria para las variables 
 char temp [2048] ;
-
+char identif[2048] ;
+int counter = 0;
 
 
 #define FF fflush(stdout);    // para forzar la impresion inmediata
@@ -99,14 +100,24 @@ double_value:    /*lambda*/                     {  sprintf (temp, "= 0.0;");
 // tengo que guardar los identificadores para introducirlos luego 
 
 states:         STATE IDENTIF color state            {      sprintf(temp, "%s", $2);
+                                                            char aux[1024];
+                                                            sprintf(aux, "#define %s %d\n", toUpper(temp), counter);
+                                                            strcat(identif, aux);
+                                                            printf ("%s", identif);
                                                             sprintf(temp, "void drawCell(Cell cells[N][N]){ \n for (int i = 0; i < N; i++){ \n for (int j = 0; j < N; j++){ \n switch (cells[i][j].state){ \n case %s:\n glColor3f%s; \n break;\n %s } \n glRectd(i, j, i+1, j+1); \n }\n }\n  }\n ", toUpper(temp), $3, $4); 
                                                             printf ("%s", temp);
                                                         }
                 ;
 
-state:          /*lambda*/                              {    }
+state:          /*lambda*/                              {   sprintf(identif, "\n"); 
+                                                            sprintf(temp, " "); 
+                                                            $$ = genera_cadena (temp); }
                 | STATE IDENTIF color  state            {   sprintf(temp, "%s", $2);
-                                                            sprintf (temp, "case %s:\n glColor3f%s; \n break;\n",toUpper(temp), $3);
+                                                            char aux[1024];
+                                                            sprintf(aux, "#define %s %d\n", toUpper(temp), counter);
+                                                            strcat(identif, aux);
+                                                            counter++;
+                                                            sprintf (temp, "case %s:\n glColor3f%s; \n break;\n %s",toUpper(temp), $3, $4);
                                                             $$ = genera_cadena (temp);  }
                 ;
 

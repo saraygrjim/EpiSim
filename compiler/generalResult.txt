@@ -1,5 +1,0 @@
-int neighType = MOORE;
-int n = 100;
-int days = 100;
-double probability = 0.6;
-int daystoinfect = 4;
