@@ -18,7 +18,6 @@ int yyerror();
 int yyparse();
 char *genera_cadena();
 char * toUpper(char aux[]);
-
 %}
 
 %union {                      // El tipo de la pila tiene caracter dual
@@ -27,26 +26,26 @@ char * toUpper(char aux[]);
 }
 
 
-%token <valor>  NUMERO         // Todos los token tienen un tipo para la pila
-// %token <cadena> INTEGER        // identifica la definicion de un entero
-%token <cadena> STRING
-%token <cadena> IDENTIF        // Identificador=variable
-%token <cadena> DOUBLE
-%token <cadena> NGH
+%token <cadena> BOOL  //nombres de variables
 %token <cadena> CELLS
-%token <cadena> TICKS
+%token <cadena> DOUBLE
+%token <cadena> EXTENDED
+%token <cadena> FALSE
+%token <cadena> GLOB
+%token <cadena> IDENTIF        // Identificador=variable
+%token <cadena> INT
 %token <cadena> MOORE
 %token <cadena> NEUMANN
-%token <cadena> EXTENDED
+%token <cadena> NGH
+%token <valor>  NUMERO         // Todos los token tienen un tipo para la pila
 %token <cadena> PROP
-%token <cadena> BOOL  //nombres de variables
-%token <cadena> INT
-%token <cadena> TRUE
-%token <cadena> FALSE
 %token <cadena> STATE
+%token <cadena> STRING
+%token <cadena> TICKS
+%token <cadena> TRUE
 
 
-%type  <cadena> programa properties states variable bool_value int_value double_value color state code
+%type  <cadena> program header neighbourhood properties variable bool_value int_value double_value  cell_properties states color state code rules
 
 %right '='                    // es la ultima operacion que se debe realizar
 %left '+' '-'                 // menor orden de precedencia
@@ -54,47 +53,62 @@ char * toUpper(char aux[]);
 %left SIGNO_UNARIO            // mayor orden de precedencia
 
 %%
-                                          // Seccion 3 Gramatica - Semantico
-programa:       properties              { } 
-                states                  { 
-                                        }    
+                                          
+program:                        { printf ("/*GLOBAL_PROPERTIES*/\n\n"); }
+                general         { printf ("\n/*CELL_PROPERTIES*/\n\n"); }
+                cell            { printf ("\n/*RULES*/\n\n"); }
+                rules           { }
+                ;
+
+/*------------------ propiedades globales ------------------*/
+general:        header   properties         { } 
+                ;
+
+/*------------------ header ------------------*/
+header:         neighbourhood n_cells time { }
+                ;
+
+neighbourhood:   /*lambda*/                 {   sprintf (temp, "int neighType  = NEUMANN;\n");
+                                                printf ("%s", temp); }
+                | NGH NEUMANN               {   sprintf(temp, "%s", $2);
+                                                sprintf (temp, "int neighType = %s;\n", toUpper(temp));
+                                                printf ("%s", temp); }
+                | NGH MOORE                 {   sprintf(temp, "%s", $2);
+                                                sprintf (temp, "int neighType = %s;\n", toUpper(temp));
+                                                printf ("%s", temp); }
+                | NGH EXTENDED              {   sprintf(temp, "%s", $2);
+                                                sprintf (temp, "int neighType = %s;\n", toUpper(temp));
+                                                printf ("%s", temp); }
+                ;
+n_cells:         /*lambda*/                 {   sprintf (temp, "int n = 100;\n");
+                                                printf ("%s", temp);  } 
+                | CELLS NUMERO              {   sprintf (temp, "int n = %d;\n", $2);
+                                                printf ("%s", temp);  }
+                ;
+
+time:            /*lambda*/                 {   sprintf (temp, "int days = 500;\n");
+                                                printf ("%s", temp);} 
+                | TICKS NUMERO              {   sprintf (temp, "int days = %d;\n", $2);
+                                                printf ("%s", temp); }
                 ;
 
 /*------------------ properties ------------------*/
 
-properties:     PROP  variable                    { }
-                | PROP  variable  properties      { }
+properties:     GLOB  variable                    { }
+                | GLOB  variable  properties      { }
                 ;
 
-variable:         BOOL IDENTIF bool_value       {  sprintf (temp, "%s %s %s\n", $1, $2, $3);
-                                                   printf ("%s", temp);}
-                | INT IDENTIF int_value         {  sprintf (temp, "%s %s %s\n", $1, $2, $3);
-                                                   printf ("%s", temp); }
-                | DOUBLE IDENTIF double_value   {  sprintf (temp, "%s %s %s\n", $1, $2, $3);
-                                                   printf ("%s", temp); }
+/*------------------ cell atributes ------------------*/ 
+
+cell:           cell_properties         { } 
+                states                  { }    
                 ;
 
-bool_value:      /*lambda*/                     {  sprintf (temp, "= false;");
-                                                   $$ = genera_cadena (temp);} 
-                | '=' TRUE                      {  sprintf (temp, "= %s;", $2);
-                                                   $$ = genera_cadena (temp);}
-                | '=' FALSE                     {  sprintf (temp, "= %s;", $2);
-                                                   $$ = genera_cadena (temp);}
-                ;
+/*------------------ cell_properties ------------------*/
 
-int_value:       /*lambda*/                     {  sprintf (temp, "= -1;");
-                                                   $$ = genera_cadena (temp);} // -1 default 
-                | '=' NUMERO                    {  sprintf (temp, "= %d;", $2);
-                                                   $$ = genera_cadena (temp);} 
-                ;
-
-double_value:    /*lambda*/                     {  sprintf (temp, "= 0.0;");
-                                                   $$ = genera_cadena (temp);} // 0.0 default 
-                | '=' NUMERO '.' NUMERO         {  sprintf (temp, "= %d.%d;", $2, $4);
-                                                   $$ = genera_cadena (temp);}
-                | '=' NUMERO                    {  sprintf (temp, "= %d.0;", $2);
-                                                   $$ = genera_cadena (temp);}
-                ;
+cell_properties:      PROP  variable                       { }
+                    | PROP  variable  cell_properties      { }
+                    ;
 
 /*------------------ states ------------------*/
 // tengo que guardar los identificadores para introducirlos luego 
@@ -137,6 +151,40 @@ code:        NUMERO '.' NUMERO                  {   char *eptr;
                                                     else { sprintf(temp, "%d", $1); }
                                                     $$ = genera_cadena (temp);
                                                 }
+
+/*----------------- variables --------------*/
+
+variable:         BOOL IDENTIF bool_value       {  sprintf (temp, "%s %s %s\n", $1, $2, $3);
+                                                   printf ("%s", temp);}
+                | INT IDENTIF int_value         {  sprintf (temp, "%s %s %s\n", $1, $2, $3);
+                                                   printf ("%s", temp); }
+                | DOUBLE IDENTIF double_value   {  sprintf (temp, "%s %s %s\n", $1, $2, $3);
+                                                   printf ("%s", temp); }
+                ;
+
+bool_value:      /*lambda*/                     {  sprintf (temp, "= false;");
+                                                   $$ = genera_cadena (temp);} 
+                | '=' TRUE                      {  sprintf (temp, "= %s;", $2);
+                                                   $$ = genera_cadena (temp);}
+                | '=' FALSE                     {  sprintf (temp, "= %s;", $2);
+                                                   $$ = genera_cadena (temp);}
+                ;
+
+int_value:       /*lambda*/                     {  sprintf (temp, "= -1;");
+                                                   $$ = genera_cadena (temp);} // -1 default 
+                | '=' NUMERO                    {  sprintf (temp, "= %d;", $2);
+                                                   $$ = genera_cadena (temp);} 
+                ;
+
+double_value:    /*lambda*/                     {  sprintf (temp, "= 0.0;");
+                                                   $$ = genera_cadena (temp);} // 0.0 default 
+                | '=' NUMERO '.' NUMERO         {  sprintf (temp, "= %d.%d;", $2, $4);
+                                                   $$ = genera_cadena (temp);}
+                | '=' NUMERO                    {  sprintf (temp, "= %d.0;", $2);
+                                                   $$ = genera_cadena (temp);}
+                ;
+rules:          ;
+
 %%
                             // SECCION 4    Codigo en C
 int n_linea = 1 ;
@@ -176,19 +224,21 @@ typedef struct s_pal_reservadas { // para las palabras reservadas de C
     int token ;
 } t_reservada ;
 
-t_reservada pal_reservadas [] = { // define las palabras reservadas y los "ngh",          NGH,
+t_reservada pal_reservadas [] = { // define las palabras reservadas y los 
+    "bool",         BOOL,
     "cells",        CELLS,
-    "ticks",        TICKS,
+    "double",       DOUBLE,
+    "extended",     EXTENDED,
+    "false",        FALSE,
+    "global",       GLOB,
+    "int",          INT,
     "moore",        MOORE,
     "neumann",      NEUMANN,
-    "extended",     EXTENDED,
+    "ngh",          NGH,
     "prop",         PROP,
-    "bool",         BOOL,
-    "double",       DOUBLE,
-    "int",          INT,
-    "true",         TRUE,
-    "false",        FALSE,
     "state",        STATE,
+    "ticks",        TICKS,
+    "true",         TRUE,
      NULL,          0               // para marcar el fin de la tabla
 } ;
 
@@ -353,7 +403,6 @@ char * toUpper(char aux[]){
     } 
     return word;
 }
-
 
 int main ()
 {
