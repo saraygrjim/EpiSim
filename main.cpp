@@ -172,6 +172,7 @@ void simulation(){
             }
             searchNeighbours(c_neighbours, N, i, j, neighType);
 
+            //LAS REGLAS SE EMPIEZAN A COLOCAR AQUI
             if (cells[i][j].state == NO_CHANGE && search(c_neighbours, INFECTED)){ //The cell has never been infected
                 double num = (rand() % (1001))/1000.0;
                 if (num < probability){
@@ -209,7 +210,8 @@ void simulation(){
                 cells[i][j].quaratineDays = quaratineDays;
                 continue;
             }
-
+            //LAS REGLAS TERMINAN DE COLOCARSE AQUI 
+            
             //CAMBIO DE ESTADO DEPENDIENDO DE VARIABLES
             if(cells[i][j].state == QUARANTINE){
                 if(cells[i][j].quaratineDays > 0){

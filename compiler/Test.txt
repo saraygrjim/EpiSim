@@ -2,9 +2,16 @@ ngh MOORE
 ticks 100
 global double probability  = 0.6 
 global int daysToInfect = 4
+global int daysToInfect = 4
 prop bool alive = true
 prop int days = 1
 prop double probability = 0.7
 state HOLA (300,5,10)
 state ADIOS (300,5.6,10) 
 state PRUEBA (15.876, 2, 90) 
+
+
+rule {
+    condition: alive == true
+    effect: days = days + 1
+}

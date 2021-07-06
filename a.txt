@@ -1,0 +1,155 @@
+expresion:    termino                       { ; } 
+            | expresion '+' expresion       {sprintf (temp, "(+ %s %s)", $1, $3);
+                                            $$ = genera_cadena (temp);
+                                            condicional=FALSE;}
+
+            | expresion '-' expresion       {sprintf (temp, "(- %s %s)", $1, $3);
+                                            $$ = genera_cadena (temp);
+                                            condicional=FALSE;}
+
+            | expresion '*' expresion       {sprintf (temp, "(* %s %s)", $1, $3);
+                                            $$ = genera_cadena (temp);
+                                            condicional=FALSE;}
+
+            | expresion '/' expresion       {sprintf (temp, "(/ %s %s)",  $1, $3);
+                                            $$ = genera_cadena (temp);
+                                            condicional=FALSE;}
+
+            | expresion '%' expresion       {sprintf (temp, "(mod %s %s)", $1, $3);
+                                            $$ = genera_cadena (temp);
+                                            condicional=FALSE;}
+
+            | expresion   AND  expresion    {   
+                if(condicional==TRUE){
+                                                    if(asignacion==TRUE){
+                                                        sprintf (temp, "(if (and %s %s) 1 0)", obtenerFinal(), $4);             
+                                                    }
+                                                    else{
+                                                        sprintf (temp, "(and %s %s)", obtenerFinal(), $4);             
+                                                    }  
+                                                }else{
+                                                    if(asignacion==TRUE){
+                                                        sprintf (temp, "(if (and %s (/= 0 %s)) 1 0)", obtenerFinal(), $4);             
+                                                    }
+                                                    else{
+                                                        sprintf (temp, "(and %s (/= 0 %s))", obtenerFinal(), $4);  
+                                                    }  
+                                                    condicional=FALSE;
+                                                }
+                                                $$ = genera_cadena (temp);
+                                            }
+            | expresion  OR                 {   if(condicional==TRUE){
+                                                    sprintf(aux, "%s", $1);
+                                                    insertarFinal(aux);
+                                                    condicional = FALSE;
+                                                }else{
+                                                    sprintf(aux, "(/= 0 %s)", $1);
+                                                    insertarFinal(aux);
+                                                }
+                                            }
+            
+             expresion                      {   if(condicional==TRUE){
+                                                    if(asignacion==TRUE){
+                                                        sprintf (temp, "(if (or %s %s) 1 0)", obtenerFinal(), $4);             
+                                                    }
+                                                    else{
+                                                        sprintf (temp, "(or %s %s)", obtenerFinal(), $4);             
+                                                    }  
+                                                }else{
+                                                    if(asignacion==TRUE){
+                                                        sprintf (temp, "(if (or %s (/= 0 %s)) 1 0)", obtenerFinal(), $4);             
+                                                    }
+                                                    else{
+                                                        sprintf (temp, "(or %s (/= 0 %s))", obtenerFinal(), $4);  
+                                                    }  
+                                                    condicional=FALSE;
+                                                }
+                                                $$ = genera_cadena (temp);
+                                            }
+            | expresion NEQ expresion       {   if(asignacion==TRUE){
+                                                    sprintf (temp, "(if (/= %s %s) 1 0)", $1, $3);
+                                                }else{
+                                                    sprintf (temp, "(/= %s %s)", $1, $3);
+                                                    condicional=TRUE;
+                                                } 
+                                                $$ = genera_cadena (temp);
+
+                                            }
+                                            
+            | expresion EQ expresion        {if(asignacion==TRUE){
+                                                    sprintf (temp, "(if (= %s %s) 1 0)", $1, $3);
+                                                }else{
+                                                    sprintf (temp, "(= %s %s)", $1, $3);
+                                                    condicional=TRUE;
+                                                } 
+                                                $$ = genera_cadena (temp);
+                                            }
+            | expresion '<' expresion       {if(asignacion==TRUE){
+                                                    sprintf (temp, "(if (< %s %s) 1 0)", $1, $3);
+                                                }else{
+                                                    sprintf (temp, "(< %s %s)", $1, $3);
+                                                    condicional=TRUE;
+                                                } 
+                                                $$ = genera_cadena (temp);
+                                            }
+            | expresion LE expresion         {if(asignacion==TRUE){
+                                                    sprintf (temp, "(if (<= %s %s) 1 0)", $1, $3);
+                                                }else{
+                                                    sprintf (temp, "(<= %s %s)", $1, $3);
+                                                    condicional=TRUE;
+                                                } 
+                                                $$ = genera_cadena (temp);
+                                            }
+            | expresion '>' expresion        {if(asignacion==TRUE){
+                                                    sprintf (temp, "(if (> %s %s) 1 0)", $1, $3);
+                                                }else{
+                                                    sprintf (temp, "(> %s %s)", $1, $3);
+                                                    condicional=TRUE;
+                                                } 
+                                                $$ = genera_cadena (temp);
+                                            }
+            | expresion GE expresion         {if(asignacion==TRUE){
+                                                    sprintf (temp, "(if (>= %s %s) 1 0)", $1, $3);
+                                                }else{
+                                                    sprintf (temp, "(>= %s %s)", $1, $3);
+                                                    condicional=TRUE;
+                                                } 
+                                                $$ = genera_cadena (temp);
+                                            }
+            ; 
+
+termino:      operando                          { ; }
+            | '+' NUMERO %prec SIGNO_UNARIO     {sprintf (temp, " +%d", $2);
+                                                $$ = genera_cadena (temp);}
+
+            | '-' NUMERO %prec SIGNO_UNARIO     {sprintf (temp, " -%d", $2);
+                                                $$ = genera_cadena (temp);}
+            ;
+
+operando:    IDENTIF                    {   if(Get($1, tipo_aux)==-1 && Get($1, "global")==-1){
+                                                yyerror("Uso de variable que no existe");
+                                                hayError = TRUE;
+                                            }
+                                            sprintf (temp, " %s", $1);
+                                            $$ = genera_cadena (temp);
+                                            condicional=FALSE;
+                                        }
+
+            | NUMERO                    {sprintf (temp, " %d", $1);
+                                        $$ = genera_cadena (temp);
+                                        condicional=FALSE;}
+
+            | '(' expresion ')'         {sprintf (temp, "%s",$2);
+                                        $$ = genera_cadena (temp);}
+            |  llam_funcion             {sprintf (temp, "%s" ,$1);
+                                        $$ = genera_cadena (temp);
+                                        condicional=FALSE;}  
+            | IDENTIF dim_asig          {   if(Get($1, tipo_aux)==-1 && Get($1, "global")==-1){
+                                                yyerror("Uso de variable que no existe");
+                                                hayError = TRUE;
+                                            }
+                                            sprintf (temp, "(aref %s %s)", $1, $2);
+                                            $$ = genera_cadena (temp);
+                                            condicional=FALSE;    
+                                        }
+            ;
