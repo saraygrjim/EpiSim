@@ -14,5 +14,5 @@ typedef struct node {
 
 //Funciones
 int Add(char *name, char *type, int type2);
-int Get(char *name, char *type, int type2);
+nodeList* Get(char *name);
 int Destroy(char *name, char *type, int type2);

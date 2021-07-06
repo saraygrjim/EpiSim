@@ -11,16 +11,18 @@
 #define MOORE_T         0
 #define NEUMANN_T       1
 #define EXTENDED_T      2
-#define GLOBAL_S        0
-#define CELL_S          1
-
-int  memoria [26] ;         	// Se define una zona de memoria para las variables 
-char temp [2048] ;
-char identif[2048] ;
+// Types of variables
+#define GLOBAL_T        0
+#define CELL_T          1
+#define STATE_T         2
+ 
+int  memoria [26];         	// Se define una zona de memoria para las variables 
+char temp [2048];
+char identif[2048];
 int  counter = 0;
 nodeList *List;              // Lista enlazada para almacenar variables
 int neighborhood_type = NEUMANN_T;
-int section = GLOBAL_S;
+int section = GLOBAL_T;
 
 #define FF fflush(stdout);    // para forzar la impresion inmediata
 
@@ -53,6 +55,7 @@ char * toUpper(char aux[]);
 %token <cadena> NGH
 %token <valor>  NUMBER         // Todos los token tienen un tipo para la pila
 %token <cadena> PROP
+%token <cadena> RANDOM
 %token <cadena> RULE
 %token <cadena> STATE
 %token <cadena> STRING
@@ -106,11 +109,10 @@ char * toUpper(char aux[]);
 
 %%
                                           
-program:                        { section = GLOBAL_S;  
+program:                        { section = GLOBAL_T;  
                                   printf ("/*GLOBAL_PROPERTIES*/\n\n"); 
                                 }
-                general         { section = CELL_S;  
-                                  printf ("\n/*CELL_PROPERTIES*/\n\n"); }
+                general         { printf ("\n/*CELL_PROPERTIES*/\n\n"); }
                 cell            { printf ("\n/*RULES*/\n\n"); }
                 rules           { }
                 ;
@@ -161,7 +163,8 @@ properties:     GLOB  variable                    { }
 
 /*------------------ cell atributes ------------------*/ 
 
-cell:           cell_properties         { } 
+cell:                                   { section = CELL_T; }
+                cell_properties         { section = STATE_T; } 
                 states                  { }    
                 ;
 
@@ -174,7 +177,9 @@ cell_properties:      PROP  variable                       { }
 /*------------------ states ------------------*/
 // tengo que guardar los identificadores para introducirlos luego 
 
-states:         STATE IDENTIF color state            {      sprintf(temp, "%s", $2);
+states:         STATE IDENTIF color state            {      if(Get($2) == NULL) { Add($2, "none", section); }
+                                                            else { yyerror("ERROR: Variable duplicada"); exit(1);}
+                                                            sprintf(temp, "%s", $2);
                                                             char aux[1024];
                                                             sprintf(aux, "#define %s %d\n", toUpper(temp), counter);
                                                             strcat(identif, aux);
@@ -187,7 +192,9 @@ states:         STATE IDENTIF color state            {      sprintf(temp, "%s", 
 state:          /*lambda*/                              {   sprintf(identif, "\n"); 
                                                             sprintf(temp, " "); 
                                                             $$ = generate_string (temp); }
-                | STATE IDENTIF color  state            {   sprintf(temp, "%s", $2);
+                | STATE IDENTIF color  state            {   if(Get($2) == NULL) { Add($2, "none", section); }
+                                                            else { yyerror("ERROR: Variable duplicada"); exit(1);}
+                                                            sprintf(temp, "%s", $2);
                                                             char aux[1024];
                                                             sprintf(aux, "#define %s %d\n", toUpper(temp), counter);
                                                             strcat(identif, aux);
@@ -215,18 +222,18 @@ code:        NUMBER '.' NUMBER                  {   char *eptr;
 
 /*----------------- variables --------------*/
 
-variable:         BOOL IDENTIF '=' bool_value       { if(Get($2, "bool", section) == -1) { Add($2, "bool", section); }
-                                                      else { yyerror("ERROR: Variable duplicada"); }
+variable:         BOOL IDENTIF '=' bool_value       { if(Get($2) == NULL) { Add($2, "bool", section); }
+                                                      else { yyerror("ERROR: Variable duplicada"); exit(1);}
                                                       sprintf (temp, "%s %s = %s;\n", $1, $2, $4);
                                                       printf ("%s", temp);
                                                        
                                                     }
-                | INT IDENTIF '=' int_value         { if(Get($2, "bool", section) == -1) { Add($2, "bool", section); }
-                                                      else { yyerror("ERROR: Variable duplicada"); }
+                | INT IDENTIF '=' int_value         { if(Get($2) == NULL) { Add($2, "bool", section); }
+                                                      else { yyerror("ERROR: Variable duplicada"); exit(1); }
                                                       sprintf (temp, "%s %s = %s;\n", $1, $2, $4);
                                                       printf ("%s", temp); }
-                | DOUBLE IDENTIF '=' double_value   { if(Get($2, "bool", section) == -1) { Add($2, "bool", section); }
-                                                      else { yyerror("ERROR: Variable duplicada"); }
+                | DOUBLE IDENTIF '=' double_value   { if(Get($2) == NULL) { Add($2, "bool", section); }
+                                                      else { yyerror("ERROR: Variable duplicada"); exit(1); }
                                                       sprintf (temp, "%s %s = %s;\n", $1, $2, $4);
                                                       printf ("%s", temp); }
                 ;
@@ -268,16 +275,40 @@ rule:             RULE '{' CONDITION ':' conditions EFFECT ':'  effects '}'   { 
 conditions:       expresion                   { sprintf(temp, "%s", $1);
                                                 $$ = generate_string (temp);
                                               }
-                | expresion ';' conditions    { sprintf(temp, "%s && ", $1);
+                | expresion ';' conditions    { sprintf(temp, "%s && %s", $1, $3);
                                                 $$ = generate_string (temp);
                                               }
                 ;
 
-effects:          IDENTIF '=' expresion                   { sprintf(temp, "cells[i][j].%s = %s; ", $1, $3);
-                                                            $$ = generate_string (temp); 
+effects:          IDENTIF '=' expresion                   { nodeList *p = Get($1);
+                                                            if(p == NULL) { 
+                                                              sprintf(temp, "ERROR: Variable %s doesn't exist", $1);          
+                                                              yyerror(temp);
+                                                              exit(1);
+                                                            } else {
+                                                              if(p->type2 == CELL_T){
+                                                                sprintf(temp, "cells[i][j].%s = %s; ", $1, $3);
+                                                                $$ = generate_string (temp); 
+                                                              } else if(p->type2 == GLOBAL_T) {
+                                                                sprintf(temp, "%s = %s; ", $1, $3);
+                                                                $$ = generate_string (temp); 
+                                                              }
+                                                            }
                                                           }
-                | IDENTIF '=' expresion ';' effects       { sprintf(temp, "cells[i][j].%s = %s; \n %s", $1, $3, $5);
-                                                            $$ = generate_string (temp); 
+                | IDENTIF '=' expresion ';' effects       { nodeList *p = Get($1);
+                                                            if(p == NULL) { 
+                                                              sprintf(temp, "ERROR: Variable %s doesn't exist", $1);          
+                                                              yyerror(temp);
+                                                              exit(1);
+                                                            } else {
+                                                              if(p->type2 == CELL_T){
+                                                                sprintf(temp, "cells[i][j].%s = %s; \n %s", $1, $3, $5);
+                                                                $$ = generate_string (temp); 
+                                                              } else if(p->type2 == GLOBAL_T) {
+                                                                sprintf(temp, "%s = %s; \n %s", $1, $3, $5);
+                                                                $$ = generate_string (temp); 
+                                                              }
+                                                            }
                                                           }
                 ;
 
@@ -332,11 +363,29 @@ termino:          operando                          { ; }
                 //                                     $$ = generate_string (temp);}
                 ;
     
-operando:        IDENTIF                            { 
-                                                      sprintf(temp, "%s", $1);
-                                                      $$ = generate_string (temp);
+operando:        IDENTIF                            { nodeList *p = Get($1);
+                                                      if(p == NULL) { 
+                                                        sprintf(temp, "ERROR: Variable %s doesn't exist", $1);          
+                                                        yyerror(temp);
+                                                        exit(1);
+                                                      } else {
+                                                        if(p->type2 == CELL_T){
+                                                          sprintf(temp, "cells[i][j].%s", $1);
+                                                          $$ = generate_string (temp); 
+                                                        } else if (p->type2 == GLOBAL_T){
+                                                          sprintf(temp, "%s", $1);
+                                                          $$ = generate_string (temp); 
+                                                        } else if (p->type2 == STATE_T){
+                                                          sprintf(temp, "%s", toUpper($1));
+                                                          $$ = generate_string (temp);
+                                                        }
+                                                      }
                                                     }
 
+                | RANDOM                            { sprintf(temp, "((rand() %% (1001))/1000.0)");
+                                                      $$ = generate_string (temp);
+                                                    }
+                                                    
                 | int_value                         { sprintf(temp, "%s", $1);
                                                       $$ = generate_string (temp);
                                                     }
@@ -424,7 +473,7 @@ t_stop stop_words [] = { // Stop words
     "ngh",          NGH,
     "prop",         PROP,
     "rule",         RULE,
-    // "random",       RANDOM,
+    "random",       RANDOM,
     "state",        STATE,
     "ticks",        TICKS,
     "true",         TRUE,
@@ -636,18 +685,18 @@ int Add(char *name, char *type, int type2)
 
 
 // To check if one element is on the list
-int Get(char *name, char *type, int type2)
+nodeList* Get(char *name)
 {
     nodeList *p = List; //Pointer
     
     //Go throught the list searching the node
     while(p != NULL){
-        if(strcmp(name, p->name)==0 && strcmp(type, p->type)==0 && type2 == p->type2){
-            return 0;  
+        if(strcmp(name, p->name)==0){
+            return p;  
         }
         p = p->next;
     }
-    return -1;  // Node not found
+    return NULL;  // Node not found
 }
 
 // Delete one node with these atributes
