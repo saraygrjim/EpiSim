@@ -408,7 +408,7 @@ operando:        IDENTIF                            { nodeList *p = Get($1);
                                                         exit(1);
                                                       } else {
                                                         if(p->type2 == CELL_T){
-                                                          sprintf(temp, "c_neighbours%s.%s", $3, $6);
+                                                          sprintf(temp, "cells%s.%s", $3, $6);
                                                           $$ = generate_string(temp); 
                                                         } else {
                                                           sprintf(temp, "ERROR: %s not a cell variable", $6);          
@@ -422,16 +422,16 @@ operando:        IDENTIF                            { nodeList *p = Get($1);
                                                       $$ = generate_string(temp); }
                 ;
 
-position:         NORTH                             { sprintf(temp,"[1][2]");
+position:         NORTH                             { sprintf(temp,"[c_neighbours[1][0]][c_neighbours[1][1]]");
                                                       $$ = generate_string(temp);}
-                | SOUTH                             { sprintf(temp,"[3][2]");
+                | SOUTH                             { sprintf(temp,"[c_neighbours[5][0]][c_neighbours[5][1]]");
                                                       $$ = generate_string(temp);}
-                | WEST                              { sprintf(temp,"[2][1]");
+                | WEST                              { sprintf(temp,"[c_neighbours[7][0]][c_neighbours[7][1]]");
                                                       $$ = generate_string(temp);}
-                | EAST                              { sprintf(temp,"[2][3]");
+                | EAST                              { sprintf(temp,"[c_neighbours[3][0]][c_neighbours[3][1]]");
                                                       $$ = generate_string(temp);}
                 | NORTHEAST                         { if(neighborhood_type != NEUMANN_T) {
-                                                        sprintf(temp,"[1][3]");
+                                                        sprintf(temp,"[c_neighbours[2][0]][c_neighbours[2][1]]");
                                                         $$ = generate_string(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", $1);          
@@ -440,7 +440,7 @@ position:         NORTH                             { sprintf(temp,"[1][2]");
                                                       }
                                                     }
                 | NORTHWEST                         { if(neighborhood_type != NEUMANN_T) {
-                                                        sprintf(temp,"[1][1]");
+                                                        sprintf(temp,"[c_neighbours[0][0]][c_neighbours[0][1]]");
                                                         $$ = generate_string(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", $1);          
@@ -449,7 +449,7 @@ position:         NORTH                             { sprintf(temp,"[1][2]");
                                                       }
                                                     }
                 | SOUTHEAST                         { if(neighborhood_type != NEUMANN_T) {
-                                                        sprintf(temp,"[3][3]");
+                                                        sprintf(temp,"[c_neighbours[4][0]][c_neighbours[4][1]]");
                                                         $$ = generate_string(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", $1);          
@@ -458,7 +458,7 @@ position:         NORTH                             { sprintf(temp,"[1][2]");
                                                       }
                                                     }
                 | SOUTHWEST                         { if(neighborhood_type != NEUMANN_T) {
-                                                        sprintf(temp,"[3][1]");
+                                                        sprintf(temp,"[c_neighbours[6][0]][c_neighbours[6][1]]");
                                                         $$ = generate_string(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", $1);          
@@ -467,7 +467,7 @@ position:         NORTH                             { sprintf(temp,"[1][2]");
                                                       }
                                                     }
                 | NORTHP                            { if(neighborhood_type != NEUMANN_T && neighborhood_type != MOORE) {
-                                                        sprintf(temp,"[0][2]");
+                                                        sprintf(temp,"[c_neighbours[8][0]][c_neighbours[8][1]]");
                                                         $$ = generate_string(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", $1);          
@@ -476,7 +476,7 @@ position:         NORTH                             { sprintf(temp,"[1][2]");
                                                       }
                                                     }
                 | SOUTHP                            { if(neighborhood_type != NEUMANN_T && neighborhood_type != MOORE) {
-                                                        sprintf(temp,"[4][2]");
+                                                        sprintf(temp,"[c_neighbours[10][0]][c_neighbours[10][1]]");
                                                         $$ = generate_string(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", $1);          
@@ -485,7 +485,7 @@ position:         NORTH                             { sprintf(temp,"[1][2]");
                                                       }
                                                     }
                 | WESTP                             { if(neighborhood_type != NEUMANN_T && neighborhood_type != MOORE) {
-                                                        sprintf(temp,"[2][0]");
+                                                        sprintf(temp,"[c_neighbours[11][0]][c_neighbours[11][1]]");
                                                         $$ = generate_string(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", $1);          
@@ -494,7 +494,7 @@ position:         NORTH                             { sprintf(temp,"[1][2]");
                                                       }
                                                     }
                 | EASTP                             { if(neighborhood_type != NEUMANN_T && neighborhood_type != MOORE) {
-                                                        sprintf(temp,"[2][4]");
+                                                        sprintf(temp,"[c_neighbours[9][0]][c_neighbours[9][1]]");
                                                         $$ = generate_string(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", $1);          

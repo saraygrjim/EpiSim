@@ -13,7 +13,7 @@
 using namespace std;
 
 #define FPS        10
-#define MAX_NEIGH  8
+#define MAX_NEIGH  12
 
 void timerCallback(int);
 void displayCallback();
