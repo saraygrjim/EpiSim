@@ -123,7 +123,7 @@ general:        header   properties         { }
                 ;
 
 /*------------------ header ------------------*/
-header:         neighbourhood n_cells time { }
+header:         n_cells neighbourhood  time { }
                 ;
 
 neighbourhood:   /*lambda*/                 {   sprintf (temp, "int neighType  = NEUMANN;\n");
