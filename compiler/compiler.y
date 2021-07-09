@@ -273,7 +273,7 @@ rules:            rule                          { sprintf(temp, "%s \n", $1);
                                                   printf ("%s", temp); }
                 ;
 
-rule:             RULE '{' CONDITION ':' conditions EFFECT ':'  effects '}'   { sprintf(temp, "\nif( %s ){ \n %s \n }\n", $5, $8);
+rule:             RULE '{' CONDITION ':' conditions EFFECT ':'  effects '}'   { sprintf(temp, "\nif( %s ){ \n %s \n continue; \n }\n", $5, $8);
                                                                                 $$ = generate_string(temp);
                                                                                }
                 ;

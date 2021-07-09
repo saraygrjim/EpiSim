@@ -1,5 +1,6 @@
 ngh MOORE
 ticks 100
+
 global double probability  = 0.6 
 global int daysToInfect = 4
 prop bool alive = true

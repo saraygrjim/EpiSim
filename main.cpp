@@ -60,7 +60,7 @@ int main(int argc, char **argv){
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
-    glutInitWindowSize(1000,1000);
+    glutInitWindowSize(500,500);
     glutCreateWindow("Epidemic Simulation");
     glutDisplayFunc(displayCallback);
     glutReshapeFunc(reshapeCallback);

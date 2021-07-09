@@ -3,7 +3,7 @@
 #define MAXSIZE 20
 
 
-//Nodo utilizado para la lista enlazada
+// Nodo utilizado para la lista enlazada
 
 typedef struct node {
     char name[MAXSIZE];
