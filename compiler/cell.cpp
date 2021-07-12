@@ -20,27 +20,27 @@
 // };
 
 
-Cell::Cell (){
-    alive         = true;
-    state         = 0;
-    infected      = false;       // If the cell is infected or not
+// Cell::Cell (){
+//     alive         = true;
+//     state         = 0;
+//     infected      = false;       // If the cell is infected or not
 
-    //Parámetros a partir de aquí
-    incubation    = -1;          // Days of incubation before the cell is infectious
-    duration      = -1;          // How many days to finish and recover or to get worse
-    inmunity      = -1;          // How inmune the cell is to infection after recovery or not
-    medication    = false;       // If the cell has taken its medication or not
-    quarantined   = false;       // If the cell is in quarantine
-    quaratineDays = -1;
-}
+//     //Parámetros a partir de aquí
+//     incubation    = -1;          // Days of incubation before the cell is infectious
+//     duration      = -1;          // How many days to finish and recover or to get worse
+//     inmunity      = -1;          // How inmune the cell is to infection after recovery or not
+//     medication    = false;       // If the cell has taken its medication or not
+//     quarantined   = false;       // If the cell is in quarantine
+//     quaratineDays = -1;
+// }
 
-//Cell become infected  
-void Cell::infect(int incubation, int duration){
-    infected   = true;
-    state      = 1;
-    incubation = incubation;
-    duration   = duration;
-}
+// //Cell become infected  
+// void Cell::infect(int incubation, int duration){
+//     infected   = true;
+//     state      = 1;
+//     incubation = incubation;
+//     duration   = duration;
+// }
 
 // // Cell become recovered
 // void recover(int inmunity){
