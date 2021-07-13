@@ -11,6 +11,7 @@
 #define MOORE_T         0
 #define NEUMANN_T       1
 #define EXTENDED_T      2
+
 // Types of variables
 #define GLOBAL_T        0
 #define CELL_T          1
@@ -110,11 +111,8 @@ char * toUpper(char aux[]);
 
 %%
                                           
-program:                        { section = GLOBAL_T;  
-                                  printf ("/*GLOBAL_PROPERTIES*/\n\n"); 
-                                }
-                general         { printf ("\n/*CELL_PROPERTIES*/\n\n"); }
-                cell            { printf ("\n/*RULES*/\n\n"); }
+program:        general         { }
+                cell            { }
                 rules           { }
                 ;
 
