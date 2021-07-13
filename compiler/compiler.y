@@ -849,7 +849,7 @@ int main ()
 
 
 
-char *generateCellClass(){
+void generateCellClass(){
   char construct[2048];
   char assignment[2048];
   sprintf(construct, "class Cell{ \n public: \n bool alive; \n int state; \n bool infected;  \n ");
@@ -857,9 +857,16 @@ char *generateCellClass(){
 
   nodeList *p = List; //Pointer
   while(p->next != NULL){
-    if(type2 == CELL_T){
-        strcat(construct, "%s %s;\n", p->type, p->name);
-        strcat(assignment, "%s = %s;\n", p->name, p->defValue);
+    if(p->type2 == CELL_T){
+        strcat(construct, p->type);
+        strcat(construct, " ");
+        strcat(construct, p->name);
+        strcat(construct, ";\n");
+
+        strcat(assignment, p->name);
+        strcat(assignment, " = ");
+        strcat(assignment, p->defValue);
+        strcat(assignment, ";\n");
     }
     p = p->next;
   }
@@ -868,6 +875,6 @@ char *generateCellClass(){
   strcat(assignment, "}\n void Cell::infect(int incubation, int duration){ \n     infected   = true; \n     state      = 1; \n     incubation = incubation; \n     duration   = duration; \n } \n  ");
 
 
-  strcat(construct, "%s", assignment);
-  return construct;
+  strcat(construct, assignment);
+  // return construct;
 }

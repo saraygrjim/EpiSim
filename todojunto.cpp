@@ -25,7 +25,6 @@ using std::vector;
 #define QUARANTINE    4
 #define DIE           5
 
-
 // For the simulation
 int days       = 170;  // Days to simulate
 int neighType  = NEUMANN;
@@ -80,7 +79,8 @@ Cell::Cell (){
     quaratineDays = -1;
 }
 
-//Cell become infected  
+// Esto hay que ver como hacerlo y que variables tienen que existir si o si y cosas así
+// Cell become infected  
 void Cell::infect(int incubation, int duration){
     infected   = true;
     state      = 1;
