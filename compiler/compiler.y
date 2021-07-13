@@ -11,6 +11,7 @@
 #define MOORE_T         0
 #define NEUMANN_T       1
 #define EXTENDED_T      2
+
 // Types of variables
 #define GLOBAL_T        0
 #define CELL_T          1
@@ -19,17 +20,22 @@
 int  memoria [26];         	// Se define una zona de memoria para las variables 
 char temp [2048];
 char identif[2048];
+char define[2048];
+char drawCell[2048];
 int  counter = 0;
 nodeList *List;              // Lista enlazada para almacenar variables
-int neighborhood_type = NEUMANN_T;
+int neighborhoodType = NEUMANN_T;
 int section = GLOBAL_T;
 
+char searchFunction [] = "bool search(int** neighbours, int state, vector<vector<Cell>> &cells){ \n int i = 0; \n int x = neighbours[i][0]; \n int y = neighbours[i][1]; \n bool found = false; \n while (found == false && i < MAX_NEIGH){  \n if (x != -1){ \n     if(cells[x][y].state == state && (duration - cells[x][y].duration) >= daysToInfect){ \n         found = true; \n     } \n } \n x = neighbours[i][0]; \n y = neighbours[i][1]; \n i++; \n } \n return found; \n }\n";
+char sumQuarantinedFunction [] = "int sum_quarantined(int** neighbours, vector<vector<Cell>> &cells){ \n int i = 0; \n int x = neighbours[i][0]; \n int y = neighbours[i][1]; \n int sum = 0; \n while (i < MAX_NEIGH){  \n     if(x != -1 && cells[x][y].quarantined){ \n         sum++; \n     } \n \n     x = neighbours[i][0]; \n     y = neighbours[i][1]; \n     i++; \n } \n return sum; \n }\n";
+char includes [] = "#include <GL/gl.h> \n #include <GL/glut.h> \n #include <stdio.h> \n #include <cstdlib> \n #include <stdlib.h> \n #include <time.h> \n #include <string.h> \n #include <iostream> \n #include \"sim.h\" \n #include \"grid.h\" \n #include <vector> \n  \n using namespace std; \n using std::vector; \n  \n #define MAX_NEIGH  12 \n";
 #define FF fflush(stdout);    // para forzar la impresion inmediata
 
 int  yylex();
 int  yyerror();
 int  yyparse();
-char *generate_string();
+char *generateString();
 char * toUpper(char aux[]);
 
 %}
@@ -56,7 +62,8 @@ char * toUpper(char aux[]);
 %token <valor>  NUMBER         // Todos los token tienen un tipo para la pila
 %token <cadena> PROP
 %token <cadena> RANDOM
-%token <cadena> RULE
+%token <cadena> IF
+%token <cadena> ELSE
 %token <cadena> STATE
 %token <cadena> STRING
 %token <cadena> TICKS
@@ -85,23 +92,25 @@ char * toUpper(char aux[]);
 %type  <cadena> header
 %type  <cadena> neighbourhood
 %type  <cadena> properties
-%type  <cadena> variable
-%type  <cadena> bool_value
-%type  <cadena> int_value
-%type  <cadena> double_value  
-%type  <cadena> cell_properties
+%type  <cadena> declaration
+%type  <cadena> boolValue 
+%type  <cadena> intValue 
+%type  <cadena> doubleValue   
+%type  <cadena> cellProperties
 %type  <cadena> states
 %type  <cadena> color
 %type  <cadena> state
 %type  <cadena> code
-%type  <cadena> rule
 %type  <cadena> rules
-%type  <cadena> conditions
-%type  <cadena> effects
-%type  <cadena> expresion
+%type  <cadena> assignment 
+%type  <cadena> expression
 %type  <cadena> termino
-%type  <cadena> operando 
+%type  <cadena> operand 
 %type  <cadena> position 
+%type  <cadena> beginIf 
+%type  <cadena> bodyIf 
+%type  <cadena> codeIf
+
 
 %right '='                    // es la ultima operacion que se debe realizar
 %left '+' '-'                 // menor orden de precedencia
@@ -110,11 +119,9 @@ char * toUpper(char aux[]);
 
 %%
                                           
-program:                        { section = GLOBAL_T;  
-                                  printf ("/*GLOBAL_PROPERTIES*/\n\n"); 
-                                }
-                general         { printf ("\n/*CELL_PROPERTIES*/\n\n"); }
-                cell            { printf ("\n/*RULES*/\n\n"); }
+program:                        { }
+                general         { }
+                cell            { }
                 rules           { }
                 ;
 
@@ -123,7 +130,7 @@ general:        header   properties         { }
                 ;
 
 /*------------------ header ------------------*/
-header:         n_cells neighbourhood  time { }
+header:         nCells neighbourhood  time { }
                 ;
 
 neighbourhood:   /*lambda*/                 {   sprintf (temp, "int neighType  = NEUMANN;\n");
@@ -132,24 +139,24 @@ neighbourhood:   /*lambda*/                 {   sprintf (temp, "int neighType  =
                 | NGH NEUMANN               { sprintf(temp, "%s", $2);
                                               sprintf (temp, "int neighType = %s;\n", toUpper(temp));
                                               printf ("%s", temp); 
-                                              neighborhood_type = NEUMANN_T; }
+                                              neighborhoodType = NEUMANN_T; }
 
                 | NGH MOORE                 { sprintf(temp, "%s", $2);
                                               sprintf (temp, "int neighType = %s;\n", toUpper(temp));
                                               printf ("%s", temp); 
-                                              neighborhood_type = MOORE_T; }
+                                              neighborhoodType = MOORE_T; }
 
                 | NGH EXTENDED              { sprintf(temp, "%s", $2);
                                               sprintf (temp, "int neighType = %s;\n", toUpper(temp));
                                               printf ("%s", temp); 
-                                              neighborhood_type = EXTENDED_T; }
+                                              neighborhoodType = EXTENDED_T; }
                 ;
 
-n_cells:         /*lambda*/                 { sprintf (temp, "int n = 100;\n");
-                                              printf ("%s", temp); } 
+nCells:         /*lambda*/                  { sprintf (temp, "#define N 100\n");
+                                              strcat ( define, temp); } 
 
-                | CELLS NUMBER              { sprintf (temp, "int n = %d;\n", $2);
-                                              printf ("%s", temp); }
+                | CELLS NUMBER              { sprintf (temp, "#define N %d\n", $2);
+                                              strcat ( define, temp); }
                 ;
 
 time:            /*lambda*/                 { sprintf (temp, "int days = 500;\n");
@@ -161,54 +168,60 @@ time:            /*lambda*/                 { sprintf (temp, "int days = 500;\n"
 
 /*------------------ properties ------------------*/
 
-properties:     GLOB  variable                    { }
-                | GLOB  variable  properties      { }
+properties:       GLOB  declaration                  { }
+                | GLOB  declaration  properties      { }
                 ;
 
 /*------------------ cell atributes ------------------*/ 
 
 cell:                                   { section = CELL_T; }
-                cell_properties         { section = STATE_T; } 
+                cellProperties          { section = STATE_T; } 
                 states                  { }    
                 ;
 
-/*------------------ cell_properties ------------------*/
+/*------------------ cellProperties ------------------*/
 
-cell_properties:      PROP  variable                       { }
-                    | PROP  variable  cell_properties      { }
+cellProperties:       PROP  declaration                       { }
+                    | PROP  declaration  cellProperties       { }
                     ;
 
 /*------------------ states ------------------*/
 // tengo que guardar los identificadores para introducirlos luego 
 
-states:         STATE IDENTIF color state               { if(Get($2) == NULL) { Add($2, "none", section); }
-                                                          else { yyerror("ERROR: Variable duplicada"); exit(1);}
-                                                          sprintf(temp, "%s", $2);
-                                                          char aux[1024];
-                                                          sprintf(aux, "#define %s %d\n", toUpper(temp), counter);
-                                                          strcat(identif, aux);
-                                                          printf ("%s", identif);
-                                                          sprintf(temp, "void drawCell(Cell cells[N][N]){ \n for (int i = 0; i < N; i++){ \n for (int j = 0; j < N; j++){ \n switch (cells[i][j].state){ \n case %s:\n glColor3f%s; \n break;\n %s } \n glRectd(i, j, i+1, j+1); \n }\n }\n  }\n ", toUpper(temp), $3, $4); 
-                                                          printf ("%s", temp); }
+states:         STATE IDENTIF color state               { if(Get($2) == NULL) { 
+                                                            Add($2, "none", section, " ", " "); 
+                                                            sprintf(temp, "%s", $2);
+                                                            char aux[1024];
+                                                            sprintf(aux, "#define %s %d\n", toUpper(temp), counter);
+                                                            strcat(define, aux);
+                                                            // printf ("%s", define);
+                                                            sprintf(temp, "void drawCell(Cell cells[N][N]){ \n for (int i = 0; i < N; i++){ \n for (int j = 0; j < N; j++){ \n switch (cells[i][j].state){ \n case %s:\n glColor3f%s; \n break;\n %s } \n glRectd(i, j, i+1, j+1); \n }\n }\n  }\n ", toUpper(temp), $3, $4); 
+                                                            printf ("%s", temp); 
+                                                          }
+                                                          else { yyerror("ERROR: Nombre de estado duplicado"); exit(1);}
+                                                        }
                 ;
 
-state:          /*lambda*/                              { sprintf(identif, "\n"); 
+state:          /*lambda*/                              { //sprintf(define, "\n"); 
                                                           sprintf(temp, " "); 
-                                                          $$ = generate_string(temp); }
+                                                          $$ = generateString(temp); }
 
-                | STATE IDENTIF color  state            { if(Get($2) == NULL) { Add($2, "none", section); }
+                | STATE IDENTIF color  state            { if(Get($2) == NULL) { 
+                                                            Add($2, "none", section, "", ""); 
+                                                            sprintf(temp, "%s", $2);
+                                                            char aux[1024];
+                                                            sprintf(aux, "#define %s %d\n", toUpper(temp), counter);
+                                                            strcat(define, aux);
+                                                            counter++;
+                                                            sprintf (temp, "case %s:\n glColor3f%s; \n break;\n %s",toUpper(temp), $3, $4);
+                                                            $$ = generateString(temp); 
+                                                          }
                                                           else { yyerror("ERROR: Variable duplicada"); exit(1);}
-                                                          sprintf(temp, "%s", $2);
-                                                          char aux[1024];
-                                                          sprintf(aux, "#define %s %d\n", toUpper(temp), counter);
-                                                          strcat(identif, aux);
-                                                          counter++;
-                                                          sprintf (temp, "case %s:\n glColor3f%s; \n break;\n %s",toUpper(temp), $3, $4);
-                                                          $$ = generate_string(temp);  }
+                                                       }
                 ;
 
 color:           '(' code ',' code ',' code ')'         { sprintf(temp, "(%s,%s,%s)", $2, $4, $6);
-                                                          $$ = generate_string(temp); }
+                                                          $$ = generateString(temp); }
                 ;
 
 code:        NUMBER '.' NUMBER                          { char *eptr;
@@ -216,159 +229,141 @@ code:        NUMBER '.' NUMBER                          { char *eptr;
                                                           double number = strtod(temp, &eptr);
                                                           if (number > 255.0) { sprintf(temp, "255");}
                                                           else { sprintf(temp, "%f", number); }
-                                                          $$ = generate_string(temp); }
+                                                          $$ = generateString(temp); }
 
             | NUMBER                                    { if($1 > 255) { sprintf(temp, "255"); } 
                                                           else { sprintf(temp, "%d", $1); }
-                                                          $$ = generate_string(temp); }
+                                                          $$ = generateString(temp); }
 
-/*----------------- variables --------------*/
+/*----------------- Declaration of variables --------------*/
 
-variable:         BOOL IDENTIF '=' bool_value       { if(Get($2) == NULL) { Add($2, "bool", section); }
+declaration:      BOOL IDENTIF '=' boolValue        { if(Get($2) == NULL) { Add($2, "bool", section, $4, $4); }
                                                       else { yyerror("ERROR: Variable duplicada"); exit(1);}
                                                       sprintf (temp, "%s %s = %s;\n", $1, $2, $4);
                                                       printf ("%s", temp); }
 
-                | INT IDENTIF '=' int_value         { if(Get($2) == NULL) { Add($2, "bool", section); }
+                | INT IDENTIF '=' intValue          { if(Get($2) == NULL) { Add($2, "bool", section, $4, $4); }
                                                       else { yyerror("ERROR: Variable duplicada"); exit(1); }
                                                       sprintf (temp, "%s %s = %s;\n", $1, $2, $4);
                                                       printf ("%s", temp); }
 
-                | DOUBLE IDENTIF '=' double_value   { if(Get($2) == NULL) { Add($2, "bool", section); }
+                | DOUBLE IDENTIF '=' doubleValue    { if(Get($2) == NULL) { Add($2, "bool", section, $4, $4); }
                                                       else { yyerror("ERROR: Variable duplicada"); exit(1); }
                                                       sprintf (temp, "%s %s = %s;\n", $1, $2, $4);
                                                       printf ("%s", temp); }
                 ;
 
-bool_value:      /*lambda*/                     {  sprintf (temp, "false");
-                                                   $$ = generate_string(temp); } 
-
-                | TRUE                          {  sprintf (temp, "%s", $1);
-                                                   $$ = generate_string(temp); }
-
-                | FALSE                         {  sprintf (temp, "%s", $1);
-                                                   $$ = generate_string(temp); }
-                ;
-
-int_value:       /*lambda*/                     {  sprintf (temp, "-1");
-                                                   $$ = generate_string(temp); } // -1 default 
-
-                | NUMBER                        {  sprintf (temp, "%d", $1);
-                                                   $$ = generate_string(temp); } 
-                ;
-
-double_value:    /*lambda*/                     {  sprintf (temp, "0.0");
-                                                   $$ = generate_string(temp); } // 0.0 default
-
-                | NUMBER '.' NUMBER             {  sprintf (temp, "%d.%d", $1, $3);
-                                                   $$ = generate_string(temp); }
-
-                | NUMBER                        {  sprintf (temp, "%d.0", $1);
-                                                   $$ = generate_string(temp); }
-                ;
-rules:            rule                          { sprintf(temp, "%s \n", $1);
-                                                printf ("%s", temp); }
+/*-------- Rules  --------*/ 
+rules:            beginIf                       { sprintf(temp, "%s \n", $1);
+                                                  printf ("%s", temp); }
                                                 
-                | rule rules                    { sprintf(temp, "%s \n %s", $1, $2);
+                | beginIf rules                 { sprintf(temp, "%s \n %s", $1, $2);
                                                   printf ("%s", temp); }
                 ;
 
-rule:             RULE '{' CONDITION ':' conditions EFFECT ':'  effects '}'   { sprintf(temp, "\nif( %s ){ \n %s \n continue; \n }\n", $5, $8);
-                                                                                $$ = generate_string(temp);
-                                                                               }
-                ;
 
-conditions:       expresion                   { sprintf(temp, "%s", $1);
-                                                $$ = generate_string(temp); }
+beginIf:     IF '(' expression ')' '{' bodyIf                     { sprintf (temp, "if( %s ) {\n %s ", $3, $6);
+                                                                    $$ = generateString(temp);
+                                                                  } 
+            ;
 
-                | expresion ';' conditions    { sprintf(temp, "%s && %s", $1, $3);
-                                                $$ = generate_string(temp); }
-                ;
+bodyIf:       codeIf '}'                                            { sprintf(temp, "%s \n}\n",$1);
+                                                                    $$ = generateString(temp);
+                                                                  }  
 
-effects:          IDENTIF '=' expresion                   { nodeList *p = Get($1);
-                                                            if(p == NULL) { 
-                                                              sprintf(temp, "ERROR: Variable %s doesn't exist", $1);          
-                                                              yyerror(temp);
-                                                              exit(1);
-                                                            } else {
-                                                              if(p->type2 == CELL_T){
-                                                                sprintf(temp, "cells[i][j].%s = %s; ", $1, $3);
-                                                                $$ = generate_string(temp); 
-                                                              } else if(p->type2 == GLOBAL_T) {
-                                                                sprintf(temp, "%s = %s; ", $1, $3);
-                                                                $$ = generate_string(temp); 
+            | codeIf '}'  ELSE IF '(' expression ')' '{'  bodyIf     { sprintf(temp, "%s \n} else if ( %s ) {\n %s", $1, $6, $9);
+                                                                    $$ = generateString(temp);
+                                                                  } 
+            
+            | codeIf '}'  ELSE '{'  codeIf  '}'                       { sprintf(temp, "%s \n} else {\n %s \n}", $1, $5);
+                                                                    $$ = generateString(temp);
+                                                                  } 
+            ;
+
+codeIf:        /* lambda */                           {   sprintf(temp, " ");
+                                                        $$ = generateString(temp);
+                                                      }
+            | assignment codeIf                       {   sprintf(temp, "%s \n %s", $1, $2);
+                                                        $$ = generateString(temp);} 
+
+            | beginIf codeIf                          {  sprintf(temp, "%s \n %s", $1, $2);
+                                                        $$ = generateString(temp);} 
+            ;
+
+/*-------- Assigning values ​​to variables --------*/
+assignment:      IDENTIF '=' expression ';'                 { nodeList *p = Get($1);
+                                                              if(p == NULL) { 
+                                                                sprintf(temp, "ERROR: Variable %s doesn't exist", $1);          
+                                                                yyerror(temp);
+                                                                exit(1);
+                                                              } else {
+                                                                if(p->type2 == CELL_T){
+                                                                  // strcpy(p->actualValue, $3);
+                                                                  sprintf(temp, "cells[i][j].%s = %s; ", $1, $3);
+                                                                  $$ = generateString(temp); 
+                                                                } else if(p->type2 == GLOBAL_T) {
+                                                                  // strcpy(p->actualValue, $3);
+                                                                  sprintf(temp, "%s = %s; ", $1, $3);
+                                                                  $$ = generateString(temp); 
+                                                                }
                                                               }
                                                             }
-                                                          }
-                | IDENTIF '=' expresion ';' effects       { nodeList *p = Get($1);
-                                                            if(p == NULL) { 
-                                                              sprintf(temp, "ERROR: Variable %s doesn't exist", $1);          
-                                                              yyerror(temp);
-                                                              exit(1);
-                                                            } else {
-                                                              if(p->type2 == CELL_T){
-                                                                sprintf(temp, "cells[i][j].%s = %s; \n %s", $1, $3, $5);
-                                                                $$ = generate_string(temp); 
-                                                              } else if(p->type2 == GLOBAL_T) {
-                                                                sprintf(temp, "%s = %s; \n %s", $1, $3, $5);
-                                                                $$ = generate_string(temp); 
-                                                              }
-                                                            }
-                                                          }
                 ;
 
-expresion:        termino                       { } 
-                | expresion '+' expresion       { sprintf(temp, "%s + %s", $1, $3);
-                                                  $$ = generate_string(temp); }
+/*-------- Math expressions --------*/
+expression:        termino                        { } 
+                | expression '+' expression       { sprintf(temp, "%s + %s", $1, $3);
+                                                    $$ = generateString(temp); }
 
-                | expresion '-' expresion       { sprintf(temp, "%s - %s", $1, $3);
-                                                  $$ = generate_string(temp); }
+                | expression '-' expression       { sprintf(temp, "%s - %s", $1, $3);
+                                                    $$ = generateString(temp); }
 
-                | expresion '*' expresion       { sprintf(temp, "%s * %s", $1, $3);
-                                                  $$ = generate_string(temp); }
+                | expression '*' expression       { sprintf(temp, "%s * %s", $1, $3);
+                                                    $$ = generateString(temp); }
 
-                | expresion '/' expresion       { sprintf(temp, "%s / %s", $1, $3);
-                                                  $$ = generate_string(temp); }
+                | expression '/' expression       { sprintf(temp, "%s / %s", $1, $3);
+                                                    $$ = generateString(temp); }
 
-                | expresion '%' expresion       { sprintf(temp, "%s %% %s", $1, $3);
-                                                  $$ = generate_string(temp); }
+                | expression '%' expression       { sprintf(temp, "%s %% %s", $1, $3);
+                                                    $$ = generateString(temp); }
 
-                | expresion AND expresion       { sprintf(temp, "%s && %s", $1, $3);
-                                                  $$ = generate_string(temp); }
+                | expression AND expression       { sprintf(temp, "%s && %s", $1, $3);
+                                                    $$ = generateString(temp); }
 
-                | expresion OR  expresion       { sprintf(temp, "%s || %s", $1, $3);
-                                                  $$ = generate_string(temp); }
+                | expression OR  expression       { sprintf(temp, "%s || %s", $1, $3);
+                                                    $$ = generateString(temp); }
 
-                | expresion NEQ expresion       { sprintf(temp, "%s != %s", $1, $3);
-                                                  $$ = generate_string(temp); }
+                | expression NEQ expression       { sprintf(temp, "%s != %s", $1, $3);
+                                                    $$ = generateString(temp); }
 
-                | expresion EQ expresion        { sprintf(temp, "%s == %s", $1, $3);
-                                                  $$ = generate_string(temp); }
+                | expression EQ expression        { sprintf(temp, "%s == %s", $1, $3);
+                                                    $$ = generateString(temp); }
 
-                | expresion '<' expresion       { sprintf(temp, "%s < %s", $1, $3);
-                                                  $$ = generate_string(temp); }
+                | expression '<' expression       { sprintf(temp, "%s < %s", $1, $3);
+                                                    $$ = generateString(temp); }
 
-                | expresion LE expresion        { sprintf(temp, "%s <= %s", $1, $3);
-                                                  $$ = generate_string(temp); }
+                | expression LE expression        { sprintf(temp, "%s <= %s", $1, $3);
+                                                  $$ = generateString(temp); }
 
-                | expresion '>' expresion       { sprintf(temp, "%s > %s", $1, $3);
-                                                  $$ = generate_string(temp); }
+                | expression '>' expression       { sprintf(temp, "%s > %s", $1, $3);
+                                                    $$ = generateString(temp); }
 
-                | expresion GE expresion        { sprintf(temp, "%s >= %s", $1, $3);
-                                                  $$ = generate_string(temp); }
+                | expression GE expression        { sprintf(temp, "%s >= %s", $1, $3);
+                                                    $$ = generateString(temp); }
 
                 ; 
 
 // pendiente
-termino:          operando                             { ; }
+termino:          operand                              { ; }
                 // | '+' NUMBER %prec SIGNO_UNARIO     {sprintf (temp, " +%d", $2);
-                //                                     $$ = generate_string(temp);}
+                //                                     $$ = generateString(temp);}
     
                 // | '-' NUMBER %prec SIGNO_UNARIO     {sprintf (temp, " -%d", $2);
-                //                                     $$ = generate_string(temp);}
+                //                                     $$ = generateString(temp);}
                 ;
     
-operando:        IDENTIF                            { nodeList *p = Get($1);
+/*-------- Atomic operators --------*/
+operand:        IDENTIF                             { nodeList *p = Get($1);
                                                       if(p == NULL) { 
                                                         sprintf(temp, "ERROR: Variable %s doesn't exist", $1);          
                                                         yyerror(temp);
@@ -376,28 +371,28 @@ operando:        IDENTIF                            { nodeList *p = Get($1);
                                                       } else {
                                                         if(p->type2 == CELL_T){
                                                           sprintf(temp, "cells[i][j].%s", $1);
-                                                          $$ = generate_string(temp); 
+                                                          $$ = generateString(temp); 
                                                         } else if (p->type2 == GLOBAL_T){
                                                           sprintf(temp, "%s", $1);
-                                                          $$ = generate_string(temp); 
+                                                          $$ = generateString(temp); 
                                                         } else if (p->type2 == STATE_T){
                                                           sprintf(temp, "%s", toUpper($1));
-                                                          $$ = generate_string(temp);
+                                                          $$ = generateString(temp);
                                                         }
                                                       }
                                                     }
 
                 | RANDOM                            { sprintf(temp, "((rand() %% (1001))/1000.0)");
-                                                      $$ = generate_string(temp); }
+                                                      $$ = generateString(temp); }
                                                     
-                | int_value                         { sprintf(temp, "%s", $1);
-                                                      $$ = generate_string(temp); }
+                | intValue                          { sprintf(temp, "%s", $1);
+                                                      $$ = generateString(temp); }
 
-                | double_value                      { sprintf(temp, "%s", $1);
-                                                      $$ = generate_string(temp); }
+                | doubleValue                       { sprintf(temp, "%s", $1);
+                                                      $$ = generateString(temp); }
 
-                | bool_value                        { sprintf(temp, "%s", $1);
-                                                      $$ = generate_string(temp); }
+                | boolValue                         { sprintf(temp, "%s", $1);
+                                                      $$ = generateString(temp); }
                                                       
                 // | NGH '.' IDENTIF                   { }
 
@@ -409,7 +404,7 @@ operando:        IDENTIF                            { nodeList *p = Get($1);
                                                       } else {
                                                         if(p->type2 == CELL_T){
                                                           sprintf(temp, "cells%s.%s", $3, $6);
-                                                          $$ = generate_string(temp); 
+                                                          $$ = generateString(temp); 
                                                         } else {
                                                           sprintf(temp, "ERROR: %s not a cell variable", $6);          
                                                           yyerror(temp);
@@ -418,84 +413,114 @@ operando:        IDENTIF                            { nodeList *p = Get($1);
                                                       } 
                                                     } // Añadir tambien lo de que al menos uno haga algo????
     
-                | '(' expresion ')'                 { sprintf(temp, "( %s )", $2);
-                                                      $$ = generate_string(temp); }
+                | '(' expression ')'                 { sprintf(temp, "( %s )", $2);
+                                                      $$ = generateString(temp); }
                 ;
 
+/*-------- Values depend on the type of variable --------*/
+boolValue:       /*lambda*/                     {  sprintf (temp, "false");
+                                                   $$ = generateString(temp); } 
+
+                | TRUE                          {  sprintf (temp, "%s", $1);
+                                                   $$ = generateString(temp); }
+
+                | FALSE                         {  sprintf (temp, "%s", $1);
+                                                   $$ = generateString(temp); }
+                ;
+
+intValue:        /*lambda*/                     {  sprintf (temp, "-1");
+                                                   $$ = generateString(temp); } // -1 default 
+
+                | NUMBER                        {  sprintf (temp, "%d", $1);
+                                                   $$ = generateString(temp); } 
+                ;
+
+doubleValue:     /*lambda*/                     {  sprintf (temp, "0.0");
+                                                   $$ = generateString(temp); } // 0.0 default
+
+                | NUMBER '.' NUMBER             {  sprintf (temp, "%d.%d", $1, $3);
+                                                   $$ = generateString(temp); }
+
+                | NUMBER                        {  sprintf (temp, "%d.0", $1);
+                                                   $$ = generateString(temp); }
+                ;
+
+
+/*-------- Positions of neighborhood --------*/
 position:         NORTH                             { sprintf(temp,"[c_neighbours[1][0]][c_neighbours[1][1]]");
-                                                      $$ = generate_string(temp);}
+                                                      $$ = generateString(temp);}
                 | SOUTH                             { sprintf(temp,"[c_neighbours[5][0]][c_neighbours[5][1]]");
-                                                      $$ = generate_string(temp);}
+                                                      $$ = generateString(temp);}
                 | WEST                              { sprintf(temp,"[c_neighbours[7][0]][c_neighbours[7][1]]");
-                                                      $$ = generate_string(temp);}
+                                                      $$ = generateString(temp);}
                 | EAST                              { sprintf(temp,"[c_neighbours[3][0]][c_neighbours[3][1]]");
-                                                      $$ = generate_string(temp);}
-                | NORTHEAST                         { if(neighborhood_type != NEUMANN_T) {
+                                                      $$ = generateString(temp);}
+                | NORTHEAST                         { if(neighborhoodType != NEUMANN_T) {
                                                         sprintf(temp,"[c_neighbours[2][0]][c_neighbours[2][1]]");
-                                                        $$ = generate_string(temp);
+                                                        $$ = generateString(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", $1);          
                                                           yyerror(temp);
                                                           exit(1);
                                                       }
                                                     }
-                | NORTHWEST                         { if(neighborhood_type != NEUMANN_T) {
+                | NORTHWEST                         { if(neighborhoodType != NEUMANN_T) {
                                                         sprintf(temp,"[c_neighbours[0][0]][c_neighbours[0][1]]");
-                                                        $$ = generate_string(temp);
+                                                        $$ = generateString(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", $1);          
                                                           yyerror(temp);
                                                           exit(1);
                                                       }
                                                     }
-                | SOUTHEAST                         { if(neighborhood_type != NEUMANN_T) {
+                | SOUTHEAST                         { if(neighborhoodType != NEUMANN_T) {
                                                         sprintf(temp,"[c_neighbours[4][0]][c_neighbours[4][1]]");
-                                                        $$ = generate_string(temp);
+                                                        $$ = generateString(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", $1);          
                                                           yyerror(temp);
                                                           exit(1);
                                                       }
                                                     }
-                | SOUTHWEST                         { if(neighborhood_type != NEUMANN_T) {
+                | SOUTHWEST                         { if(neighborhoodType != NEUMANN_T) {
                                                         sprintf(temp,"[c_neighbours[6][0]][c_neighbours[6][1]]");
-                                                        $$ = generate_string(temp);
+                                                        $$ = generateString(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", $1);          
                                                           yyerror(temp);
                                                           exit(1);
                                                       }
                                                     }
-                | NORTHP                            { if(neighborhood_type != NEUMANN_T && neighborhood_type != MOORE) {
+                | NORTHP                            { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
                                                         sprintf(temp,"[c_neighbours[8][0]][c_neighbours[8][1]]");
-                                                        $$ = generate_string(temp);
+                                                        $$ = generateString(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", $1);          
                                                           yyerror(temp);
                                                           exit(1);
                                                       }
                                                     }
-                | SOUTHP                            { if(neighborhood_type != NEUMANN_T && neighborhood_type != MOORE) {
+                | SOUTHP                            { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
                                                         sprintf(temp,"[c_neighbours[10][0]][c_neighbours[10][1]]");
-                                                        $$ = generate_string(temp);
+                                                        $$ = generateString(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", $1);          
                                                           yyerror(temp);
                                                           exit(1);
                                                       }
                                                     }
-                | WESTP                             { if(neighborhood_type != NEUMANN_T && neighborhood_type != MOORE) {
+                | WESTP                             { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
                                                         sprintf(temp,"[c_neighbours[11][0]][c_neighbours[11][1]]");
-                                                        $$ = generate_string(temp);
+                                                        $$ = generateString(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", $1);          
                                                           yyerror(temp);
                                                           exit(1);
                                                       }
                                                     }
-                | EASTP                             { if(neighborhood_type != NEUMANN_T && neighborhood_type != MOORE) {
+                | EASTP                             { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
                                                         sprintf(temp,"[c_neighbours[9][0]][c_neighbours[9][1]]");
-                                                        $$ = generate_string(temp);
+                                                        $$ = generateString(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", $1);          
                                                           yyerror(temp);
@@ -516,7 +541,7 @@ char *message ;
     printf ( "\n") ;	// bye
 }
 
-char *mi_malloc (int nbytes)       // n bytes reserved in dynamic memory
+char *miMalloc (int nbytes)       // n bytes reserved in dynamic memory
 {
     char *p ;
     static long int nb = 0;        // quantify memory
@@ -539,12 +564,12 @@ char *mi_malloc (int nbytes)       // n bytes reserved in dynamic memory
 /**************************** Stop Words Section ***************************/
 /***************************************************************************/
 
-typedef struct s_stop_words { // for the stop words of C
+typedef struct sStopWords { // for the stop words of C
     char *name ;
     int token ;
-} t_stop ;
+} tStop ;
 
-t_stop stop_words [] = { // Stop words
+tStop stopWords [] = { // Stop words
     "bool",         BOOL,
     "cells",        CELLS,
     "condition",    CONDITION,
@@ -558,7 +583,8 @@ t_stop stop_words [] = { // Stop words
     "neumann",      NEUMANN,
     "ngh",          NGH,
     "prop",         PROP,
-    "rule",         RULE,
+    "if",           IF,
+    "else",         ELSE,
     "random",       RANDOM,
     "state",        STATE,
     "ticks",        TICKS,
@@ -584,13 +610,13 @@ t_stop stop_words [] = { // Stop words
      NULL,          0               // End of table
 } ;
 
-t_stop *search_stop_word (char *symbol_name)
+tStop *searchStopWord (char *symbol_name)
 {                                  // Search in the stop word table
     int i ;
-    t_stop *sim ;
+    tStop *sim ;
 
     i = 0 ;
-    sim = stop_words ;
+    sim = stopWords ;
     while (sim [i].name != NULL) {
            if (strcmp (sim [i].name, symbol_name) == 0) {
                                          // strcmp(a, b) return == 0 if a==b
@@ -607,13 +633,13 @@ t_stop *search_stop_word (char *symbol_name)
 /************************* Lexicographical Analizer ************************/
 /***************************************************************************/
 
-char *generate_string (char *name)     // copy the argument in a string 
+char *generateString (char *name)     // copy the argument in a string 
 {                                      
       char *p ;
       int l ;
 
       l = strlen (name)+1 ;
-      p = (char *) mi_malloc (l) ;
+      p = (char *) miMalloc (l) ;
       strcpy (p, name) ;
 
       return p ;
@@ -627,7 +653,7 @@ int yylex ()
     unsigned char cc ;
     char ops_expandibles [] = "!<=>|%&+-/*" ;
     char cadena [256] ;
-    t_stop *symbol ;
+    tStop *symbol ;
 
     do {
     	c = getchar () ;
@@ -670,9 +696,9 @@ int yylex ()
          } while (c != '\"' && i < 255) ;
          if (i == 256) {
               printf ("AVISO: string con mas de 255 caracteres en linea %d\n", n_line) ;
-         }		 	// habria que leer hasta el siguiente " , pero, y si falta?
+         }		 	
          cadena [--i] = '\0' ;
-         yylval.cadena = generate_string (cadena) ;
+         yylval.cadena = generateString (cadena) ;
          return (STRING) ;
     }
 
@@ -693,8 +719,8 @@ int yylex ()
          cadena [i] = '\0' ;
          ungetc (c, stdin) ;
 
-         yylval.cadena = generate_string (cadena) ;
-         symbol = search_stop_word (yylval.cadena) ;
+         yylval.cadena = generateString (cadena) ;
+         symbol = searchStopWord (yylval.cadena) ;
          if (symbol == NULL) {    // isn't an stop word -> identif 
 //               printf ("\nDEV: IDENTIF %s\n", yylval.cadena) ;    // PARA DEPURAR
                return (IDENTIF) ;
@@ -707,13 +733,13 @@ int yylex ()
     if (strchr (ops_expandibles, c) != NULL) { // busca c en ops_expandibles
          cc = getchar () ;
          sprintf (cadena, "%c%c", (char) c, (char) cc) ;
-         symbol = search_stop_word (cadena) ;
+         symbol = searchStopWord (cadena) ;
          if (symbol == NULL) {
               ungetc (cc, stdin) ;
               yylval.cadena = NULL ;
               return (c) ;
          } else {
-              yylval.cadena = generate_string (cadena) ; // aunque no se use
+              yylval.cadena = generateString (cadena) ; // aunque no se use
               return (symbol->token) ;
          }
     }
@@ -729,7 +755,7 @@ int yylex ()
 
 char * toUpper(char aux[]){
     char *word;
-    word = generate_string(aux);
+    word = generateString(aux);
     // counter for the loop
     int i = 0;
 
@@ -747,7 +773,7 @@ char * toUpper(char aux[]){
 
 /*-----------Fuctions for the Linked List----------*/
 // Add new nodes to the list
-int Add(char *name, char *type, int type2)
+int Add(char *name, char *type, int type2, char *defValue, char *actualValue)
 {
     nodeList *p = List;    //Pointer
 
@@ -763,6 +789,8 @@ int Add(char *name, char *type, int type2)
     nodeList *newNode = (nodeList *)malloc(sizeof(nodeList));
     strcpy(newNode->name, name);
     strcpy(newNode->type, type);
+    strcpy(newNode->defValue, defValue);
+    strcpy(newNode->actualValue, actualValue);
     newNode->type2 = type2;
     newNode->next = List;    
     List = newNode;
@@ -821,3 +849,25 @@ int main ()
 
 
 
+char *generateCellClass(){
+  char construct[2048];
+  char assignment[2048];
+  sprintf(construct, "class Cell{ \n public: \n bool alive; \n int state; \n bool infected;  \n ");
+  sprintf(assignment, "Cell::Cell (){\n alive = true;\n state  = 0;\n infected = false;\n ");
+
+  nodeList *p = List; //Pointer
+  while(p->next != NULL){
+    if(type2 == CELL_T){
+        strcat(construct, "%s %s;\n", p->type, p->name);
+        strcat(assignment, "%s = %s;\n", p->name, p->defValue);
+    }
+    p = p->next;
+  }
+
+  strcat(construct, " Cell(); \n void infect(int, int); \n }; \n");
+  strcat(assignment, "}\n void Cell::infect(int incubation, int duration){ \n     infected   = true; \n     state      = 1; \n     incubation = incubation; \n     duration   = duration; \n } \n  ");
+
+
+  strcat(construct, "%s", assignment);
+  return construct;
+}

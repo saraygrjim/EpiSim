@@ -1,13 +1,7 @@
-/*GLOBAL_PROPERTIES*/
-
 int neighType = MOORE;
-int n = 100;
 int days = 100;
 double probability = 0.6;
 int daystoinfect = 4;
-
-/*CELL_PROPERTIES*/
-
 bool alive = true;
 int days = 1;
 double probability_c = 0.7;
@@ -33,13 +27,10 @@ void drawCell(Cell cells[N][N]){
  }
  }
   }
- 
-/*RULES*/
-
-
-if( cells[i][j].alive == true && probability > ((rand() % (1001))/1000.0) ){ 
- cells[i][j].days = cells[i][j].days + 1; 
- daystoinfect = daystoinfect + 1; 
+ if( cells[i][j].alive == true && probability > ((rand() % (1001))/1000.0) ) {
+ cells[i][j].days = cells[i][j].days + 1;  
+ daystoinfect = daystoinfect + 1;  
  cells[i][j].probability_c = ADIOS;  
- }
- 
+   
+}
+  

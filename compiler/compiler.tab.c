@@ -82,30 +82,31 @@
      NUMBER = 271,
      PROP = 272,
      RANDOM = 273,
-     RULE = 274,
-     STATE = 275,
-     STRING = 276,
-     TICKS = 277,
-     TRUE = 278,
-     AND = 279,
-     OR = 280,
-     EQ = 281,
-     NEQ = 282,
-     LE = 283,
-     GE = 284,
-     NORTH = 285,
-     SOUTH = 286,
-     WEST = 287,
-     EAST = 288,
-     NORTHEAST = 289,
-     NORTHWEST = 290,
-     SOUTHEAST = 291,
-     SOUTHWEST = 292,
-     NORTHP = 293,
-     SOUTHP = 294,
-     WESTP = 295,
-     EASTP = 296,
-     SIGNO_UNARIO = 297
+     IF = 274,
+     ELSE = 275,
+     STATE = 276,
+     STRING = 277,
+     TICKS = 278,
+     TRUE = 279,
+     AND = 280,
+     OR = 281,
+     EQ = 282,
+     NEQ = 283,
+     LE = 284,
+     GE = 285,
+     NORTH = 286,
+     SOUTH = 287,
+     WEST = 288,
+     EAST = 289,
+     NORTHEAST = 290,
+     NORTHWEST = 291,
+     SOUTHEAST = 292,
+     SOUTHWEST = 293,
+     NORTHP = 294,
+     SOUTHP = 295,
+     WESTP = 296,
+     EASTP = 297,
+     SIGNO_UNARIO = 298
    };
 #endif
 /* Tokens.  */
@@ -125,30 +126,31 @@
 #define NUMBER 271
 #define PROP 272
 #define RANDOM 273
-#define RULE 274
-#define STATE 275
-#define STRING 276
-#define TICKS 277
-#define TRUE 278
-#define AND 279
-#define OR 280
-#define EQ 281
-#define NEQ 282
-#define LE 283
-#define GE 284
-#define NORTH 285
-#define SOUTH 286
-#define WEST 287
-#define EAST 288
-#define NORTHEAST 289
-#define NORTHWEST 290
-#define SOUTHEAST 291
-#define SOUTHWEST 292
-#define NORTHP 293
-#define SOUTHP 294
-#define WESTP 295
-#define EASTP 296
-#define SIGNO_UNARIO 297
+#define IF 274
+#define ELSE 275
+#define STATE 276
+#define STRING 277
+#define TICKS 278
+#define TRUE 279
+#define AND 280
+#define OR 281
+#define EQ 282
+#define NEQ 283
+#define LE 284
+#define GE 285
+#define NORTH 286
+#define SOUTH 287
+#define WEST 288
+#define EAST 289
+#define NORTHEAST 290
+#define NORTHWEST 291
+#define SOUTHEAST 292
+#define SOUTHWEST 293
+#define NORTHP 294
+#define SOUTHP 295
+#define WESTP 296
+#define EASTP 297
+#define SIGNO_UNARIO 298
 
 
 
@@ -168,6 +170,7 @@
 #define MOORE_T         0
 #define NEUMANN_T       1
 #define EXTENDED_T      2
+
 // Types of variables
 #define GLOBAL_T        0
 #define CELL_T          1
@@ -176,17 +179,22 @@
 int  memoria [26];         	// Se define una zona de memoria para las variables 
 char temp [2048];
 char identif[2048];
+char define[2048];
+char drawCell[2048];
 int  counter = 0;
 nodeList *List;              // Lista enlazada para almacenar variables
-int neighborhood_type = NEUMANN_T;
+int neighborhoodType = NEUMANN_T;
 int section = GLOBAL_T;
 
+char searchFunction [] = "bool search(int** neighbours, int state, vector<vector<Cell>> &cells){ \n int i = 0; \n int x = neighbours[i][0]; \n int y = neighbours[i][1]; \n bool found = false; \n while (found == false && i < MAX_NEIGH){  \n if (x != -1){ \n     if(cells[x][y].state == state && (duration - cells[x][y].duration) >= daysToInfect){ \n         found = true; \n     } \n } \n x = neighbours[i][0]; \n y = neighbours[i][1]; \n i++; \n } \n return found; \n }\n";
+char sumQuarantinedFunction [] = "int sum_quarantined(int** neighbours, vector<vector<Cell>> &cells){ \n int i = 0; \n int x = neighbours[i][0]; \n int y = neighbours[i][1]; \n int sum = 0; \n while (i < MAX_NEIGH){  \n     if(x != -1 && cells[x][y].quarantined){ \n         sum++; \n     } \n \n     x = neighbours[i][0]; \n     y = neighbours[i][1]; \n     i++; \n } \n return sum; \n }\n";
+char includes [] = "#include <GL/gl.h> \n #include <GL/glut.h> \n #include <stdio.h> \n #include <cstdlib> \n #include <stdlib.h> \n #include <time.h> \n #include <string.h> \n #include <iostream> \n #include \"sim.h\" \n #include \"grid.h\" \n #include <vector> \n  \n using namespace std; \n using std::vector; \n  \n #define MAX_NEIGH  12 \n";
 #define FF fflush(stdout);    // para forzar la impresion inmediata
 
 int  yylex();
 int  yyerror();
 int  yyparse();
-char *generate_string();
+char *generateString();
 char * toUpper(char aux[]);
 
 
@@ -211,13 +219,13 @@ char * toUpper(char aux[]);
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 37 "compiler.y"
+#line 43 "compiler.y"
 {                      // El tipo de la pila tiene caracter dual
       int valor ;             // - valor numerico de un NUMBER
       char *cadena ;          // - para pasar los nombres de IDENTIFES
 }
 /* Line 193 of yacc.c.  */
-#line 221 "compiler.tab.c"
+#line 229 "compiler.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -230,7 +238,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 234 "compiler.tab.c"
+#line 242 "compiler.tab.c"
 
 #ifdef short
 # undef short
@@ -445,20 +453,20 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  3
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   171
+#define YYLAST   206
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  59
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  31
+#define YYNNTS  32
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  80
+#define YYNRULES  83
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  142
+#define YYNSTATES  151
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   297
+#define YYMAXUTOK   298
 
 #define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -470,15 +478,15 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,    56,     2,     2,
-      48,    50,    45,    43,    49,    44,    51,    46,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,    53,    55,
-      57,    42,    58,     2,     2,     2,     2,     2,     2,     2,
+      49,    51,    46,    44,    50,    45,    52,    47,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,    55,
+      57,    43,    58,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,    52,     2,    54,     2,     2,     2,     2,
+       2,     2,     2,    53,     2,    54,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -495,67 +503,68 @@ static const yytype_uint8 yytranslate[] =
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-      35,    36,    37,    38,    39,    40,    41,    47
+      35,    36,    37,    38,    39,    40,    41,    42,    48
 };
 
 #if YYDEBUG
 /* YYPRHS[YYN] -- Index of the first RHS symbol of rule number YYN in
    YYRHS.  */
-static const yytype_uint8 yyprhs[] =
+static const yytype_uint16 yyprhs[] =
 {
        0,     0,     3,     4,     5,     6,    13,    16,    20,    21,
       24,    27,    30,    31,    34,    35,    38,    41,    45,    46,
       47,    52,    55,    59,    64,    65,    70,    78,    82,    84,
-      89,    94,    99,   100,   102,   104,   105,   107,   108,   112,
-     114,   116,   119,   129,   131,   135,   139,   145,   147,   151,
-     155,   159,   163,   167,   171,   175,   179,   183,   187,   191,
-     195,   199,   201,   203,   205,   207,   209,   211,   218,   222,
-     224,   226,   228,   230,   232,   234,   236,   238,   240,   242,
-     244
+      89,    94,    99,   101,   104,   111,   114,   124,   131,   132,
+     135,   138,   143,   145,   149,   153,   157,   161,   165,   169,
+     173,   177,   181,   185,   189,   193,   197,   199,   201,   203,
+     205,   207,   209,   216,   220,   221,   223,   225,   226,   228,
+     229,   233,   235,   237,   239,   241,   243,   245,   247,   249,
+     251,   253,   255,   257
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
       60,     0,    -1,    -1,    -1,    -1,    61,    64,    62,    70,
-      63,    82,    -1,    65,    69,    -1,    66,    67,    68,    -1,
+      63,    79,    -1,    65,    69,    -1,    67,    66,    68,    -1,
       -1,    15,    14,    -1,    15,    13,    -1,    15,     7,    -1,
-      -1,     4,    16,    -1,    -1,    22,    16,    -1,    10,    78,
+      -1,     4,    16,    -1,    -1,    23,    16,    -1,    10,    78,
       -1,    10,    78,    69,    -1,    -1,    -1,    71,    73,    72,
-      74,    -1,    17,    78,    -1,    17,    78,    73,    -1,    20,
-      11,    76,    75,    -1,    -1,    20,    11,    76,    75,    -1,
-      48,    77,    49,    77,    49,    77,    50,    -1,    16,    51,
-      16,    -1,    16,    -1,     3,    11,    42,    79,    -1,    12,
-      11,    42,    80,    -1,     6,    11,    42,    81,    -1,    -1,
-      23,    -1,     9,    -1,    -1,    16,    -1,    -1,    16,    51,
-      16,    -1,    16,    -1,    83,    -1,    83,    82,    -1,    19,
-      52,     5,    53,    84,     8,    53,    85,    54,    -1,    86,
-      -1,    86,    55,    84,    -1,    11,    42,    86,    -1,    11,
-      42,    86,    55,    85,    -1,    87,    -1,    86,    43,    86,
-      -1,    86,    44,    86,    -1,    86,    45,    86,    -1,    86,
-      46,    86,    -1,    86,    56,    86,    -1,    86,    24,    86,
-      -1,    86,    25,    86,    -1,    86,    27,    86,    -1,    86,
-      26,    86,    -1,    86,    57,    86,    -1,    86,    28,    86,
-      -1,    86,    58,    86,    -1,    86,    29,    86,    -1,    88,
-      -1,    11,    -1,    18,    -1,    80,    -1,    81,    -1,    79,
-      -1,    15,    48,    89,    50,    51,    11,    -1,    48,    86,
-      50,    -1,    30,    -1,    31,    -1,    32,    -1,    33,    -1,
-      34,    -1,    35,    -1,    36,    -1,    37,    -1,    38,    -1,
-      39,    -1,    40,    -1,    41,    -1
+      74,    -1,    17,    78,    -1,    17,    78,    73,    -1,    21,
+      11,    76,    75,    -1,    -1,    21,    11,    76,    75,    -1,
+      49,    77,    50,    77,    50,    77,    51,    -1,    16,    52,
+      16,    -1,    16,    -1,     3,    11,    43,    87,    -1,    12,
+      11,    43,    88,    -1,     6,    11,    43,    89,    -1,    80,
+      -1,    80,    79,    -1,    19,    49,    84,    51,    53,    81,
+      -1,    82,    54,    -1,    82,    54,    20,    19,    49,    84,
+      51,    53,    81,    -1,    82,    54,    20,    53,    82,    54,
+      -1,    -1,    83,    82,    -1,    80,    82,    -1,    11,    43,
+      84,    55,    -1,    85,    -1,    84,    44,    84,    -1,    84,
+      45,    84,    -1,    84,    46,    84,    -1,    84,    47,    84,
+      -1,    84,    56,    84,    -1,    84,    25,    84,    -1,    84,
+      26,    84,    -1,    84,    28,    84,    -1,    84,    27,    84,
+      -1,    84,    57,    84,    -1,    84,    29,    84,    -1,    84,
+      58,    84,    -1,    84,    30,    84,    -1,    86,    -1,    11,
+      -1,    18,    -1,    88,    -1,    89,    -1,    87,    -1,    15,
+      49,    90,    51,    52,    11,    -1,    49,    84,    51,    -1,
+      -1,    24,    -1,     9,    -1,    -1,    16,    -1,    -1,    16,
+      52,    16,    -1,    16,    -1,    31,    -1,    32,    -1,    33,
+      -1,    34,    -1,    35,    -1,    36,    -1,    37,    -1,    38,
+      -1,    39,    -1,    40,    -1,    41,    -1,    42,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   113,   113,   116,   117,   113,   122,   126,   129,   132,
-     137,   142,   148,   151,   155,   158,   164,   165,   170,   171,
-     170,   177,   178,   184,   195,   199,   210,   214,   221,   227,
-     232,   237,   243,   246,   249,   253,   256,   260,   263,   266,
-     269,   272,   276,   281,   284,   288,   303,   320,   321,   324,
-     327,   330,   333,   336,   339,   342,   345,   348,   351,   354,
-     357,   363,   371,   390,   393,   396,   399,   404,   421,   425,
-     427,   429,   431,   433,   442,   451,   460,   469,   478,   487,
-     496
+       0,   122,   122,   123,   124,   122,   129,   133,   136,   139,
+     144,   149,   155,   158,   162,   165,   171,   172,   177,   178,
+     177,   184,   185,   191,   205,   209,   223,   227,   234,   240,
+     245,   250,   257,   260,   265,   270,   274,   278,   283,   286,
+     289,   294,   314,   315,   318,   321,   324,   327,   330,   333,
+     336,   339,   342,   345,   348,   351,   357,   366,   385,   388,
+     391,   394,   399,   416,   421,   424,   427,   431,   434,   438,
+     441,   444,   450,   452,   454,   456,   458,   467,   476,   485,
+     494,   503,   512,   521
 };
 #endif
 
@@ -566,16 +575,17 @@ static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "BOOL", "CELLS", "CONDITION", "DOUBLE",
   "EXTENDED", "EFFECT", "FALSE", "GLOB", "IDENTIF", "INT", "MOORE",
-  "NEUMANN", "NGH", "NUMBER", "PROP", "RANDOM", "RULE", "STATE", "STRING",
-  "TICKS", "TRUE", "AND", "OR", "EQ", "NEQ", "LE", "GE", "NORTH", "SOUTH",
-  "WEST", "EAST", "NORTHEAST", "NORTHWEST", "SOUTHEAST", "SOUTHWEST",
-  "NORTHP", "SOUTHP", "WESTP", "EASTP", "'='", "'+'", "'-'", "'*'", "'/'",
-  "SIGNO_UNARIO", "'('", "','", "')'", "'.'", "'{'", "':'", "'}'", "';'",
-  "'%'", "'<'", "'>'", "$accept", "program", "@1", "@2", "@3", "general",
-  "header", "neighbourhood", "n_cells", "time", "properties", "cell", "@4",
-  "@5", "cell_properties", "states", "state", "color", "code", "variable",
-  "bool_value", "int_value", "double_value", "rules", "rule", "conditions",
-  "effects", "expresion", "termino", "operando", "position", 0
+  "NEUMANN", "NGH", "NUMBER", "PROP", "RANDOM", "IF", "ELSE", "STATE",
+  "STRING", "TICKS", "TRUE", "AND", "OR", "EQ", "NEQ", "LE", "GE", "NORTH",
+  "SOUTH", "WEST", "EAST", "NORTHEAST", "NORTHWEST", "SOUTHEAST",
+  "SOUTHWEST", "NORTHP", "SOUTHP", "WESTP", "EASTP", "'='", "'+'", "'-'",
+  "'*'", "'/'", "SIGNO_UNARIO", "'('", "','", "')'", "'.'", "'{'", "'}'",
+  "';'", "'%'", "'<'", "'>'", "$accept", "program", "@1", "@2", "@3",
+  "general", "header", "neighbourhood", "nCells", "time", "properties",
+  "cell", "@4", "@5", "cellProperties", "states", "state", "color", "code",
+  "declaration", "rules", "beginIf", "bodyIf", "codeIf", "assignment",
+  "expression", "termino", "operand", "boolValue", "intValue",
+  "doubleValue", "position", 0
 };
 #endif
 
@@ -588,8 +598,8 @@ static const yytype_uint16 yytoknum[] =
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
      275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
      285,   286,   287,   288,   289,   290,   291,   292,   293,   294,
-     295,   296,    61,    43,    45,    42,    47,   297,    40,    44,
-      41,    46,   123,    58,   125,    59,    37,    60,    62
+     295,   296,   297,    61,    43,    45,    42,    47,   298,    40,
+      44,    41,    46,   123,   125,    59,    37,    60,    62
 };
 # endif
 
@@ -599,12 +609,12 @@ static const yytype_uint8 yyr1[] =
        0,    59,    61,    62,    63,    60,    64,    65,    66,    66,
       66,    66,    67,    67,    68,    68,    69,    69,    71,    72,
       70,    73,    73,    74,    75,    75,    76,    77,    77,    78,
-      78,    78,    79,    79,    79,    80,    80,    81,    81,    81,
-      82,    82,    83,    84,    84,    85,    85,    86,    86,    86,
-      86,    86,    86,    86,    86,    86,    86,    86,    86,    86,
-      86,    87,    88,    88,    88,    88,    88,    88,    88,    89,
-      89,    89,    89,    89,    89,    89,    89,    89,    89,    89,
-      89
+      78,    78,    79,    79,    80,    81,    81,    81,    82,    82,
+      82,    83,    84,    84,    84,    84,    84,    84,    84,    84,
+      84,    84,    84,    84,    84,    84,    85,    86,    86,    86,
+      86,    86,    86,    86,    87,    87,    87,    88,    88,    89,
+      89,    89,    90,    90,    90,    90,    90,    90,    90,    90,
+      90,    90,    90,    90
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
@@ -613,12 +623,12 @@ static const yytype_uint8 yyr2[] =
        0,     2,     0,     0,     0,     6,     2,     3,     0,     2,
        2,     2,     0,     2,     0,     2,     2,     3,     0,     0,
        4,     2,     3,     4,     0,     4,     7,     3,     1,     4,
-       4,     4,     0,     1,     1,     0,     1,     0,     3,     1,
-       1,     2,     9,     1,     3,     3,     5,     1,     3,     3,
-       3,     3,     3,     3,     3,     3,     3,     3,     3,     3,
-       3,     1,     1,     1,     1,     1,     1,     6,     3,     1,
-       1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
-       1
+       4,     4,     1,     2,     6,     2,     9,     6,     0,     2,
+       2,     4,     1,     3,     3,     3,     3,     3,     3,     3,
+       3,     3,     3,     3,     3,     3,     1,     1,     1,     1,
+       1,     1,     6,     3,     0,     1,     1,     0,     1,     0,
+       3,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+       1,     1,     1,     1
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -626,61 +636,63 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       2,     0,     8,     1,     0,     3,     0,    12,    11,    10,
-       9,    18,     0,     6,     0,    14,     4,     0,     0,     0,
-       0,    16,    13,     0,     7,     0,     0,    19,     0,     0,
-       0,    17,    15,     0,     5,    40,    21,     0,    32,    37,
-      35,     0,    41,    22,     0,    20,    34,    33,    29,    39,
-      31,    36,    30,     0,     0,     0,    32,     0,    24,    38,
-      62,     0,    36,    63,    32,    66,    64,    65,     0,    43,
-      47,    61,    28,     0,     0,    23,     0,     0,     0,    32,
-      32,    32,    32,    32,    32,    32,    32,    32,    32,    32,
-      32,    32,    32,     0,     0,     0,    69,    70,    71,    72,
-      73,    74,    75,    76,    77,    78,    79,    80,     0,    68,
-       0,    53,    54,    56,    55,    58,    60,    48,    49,    50,
-      51,    44,    52,    57,    59,    27,     0,    24,     0,     0,
-       0,     0,    25,     0,    32,    42,     0,    67,    45,    26,
-       0,    46
+       2,     0,    12,     1,     0,     3,     0,     8,    13,    18,
+       0,     6,     0,    14,     4,     0,     0,     0,     0,    16,
+      11,    10,     9,     0,     7,     0,     0,    19,     0,     0,
+       0,    17,    15,     0,     5,    32,    21,     0,    64,    69,
+      67,    64,    33,    22,     0,    20,    66,    65,    29,    71,
+      31,    68,    30,    57,     0,    68,    58,    64,     0,    42,
+      56,    61,    59,    60,     0,     0,     0,     0,    64,    64,
+      64,    64,    64,    64,    64,    64,    64,    64,     0,    64,
+      64,    64,     0,    24,    70,    72,    73,    74,    75,    76,
+      77,    78,    79,    80,    81,    82,    83,     0,    63,    48,
+      49,    51,    50,    53,    55,    43,    44,    45,    46,    38,
+      47,    52,    54,    28,     0,     0,    23,     0,     0,    38,
+      34,     0,    38,     0,     0,     0,     0,    64,    40,    35,
+      39,    27,     0,    24,    62,     0,     0,     0,    25,    41,
+       0,    38,     0,    64,     0,    26,     0,    37,     0,    38,
+      36
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
-static const yytype_int16 yydefgoto[] =
+static const yytype_int8 yydefgoto[] =
 {
-      -1,     1,     2,    11,    25,     5,     6,     7,    15,    24,
-      13,    16,    17,    37,    27,    45,    75,    58,    73,    21,
-      65,    66,    67,    34,    35,    68,   130,    69,    70,    71,
-     108
+      -1,     1,     2,     9,    25,     5,     6,    13,     7,    24,
+      11,    14,    15,    37,    27,    45,   116,    83,   114,    19,
+      34,   119,   120,   121,   122,    58,    59,    60,    61,    62,
+      63,    97
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -93
+#define YYPACT_NINF -97
 static const yytype_int16 yypact[] =
 {
-     -93,     1,   -12,   -93,   104,   -93,    -6,     2,   -93,   -93,
-     -93,   -93,    91,   -93,   -11,   -15,   -93,    -3,    14,    19,
-      23,    -6,   -93,    16,   -93,    25,    91,   -93,    -9,    27,
-      29,   -93,   -93,    34,   -93,    25,    -3,    52,    28,    57,
-      58,    70,   -93,   -93,    76,   -93,   -93,   -93,   -93,    44,
-     -93,   -93,   -93,    43,    50,    88,    20,    89,    95,   -93,
-     -93,    68,    44,   -93,    20,   -93,   -93,   -93,   127,    21,
-     -93,   -93,    85,    90,   126,   -93,    22,    56,    87,    20,
-      20,    20,    20,    20,    20,    20,    20,    20,    20,    20,
-      20,    20,    20,   122,    89,    50,   -93,   -93,   -93,   -93,
-     -93,   -93,   -93,   -93,   -93,   -93,   -93,   -93,    96,   -93,
-     130,    99,    99,    99,    99,    99,    99,   105,   105,   -16,
-     -16,   -93,    99,    99,    99,   -93,    98,    95,    97,   107,
-     100,    89,   -93,   141,    20,   -93,   103,   -93,    64,   -93,
-     130,   -93
+     -97,     2,    -1,   -97,   -12,   -97,    11,    15,   -97,   -97,
+      54,   -97,    75,    10,   -97,    34,    41,    42,    44,    11,
+     -97,   -97,   -97,    40,   -97,    48,    54,   -97,    26,    28,
+      29,   -97,   -97,    35,   -97,    48,    34,    62,    30,    69,
+      71,    16,   -97,   -97,    79,   -97,   -97,   -97,   -97,    47,
+     -97,   -97,   -97,   -97,    43,    47,   -97,    16,    17,   -97,
+     -97,   -97,   -97,   -97,    45,    77,    86,    51,    16,    16,
+      16,    16,    16,    16,    16,    16,    16,    16,    38,    16,
+      16,    16,    84,    80,   -97,   -97,   -97,   -97,   -97,   -97,
+     -97,   -97,   -97,   -97,   -97,   -97,   -97,    52,   -97,   142,
+     142,   142,   142,   142,   142,   148,   148,   -20,   -20,    39,
+     142,   142,   142,    53,    56,    93,   -97,    64,    96,    39,
+     -97,    90,    39,   129,    84,    45,   135,    16,   -97,   127,
+     -97,   -97,    98,    80,   -97,    85,   -18,    84,   -97,   -97,
+     100,    39,    99,    16,    97,   -97,   108,   -97,   103,    39,
+     -97
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-     -93,   -93,   -93,   -93,   -93,   -93,   -93,   -93,   -93,   -93,
-     137,   -93,   -93,   -93,   123,   -93,    33,    69,   -92,   139,
-     128,   129,   131,   132,   -93,    79,    31,   -64,   -93,   -93,
-     -93
+     -97,   -97,   -97,   -97,   -97,   -97,   -97,   -97,   -97,   -97,
+     138,   -97,   -97,   -97,   122,   -97,    27,    36,   -96,   136,
+     128,    24,    31,   -93,   -97,   -57,   -97,   -97,   141,   143,
+     145,   -97
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -690,67 +702,74 @@ static const yytype_int16 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-      77,     3,   126,     4,    12,    22,    14,    23,    79,    80,
-      81,    82,    83,    84,    26,   111,   112,   113,   114,   115,
-     116,   117,   118,   119,   120,    28,   122,   123,   124,    46,
-      29,    60,    32,    38,    30,    61,    62,    46,    63,   136,
-      90,    91,    92,    47,    33,    79,    80,    81,    82,    83,
-      84,    47,    96,    97,    98,    99,   100,   101,   102,   103,
-     104,   105,   106,   107,    85,    86,    87,    88,    64,    39,
-     138,    40,    44,    49,    51,    53,    89,    90,    91,    92,
-      79,    80,    81,    82,    83,    84,    41,    54,    79,    80,
-      81,    82,    83,    84,    18,    55,    56,    19,    57,    85,
-      86,    87,    88,    20,    59,    72,   109,    85,    86,    87,
-      88,     8,    90,    91,    92,    74,    76,     9,    10,   140,
-      90,    91,    92,    79,    80,    81,    82,    83,    84,    79,
-      80,    81,    82,    83,    84,    78,    93,    95,   125,    94,
-     110,   129,    85,    86,    87,    88,   128,   131,   133,   134,
-      87,    88,   137,   139,   135,    90,    91,    92,    31,    43,
-     132,    90,    91,    92,   127,    36,    48,    42,   121,    52,
-      50,   141
+      67,   140,     3,     4,     8,    68,    69,    70,    71,    72,
+      73,    99,   100,   101,   102,   103,   104,   105,   106,   107,
+     108,    10,   110,   111,   112,    46,   128,    53,   132,   130,
+      12,    54,    55,    23,    56,   141,    79,    80,    81,    46,
+      47,   142,    68,    69,    70,    71,    72,    73,   144,    35,
+     118,    26,    28,    29,    47,    30,    32,    16,    33,    35,
+      17,    74,    75,    76,    77,    57,    18,    33,    78,    38,
+     135,    39,    40,    79,    80,    81,    68,    69,    70,    71,
+      72,    73,    20,    44,    41,    49,   146,    51,    21,    22,
+      64,   109,    66,    84,    82,    74,    75,    76,    77,    65,
+     113,   115,    98,   117,   125,   123,   124,    79,    80,    81,
+      68,    69,    70,    71,    72,    73,   126,    85,    86,    87,
+      88,    89,    90,    91,    92,    93,    94,    95,    96,    74,
+      75,    76,    77,    68,    69,    70,    71,    72,    73,   127,
+     139,    79,    80,    81,   129,   131,   134,   136,   137,   143,
+     145,   147,    74,    75,    76,    77,   149,    31,    43,   148,
+     138,   133,    36,    42,    79,    80,    81,    68,    69,    70,
+      71,    72,    73,    68,    69,    70,    71,    72,    73,    48,
+     150,     0,     0,    52,    50,     0,    74,    75,    76,    77,
+       0,     0,     0,     0,    76,    77,     0,     0,    79,    80,
+      81,     0,     0,     0,    79,    80,    81
 };
 
-static const yytype_uint8 yycheck[] =
+static const yytype_int16 yycheck[] =
 {
-      64,     0,    94,    15,    10,    16,     4,    22,    24,    25,
-      26,    27,    28,    29,    17,    79,    80,    81,    82,    83,
-      84,    85,    86,    87,    88,    11,    90,    91,    92,     9,
-      11,    11,    16,    42,    11,    15,    16,     9,    18,   131,
-      56,    57,    58,    23,    19,    24,    25,    26,    27,    28,
-      29,    23,    30,    31,    32,    33,    34,    35,    36,    37,
-      38,    39,    40,    41,    43,    44,    45,    46,    48,    42,
-     134,    42,    20,    16,    16,     5,    55,    56,    57,    58,
-      24,    25,    26,    27,    28,    29,    52,    11,    24,    25,
-      26,    27,    28,    29,     3,    51,    53,     6,    48,    43,
-      44,    45,    46,    12,    16,    16,    50,    43,    44,    45,
-      46,     7,    56,    57,    58,    20,    48,    13,    14,    55,
-      56,    57,    58,    24,    25,    26,    27,    28,    29,    24,
-      25,    26,    27,    28,    29,     8,    51,    11,    16,    49,
-      53,    11,    43,    44,    45,    46,    50,    49,    51,    42,
-      45,    46,    11,    50,    54,    56,    57,    58,    21,    36,
-     127,    56,    57,    58,    95,    26,    38,    35,    89,    40,
-      39,   140
+      57,    19,     0,     4,    16,    25,    26,    27,    28,    29,
+      30,    68,    69,    70,    71,    72,    73,    74,    75,    76,
+      77,    10,    79,    80,    81,     9,   119,    11,   124,   122,
+      15,    15,    16,    23,    18,    53,    56,    57,    58,     9,
+      24,   137,    25,    26,    27,    28,    29,    30,   141,    25,
+      11,    17,    11,    11,    24,    11,    16,     3,    19,    35,
+       6,    44,    45,    46,    47,    49,    12,    19,    51,    43,
+     127,    43,    43,    56,    57,    58,    25,    26,    27,    28,
+      29,    30,     7,    21,    49,    16,   143,    16,    13,    14,
+      11,    53,    49,    16,    49,    44,    45,    46,    47,    52,
+      16,    21,    51,    51,    11,    52,    50,    56,    57,    58,
+      25,    26,    27,    28,    29,    30,    52,    31,    32,    33,
+      34,    35,    36,    37,    38,    39,    40,    41,    42,    44,
+      45,    46,    47,    25,    26,    27,    28,    29,    30,    43,
+      55,    56,    57,    58,    54,    16,    11,    20,    50,    49,
+      51,    54,    44,    45,    46,    47,    53,    19,    36,    51,
+     133,   125,    26,    35,    56,    57,    58,    25,    26,    27,
+      28,    29,    30,    25,    26,    27,    28,    29,    30,    38,
+     149,    -1,    -1,    40,    39,    -1,    44,    45,    46,    47,
+      -1,    -1,    -1,    -1,    46,    47,    -1,    -1,    56,    57,
+      58,    -1,    -1,    -1,    56,    57,    58
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,    60,    61,     0,    15,    64,    65,    66,     7,    13,
-      14,    62,    10,    69,     4,    67,    70,    71,     3,     6,
-      12,    78,    16,    22,    68,    63,    17,    73,    11,    11,
-      11,    69,    16,    19,    82,    83,    78,    72,    42,    42,
-      42,    52,    82,    73,    20,    74,     9,    23,    79,    16,
-      81,    16,    80,     5,    11,    51,    53,    48,    76,    16,
-      11,    15,    16,    18,    48,    79,    80,    81,    84,    86,
-      87,    88,    16,    77,    20,    75,    48,    86,     8,    24,
-      25,    26,    27,    28,    29,    43,    44,    45,    46,    55,
-      56,    57,    58,    51,    49,    11,    30,    31,    32,    33,
-      34,    35,    36,    37,    38,    39,    40,    41,    89,    50,
-      53,    86,    86,    86,    86,    86,    86,    86,    86,    86,
-      86,    84,    86,    86,    86,    16,    77,    76,    50,    11,
-      85,    49,    75,    51,    42,    54,    77,    11,    86,    50,
-      55,    85
+       0,    60,    61,     0,     4,    64,    65,    67,    16,    62,
+      10,    69,    15,    66,    70,    71,     3,     6,    12,    78,
+       7,    13,    14,    23,    68,    63,    17,    73,    11,    11,
+      11,    69,    16,    19,    79,    80,    78,    72,    43,    43,
+      43,    49,    79,    73,    21,    74,     9,    24,    87,    16,
+      89,    16,    88,    11,    15,    16,    18,    49,    84,    85,
+      86,    87,    88,    89,    11,    52,    49,    84,    25,    26,
+      27,    28,    29,    30,    44,    45,    46,    47,    51,    56,
+      57,    58,    49,    76,    16,    31,    32,    33,    34,    35,
+      36,    37,    38,    39,    40,    41,    42,    90,    51,    84,
+      84,    84,    84,    84,    84,    84,    84,    84,    84,    53,
+      84,    84,    84,    16,    77,    21,    75,    51,    11,    80,
+      81,    82,    83,    52,    50,    11,    52,    43,    82,    54,
+      82,    16,    77,    76,    11,    84,    20,    50,    75,    55,
+      19,    53,    77,    49,    82,    51,    84,    54,    51,    53,
+      81
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1565,413 +1584,380 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 113 "compiler.y"
-    { section = GLOBAL_T;  
-                                  printf ("/*GLOBAL_PROPERTIES*/\n\n"); 
-                                ;}
-    break;
-
-  case 3:
-#line 116 "compiler.y"
-    { printf ("\n/*CELL_PROPERTIES*/\n\n"); ;}
-    break;
-
-  case 4:
-#line 117 "compiler.y"
-    { printf ("\n/*RULES*/\n\n"); ;}
-    break;
-
-  case 5:
-#line 118 "compiler.y"
-    { ;}
-    break;
-
-  case 6:
 #line 122 "compiler.y"
     { ;}
     break;
 
+  case 3:
+#line 123 "compiler.y"
+    { ;}
+    break;
+
+  case 4:
+#line 124 "compiler.y"
+    { ;}
+    break;
+
+  case 5:
+#line 125 "compiler.y"
+    { ;}
+    break;
+
+  case 6:
+#line 129 "compiler.y"
+    { ;}
+    break;
+
   case 7:
-#line 126 "compiler.y"
+#line 133 "compiler.y"
     { ;}
     break;
 
   case 8:
-#line 129 "compiler.y"
+#line 136 "compiler.y"
     {   sprintf (temp, "int neighType  = NEUMANN;\n");
                                                 printf ("%s", temp); ;}
     break;
 
   case 9:
-#line 132 "compiler.y"
+#line 139 "compiler.y"
     { sprintf(temp, "%s", (yyvsp[(2) - (2)].cadena));
                                               sprintf (temp, "int neighType = %s;\n", toUpper(temp));
                                               printf ("%s", temp); 
-                                              neighborhood_type = NEUMANN_T; ;}
+                                              neighborhoodType = NEUMANN_T; ;}
     break;
 
   case 10:
-#line 137 "compiler.y"
+#line 144 "compiler.y"
     { sprintf(temp, "%s", (yyvsp[(2) - (2)].cadena));
                                               sprintf (temp, "int neighType = %s;\n", toUpper(temp));
                                               printf ("%s", temp); 
-                                              neighborhood_type = MOORE_T; ;}
+                                              neighborhoodType = MOORE_T; ;}
     break;
 
   case 11:
-#line 142 "compiler.y"
+#line 149 "compiler.y"
     { sprintf(temp, "%s", (yyvsp[(2) - (2)].cadena));
                                               sprintf (temp, "int neighType = %s;\n", toUpper(temp));
                                               printf ("%s", temp); 
-                                              neighborhood_type = EXTENDED_T; ;}
+                                              neighborhoodType = EXTENDED_T; ;}
     break;
 
   case 12:
-#line 148 "compiler.y"
-    { sprintf (temp, "int n = 100;\n");
-                                              printf ("%s", temp); ;}
+#line 155 "compiler.y"
+    { sprintf (temp, "#define N 100\n");
+                                              strcat ( define, temp); ;}
     break;
 
   case 13:
-#line 151 "compiler.y"
-    { sprintf (temp, "int n = %d;\n", (yyvsp[(2) - (2)].valor));
-                                              printf ("%s", temp); ;}
+#line 158 "compiler.y"
+    { sprintf (temp, "#define N %d\n", (yyvsp[(2) - (2)].valor));
+                                              strcat ( define, temp); ;}
     break;
 
   case 14:
-#line 155 "compiler.y"
+#line 162 "compiler.y"
     { sprintf (temp, "int days = 500;\n");
                                               printf ("%s", temp); ;}
     break;
 
   case 15:
-#line 158 "compiler.y"
+#line 165 "compiler.y"
     { sprintf (temp, "int days = %d;\n", (yyvsp[(2) - (2)].valor));
                                               printf ("%s", temp); ;}
     break;
 
   case 16:
-#line 164 "compiler.y"
+#line 171 "compiler.y"
     { ;}
     break;
 
   case 17:
-#line 165 "compiler.y"
-    { ;}
-    break;
-
-  case 18:
-#line 170 "compiler.y"
-    { section = CELL_T; ;}
-    break;
-
-  case 19:
-#line 171 "compiler.y"
-    { section = STATE_T; ;}
-    break;
-
-  case 20:
 #line 172 "compiler.y"
     { ;}
     break;
 
-  case 21:
+  case 18:
 #line 177 "compiler.y"
+    { section = CELL_T; ;}
+    break;
+
+  case 19:
+#line 178 "compiler.y"
+    { section = STATE_T; ;}
+    break;
+
+  case 20:
+#line 179 "compiler.y"
+    { ;}
+    break;
+
+  case 21:
+#line 184 "compiler.y"
     { ;}
     break;
 
   case 22:
-#line 178 "compiler.y"
+#line 185 "compiler.y"
     { ;}
     break;
 
   case 23:
-#line 184 "compiler.y"
-    { if(Get((yyvsp[(2) - (4)].cadena)) == NULL) { Add((yyvsp[(2) - (4)].cadena), "none", section); }
-                                                          else { yyerror("ERROR: Variable duplicada"); exit(1);}
-                                                          sprintf(temp, "%s", (yyvsp[(2) - (4)].cadena));
-                                                          char aux[1024];
-                                                          sprintf(aux, "#define %s %d\n", toUpper(temp), counter);
-                                                          strcat(identif, aux);
-                                                          printf ("%s", identif);
-                                                          sprintf(temp, "void drawCell(Cell cells[N][N]){ \n for (int i = 0; i < N; i++){ \n for (int j = 0; j < N; j++){ \n switch (cells[i][j].state){ \n case %s:\n glColor3f%s; \n break;\n %s } \n glRectd(i, j, i+1, j+1); \n }\n }\n  }\n ", toUpper(temp), (yyvsp[(3) - (4)].cadena), (yyvsp[(4) - (4)].cadena)); 
-                                                          printf ("%s", temp); ;}
+#line 191 "compiler.y"
+    { if(Get((yyvsp[(2) - (4)].cadena)) == NULL) { 
+                                                            Add((yyvsp[(2) - (4)].cadena), "none", section, " ", " "); 
+                                                            sprintf(temp, "%s", (yyvsp[(2) - (4)].cadena));
+                                                            char aux[1024];
+                                                            sprintf(aux, "#define %s %d\n", toUpper(temp), counter);
+                                                            strcat(define, aux);
+                                                            printf ("%s", define);
+                                                            sprintf(temp, "void drawCell(Cell cells[N][N]){ \n for (int i = 0; i < N; i++){ \n for (int j = 0; j < N; j++){ \n switch (cells[i][j].state){ \n case %s:\n glColor3f%s; \n break;\n %s } \n glRectd(i, j, i+1, j+1); \n }\n }\n  }\n ", toUpper(temp), (yyvsp[(3) - (4)].cadena), (yyvsp[(4) - (4)].cadena)); 
+                                                            printf ("%s", temp); 
+                                                          }
+                                                          else { yyerror("ERROR: Nombre de estado duplicado"); exit(1);}
+                                                        ;}
     break;
 
   case 24:
-#line 195 "compiler.y"
-    { sprintf(identif, "\n"); 
+#line 205 "compiler.y"
+    { sprintf(define, "\n"); 
                                                           sprintf(temp, " "); 
-                                                          (yyval.cadena) = generate_string(temp); ;}
+                                                          (yyval.cadena) = generateString(temp); ;}
     break;
 
   case 25:
-#line 199 "compiler.y"
-    { if(Get((yyvsp[(2) - (4)].cadena)) == NULL) { Add((yyvsp[(2) - (4)].cadena), "none", section); }
+#line 209 "compiler.y"
+    { if(Get((yyvsp[(2) - (4)].cadena)) == NULL) { 
+                                                            Add((yyvsp[(2) - (4)].cadena), "none", section, "", ""); 
+                                                            sprintf(temp, "%s", (yyvsp[(2) - (4)].cadena));
+                                                            char aux[1024];
+                                                            sprintf(aux, "#define %s %d\n", toUpper(temp), counter);
+                                                            strcat(define, aux);
+                                                            counter++;
+                                                            sprintf (temp, "case %s:\n glColor3f%s; \n break;\n %s",toUpper(temp), (yyvsp[(3) - (4)].cadena), (yyvsp[(4) - (4)].cadena));
+                                                            (yyval.cadena) = generateString(temp); 
+                                                          }
                                                           else { yyerror("ERROR: Variable duplicada"); exit(1);}
-                                                          sprintf(temp, "%s", (yyvsp[(2) - (4)].cadena));
-                                                          char aux[1024];
-                                                          sprintf(aux, "#define %s %d\n", toUpper(temp), counter);
-                                                          strcat(identif, aux);
-                                                          counter++;
-                                                          sprintf (temp, "case %s:\n glColor3f%s; \n break;\n %s",toUpper(temp), (yyvsp[(3) - (4)].cadena), (yyvsp[(4) - (4)].cadena));
-                                                          (yyval.cadena) = generate_string(temp);  ;}
+                                                       ;}
     break;
 
   case 26:
-#line 210 "compiler.y"
+#line 223 "compiler.y"
     { sprintf(temp, "(%s,%s,%s)", (yyvsp[(2) - (7)].cadena), (yyvsp[(4) - (7)].cadena), (yyvsp[(6) - (7)].cadena));
-                                                          (yyval.cadena) = generate_string(temp); ;}
+                                                          (yyval.cadena) = generateString(temp); ;}
     break;
 
   case 27:
-#line 214 "compiler.y"
+#line 227 "compiler.y"
     { char *eptr;
                                                           sprintf(temp, " %d.%d", (yyvsp[(1) - (3)].valor), (yyvsp[(3) - (3)].valor));
                                                           double number = strtod(temp, &eptr);
                                                           if (number > 255.0) { sprintf(temp, "255");}
                                                           else { sprintf(temp, "%f", number); }
-                                                          (yyval.cadena) = generate_string(temp); ;}
+                                                          (yyval.cadena) = generateString(temp); ;}
     break;
 
   case 28:
-#line 221 "compiler.y"
+#line 234 "compiler.y"
     { if((yyvsp[(1) - (1)].valor) > 255) { sprintf(temp, "255"); } 
                                                           else { sprintf(temp, "%d", (yyvsp[(1) - (1)].valor)); }
-                                                          (yyval.cadena) = generate_string(temp); ;}
+                                                          (yyval.cadena) = generateString(temp); ;}
     break;
 
   case 29:
-#line 227 "compiler.y"
-    { if(Get((yyvsp[(2) - (4)].cadena)) == NULL) { Add((yyvsp[(2) - (4)].cadena), "bool", section); }
+#line 240 "compiler.y"
+    { if(Get((yyvsp[(2) - (4)].cadena)) == NULL) { Add((yyvsp[(2) - (4)].cadena), "bool", section, (yyvsp[(4) - (4)].cadena), (yyvsp[(4) - (4)].cadena)); }
                                                       else { yyerror("ERROR: Variable duplicada"); exit(1);}
                                                       sprintf (temp, "%s %s = %s;\n", (yyvsp[(1) - (4)].cadena), (yyvsp[(2) - (4)].cadena), (yyvsp[(4) - (4)].cadena));
                                                       printf ("%s", temp); ;}
     break;
 
   case 30:
-#line 232 "compiler.y"
-    { if(Get((yyvsp[(2) - (4)].cadena)) == NULL) { Add((yyvsp[(2) - (4)].cadena), "bool", section); }
+#line 245 "compiler.y"
+    { if(Get((yyvsp[(2) - (4)].cadena)) == NULL) { Add((yyvsp[(2) - (4)].cadena), "bool", section, (yyvsp[(4) - (4)].cadena), (yyvsp[(4) - (4)].cadena)); }
                                                       else { yyerror("ERROR: Variable duplicada"); exit(1); }
                                                       sprintf (temp, "%s %s = %s;\n", (yyvsp[(1) - (4)].cadena), (yyvsp[(2) - (4)].cadena), (yyvsp[(4) - (4)].cadena));
                                                       printf ("%s", temp); ;}
     break;
 
   case 31:
-#line 237 "compiler.y"
-    { if(Get((yyvsp[(2) - (4)].cadena)) == NULL) { Add((yyvsp[(2) - (4)].cadena), "bool", section); }
+#line 250 "compiler.y"
+    { if(Get((yyvsp[(2) - (4)].cadena)) == NULL) { Add((yyvsp[(2) - (4)].cadena), "bool", section, (yyvsp[(4) - (4)].cadena), (yyvsp[(4) - (4)].cadena)); }
                                                       else { yyerror("ERROR: Variable duplicada"); exit(1); }
                                                       sprintf (temp, "%s %s = %s;\n", (yyvsp[(1) - (4)].cadena), (yyvsp[(2) - (4)].cadena), (yyvsp[(4) - (4)].cadena));
                                                       printf ("%s", temp); ;}
     break;
 
   case 32:
-#line 243 "compiler.y"
-    {  sprintf (temp, "false");
-                                                   (yyval.cadena) = generate_string(temp); ;}
+#line 257 "compiler.y"
+    { sprintf(temp, "%s \n", (yyvsp[(1) - (1)].cadena));
+                                                  printf ("%s", temp); ;}
     break;
 
   case 33:
-#line 246 "compiler.y"
-    {  sprintf (temp, "%s", (yyvsp[(1) - (1)].cadena));
-                                                   (yyval.cadena) = generate_string(temp); ;}
-    break;
-
-  case 34:
-#line 249 "compiler.y"
-    {  sprintf (temp, "%s", (yyvsp[(1) - (1)].cadena));
-                                                   (yyval.cadena) = generate_string(temp); ;}
-    break;
-
-  case 35:
-#line 253 "compiler.y"
-    {  sprintf (temp, "-1");
-                                                   (yyval.cadena) = generate_string(temp); ;}
-    break;
-
-  case 36:
-#line 256 "compiler.y"
-    {  sprintf (temp, "%d", (yyvsp[(1) - (1)].valor));
-                                                   (yyval.cadena) = generate_string(temp); ;}
-    break;
-
-  case 37:
 #line 260 "compiler.y"
-    {  sprintf (temp, "0.0");
-                                                   (yyval.cadena) = generate_string(temp); ;}
-    break;
-
-  case 38:
-#line 263 "compiler.y"
-    {  sprintf (temp, "%d.%d", (yyvsp[(1) - (3)].valor), (yyvsp[(3) - (3)].valor));
-                                                   (yyval.cadena) = generate_string(temp); ;}
-    break;
-
-  case 39:
-#line 266 "compiler.y"
-    {  sprintf (temp, "%d.0", (yyvsp[(1) - (1)].valor));
-                                                   (yyval.cadena) = generate_string(temp); ;}
-    break;
-
-  case 40:
-#line 269 "compiler.y"
-    { sprintf(temp, "%s \n", (yyvsp[(1) - (1)].cadena));
-                                                printf ("%s", temp); ;}
-    break;
-
-  case 41:
-#line 272 "compiler.y"
     { sprintf(temp, "%s \n %s", (yyvsp[(1) - (2)].cadena), (yyvsp[(2) - (2)].cadena));
                                                   printf ("%s", temp); ;}
     break;
 
+  case 34:
+#line 265 "compiler.y"
+    { sprintf (temp, "if( %s ) {\n %s ", (yyvsp[(3) - (6)].cadena), (yyvsp[(6) - (6)].cadena));
+                                                                    (yyval.cadena) = generateString(temp);
+                                                                  ;}
+    break;
+
+  case 35:
+#line 270 "compiler.y"
+    { sprintf(temp, "%s \n}\n",(yyvsp[(1) - (2)].cadena));
+                                                                    (yyval.cadena) = generateString(temp);
+                                                                  ;}
+    break;
+
+  case 36:
+#line 274 "compiler.y"
+    { sprintf(temp, "%s \n} else if ( %s ) {\n %s", (yyvsp[(1) - (9)].cadena), (yyvsp[(6) - (9)].cadena), (yyvsp[(9) - (9)].cadena));
+                                                                    (yyval.cadena) = generateString(temp);
+                                                                  ;}
+    break;
+
+  case 37:
+#line 278 "compiler.y"
+    { sprintf(temp, "%s \n} else {\n %s \n}", (yyvsp[(1) - (6)].cadena), (yyvsp[(5) - (6)].cadena));
+                                                                    (yyval.cadena) = generateString(temp);
+                                                                  ;}
+    break;
+
+  case 38:
+#line 283 "compiler.y"
+    {   sprintf(temp, " ");
+                                                        (yyval.cadena) = generateString(temp);
+                                                      ;}
+    break;
+
+  case 39:
+#line 286 "compiler.y"
+    {   sprintf(temp, "%s \n %s", (yyvsp[(1) - (2)].cadena), (yyvsp[(2) - (2)].cadena));
+                                                        (yyval.cadena) = generateString(temp);;}
+    break;
+
+  case 40:
+#line 289 "compiler.y"
+    {  sprintf(temp, "%s \n %s", (yyvsp[(1) - (2)].cadena), (yyvsp[(2) - (2)].cadena));
+                                                        (yyval.cadena) = generateString(temp);;}
+    break;
+
+  case 41:
+#line 294 "compiler.y"
+    { nodeList *p = Get((yyvsp[(1) - (4)].cadena));
+                                                              if(p == NULL) { 
+                                                                sprintf(temp, "ERROR: Variable %s doesn't exist", (yyvsp[(1) - (4)].cadena));          
+                                                                yyerror(temp);
+                                                                exit(1);
+                                                              } else {
+                                                                if(p->type2 == CELL_T){
+                                                                  // strcpy(p->actualValue, $3);
+                                                                  sprintf(temp, "cells[i][j].%s = %s; ", (yyvsp[(1) - (4)].cadena), (yyvsp[(3) - (4)].cadena));
+                                                                  (yyval.cadena) = generateString(temp); 
+                                                                } else if(p->type2 == GLOBAL_T) {
+                                                                  // strcpy(p->actualValue, $3);
+                                                                  sprintf(temp, "%s = %s; ", (yyvsp[(1) - (4)].cadena), (yyvsp[(3) - (4)].cadena));
+                                                                  (yyval.cadena) = generateString(temp); 
+                                                                }
+                                                              }
+                                                            ;}
+    break;
+
   case 42:
-#line 276 "compiler.y"
-    { sprintf(temp, "\nif( %s ){ \n %s \n }\n", (yyvsp[(5) - (9)].cadena), (yyvsp[(8) - (9)].cadena));
-                                                                                (yyval.cadena) = generate_string(temp);
-                                                                               ;}
-    break;
-
-  case 43:
-#line 281 "compiler.y"
-    { sprintf(temp, "%s", (yyvsp[(1) - (1)].cadena));
-                                                (yyval.cadena) = generate_string(temp); ;}
-    break;
-
-  case 44:
-#line 284 "compiler.y"
-    { sprintf(temp, "%s && %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
-                                                (yyval.cadena) = generate_string(temp); ;}
-    break;
-
-  case 45:
-#line 288 "compiler.y"
-    { nodeList *p = Get((yyvsp[(1) - (3)].cadena));
-                                                            if(p == NULL) { 
-                                                              sprintf(temp, "ERROR: Variable %s doesn't exist", (yyvsp[(1) - (3)].cadena));          
-                                                              yyerror(temp);
-                                                              exit(1);
-                                                            } else {
-                                                              if(p->type2 == CELL_T){
-                                                                sprintf(temp, "cells[i][j].%s = %s; ", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
-                                                                (yyval.cadena) = generate_string(temp); 
-                                                              } else if(p->type2 == GLOBAL_T) {
-                                                                sprintf(temp, "%s = %s; ", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
-                                                                (yyval.cadena) = generate_string(temp); 
-                                                              }
-                                                            }
-                                                          ;}
-    break;
-
-  case 46:
-#line 303 "compiler.y"
-    { nodeList *p = Get((yyvsp[(1) - (5)].cadena));
-                                                            if(p == NULL) { 
-                                                              sprintf(temp, "ERROR: Variable %s doesn't exist", (yyvsp[(1) - (5)].cadena));          
-                                                              yyerror(temp);
-                                                              exit(1);
-                                                            } else {
-                                                              if(p->type2 == CELL_T){
-                                                                sprintf(temp, "cells[i][j].%s = %s; \n %s", (yyvsp[(1) - (5)].cadena), (yyvsp[(3) - (5)].cadena), (yyvsp[(5) - (5)].cadena));
-                                                                (yyval.cadena) = generate_string(temp); 
-                                                              } else if(p->type2 == GLOBAL_T) {
-                                                                sprintf(temp, "%s = %s; \n %s", (yyvsp[(1) - (5)].cadena), (yyvsp[(3) - (5)].cadena), (yyvsp[(5) - (5)].cadena));
-                                                                (yyval.cadena) = generate_string(temp); 
-                                                              }
-                                                            }
-                                                          ;}
-    break;
-
-  case 47:
-#line 320 "compiler.y"
+#line 314 "compiler.y"
     { ;}
     break;
 
-  case 48:
-#line 321 "compiler.y"
+  case 43:
+#line 315 "compiler.y"
     { sprintf(temp, "%s + %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
-                                                  (yyval.cadena) = generate_string(temp); ;}
+                                                    (yyval.cadena) = generateString(temp); ;}
+    break;
+
+  case 44:
+#line 318 "compiler.y"
+    { sprintf(temp, "%s - %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
+                                                    (yyval.cadena) = generateString(temp); ;}
+    break;
+
+  case 45:
+#line 321 "compiler.y"
+    { sprintf(temp, "%s * %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
+                                                    (yyval.cadena) = generateString(temp); ;}
+    break;
+
+  case 46:
+#line 324 "compiler.y"
+    { sprintf(temp, "%s / %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
+                                                    (yyval.cadena) = generateString(temp); ;}
+    break;
+
+  case 47:
+#line 327 "compiler.y"
+    { sprintf(temp, "%s %% %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
+                                                    (yyval.cadena) = generateString(temp); ;}
+    break;
+
+  case 48:
+#line 330 "compiler.y"
+    { sprintf(temp, "%s && %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
+                                                    (yyval.cadena) = generateString(temp); ;}
     break;
 
   case 49:
-#line 324 "compiler.y"
-    { sprintf(temp, "%s - %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
-                                                  (yyval.cadena) = generate_string(temp); ;}
+#line 333 "compiler.y"
+    { sprintf(temp, "%s || %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
+                                                    (yyval.cadena) = generateString(temp); ;}
     break;
 
   case 50:
-#line 327 "compiler.y"
-    { sprintf(temp, "%s * %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
-                                                  (yyval.cadena) = generate_string(temp); ;}
+#line 336 "compiler.y"
+    { sprintf(temp, "%s != %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
+                                                    (yyval.cadena) = generateString(temp); ;}
     break;
 
   case 51:
-#line 330 "compiler.y"
-    { sprintf(temp, "%s / %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
-                                                  (yyval.cadena) = generate_string(temp); ;}
+#line 339 "compiler.y"
+    { sprintf(temp, "%s == %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
+                                                    (yyval.cadena) = generateString(temp); ;}
     break;
 
   case 52:
-#line 333 "compiler.y"
-    { sprintf(temp, "%s %% %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
-                                                  (yyval.cadena) = generate_string(temp); ;}
+#line 342 "compiler.y"
+    { sprintf(temp, "%s < %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
+                                                    (yyval.cadena) = generateString(temp); ;}
     break;
 
   case 53:
-#line 336 "compiler.y"
-    { sprintf(temp, "%s && %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
-                                                  (yyval.cadena) = generate_string(temp); ;}
+#line 345 "compiler.y"
+    { sprintf(temp, "%s <= %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
+                                                  (yyval.cadena) = generateString(temp); ;}
     break;
 
   case 54:
-#line 339 "compiler.y"
-    { sprintf(temp, "%s || %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
-                                                  (yyval.cadena) = generate_string(temp); ;}
+#line 348 "compiler.y"
+    { sprintf(temp, "%s > %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
+                                                    (yyval.cadena) = generateString(temp); ;}
     break;
 
   case 55:
-#line 342 "compiler.y"
-    { sprintf(temp, "%s != %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
-                                                  (yyval.cadena) = generate_string(temp); ;}
+#line 351 "compiler.y"
+    { sprintf(temp, "%s >= %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
+                                                    (yyval.cadena) = generateString(temp); ;}
     break;
 
   case 56:
-#line 345 "compiler.y"
-    { sprintf(temp, "%s == %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
-                                                  (yyval.cadena) = generate_string(temp); ;}
-    break;
-
-  case 57:
-#line 348 "compiler.y"
-    { sprintf(temp, "%s < %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
-                                                  (yyval.cadena) = generate_string(temp); ;}
-    break;
-
-  case 58:
-#line 351 "compiler.y"
-    { sprintf(temp, "%s <= %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
-                                                  (yyval.cadena) = generate_string(temp); ;}
-    break;
-
-  case 59:
-#line 354 "compiler.y"
-    { sprintf(temp, "%s > %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
-                                                  (yyval.cadena) = generate_string(temp); ;}
-    break;
-
-  case 60:
 #line 357 "compiler.y"
-    { sprintf(temp, "%s >= %s", (yyvsp[(1) - (3)].cadena), (yyvsp[(3) - (3)].cadena));
-                                                  (yyval.cadena) = generate_string(temp); ;}
-    break;
-
-  case 61:
-#line 363 "compiler.y"
     { ; ;}
     break;
 
-  case 62:
-#line 371 "compiler.y"
+  case 57:
+#line 366 "compiler.y"
     { nodeList *p = Get((yyvsp[(1) - (1)].cadena));
                                                       if(p == NULL) { 
                                                         sprintf(temp, "ERROR: Variable %s doesn't exist", (yyvsp[(1) - (1)].cadena));          
@@ -1980,44 +1966,44 @@ yyreduce:
                                                       } else {
                                                         if(p->type2 == CELL_T){
                                                           sprintf(temp, "cells[i][j].%s", (yyvsp[(1) - (1)].cadena));
-                                                          (yyval.cadena) = generate_string(temp); 
+                                                          (yyval.cadena) = generateString(temp); 
                                                         } else if (p->type2 == GLOBAL_T){
                                                           sprintf(temp, "%s", (yyvsp[(1) - (1)].cadena));
-                                                          (yyval.cadena) = generate_string(temp); 
+                                                          (yyval.cadena) = generateString(temp); 
                                                         } else if (p->type2 == STATE_T){
                                                           sprintf(temp, "%s", toUpper((yyvsp[(1) - (1)].cadena)));
-                                                          (yyval.cadena) = generate_string(temp);
+                                                          (yyval.cadena) = generateString(temp);
                                                         }
                                                       }
                                                     ;}
     break;
 
-  case 63:
-#line 390 "compiler.y"
+  case 58:
+#line 385 "compiler.y"
     { sprintf(temp, "((rand() %% (1001))/1000.0)");
-                                                      (yyval.cadena) = generate_string(temp); ;}
+                                                      (yyval.cadena) = generateString(temp); ;}
     break;
 
-  case 64:
-#line 393 "compiler.y"
+  case 59:
+#line 388 "compiler.y"
     { sprintf(temp, "%s", (yyvsp[(1) - (1)].cadena));
-                                                      (yyval.cadena) = generate_string(temp); ;}
+                                                      (yyval.cadena) = generateString(temp); ;}
     break;
 
-  case 65:
-#line 396 "compiler.y"
+  case 60:
+#line 391 "compiler.y"
     { sprintf(temp, "%s", (yyvsp[(1) - (1)].cadena));
-                                                      (yyval.cadena) = generate_string(temp); ;}
+                                                      (yyval.cadena) = generateString(temp); ;}
     break;
 
-  case 66:
+  case 61:
+#line 394 "compiler.y"
+    { sprintf(temp, "%s", (yyvsp[(1) - (1)].cadena));
+                                                      (yyval.cadena) = generateString(temp); ;}
+    break;
+
+  case 62:
 #line 399 "compiler.y"
-    { sprintf(temp, "%s", (yyvsp[(1) - (1)].cadena));
-                                                      (yyval.cadena) = generate_string(temp); ;}
-    break;
-
-  case 67:
-#line 404 "compiler.y"
     { nodeList *p = Get((yyvsp[(1) - (6)].cadena));
                                                       if(p == NULL) { 
                                                         sprintf(temp, "ERROR: Variable %s doesn't exist", (yyvsp[(1) - (6)].cadena));          
@@ -2026,7 +2012,7 @@ yyreduce:
                                                       } else {
                                                         if(p->type2 == CELL_T){
                                                           sprintf(temp, "cells%s.%s", (yyvsp[(3) - (6)].cadena), (yyvsp[(6) - (6)].cadena));
-                                                          (yyval.cadena) = generate_string(temp); 
+                                                          (yyval.cadena) = generateString(temp); 
                                                         } else {
                                                           sprintf(temp, "ERROR: %s not a cell variable", (yyvsp[(6) - (6)].cadena));          
                                                           yyerror(temp);
@@ -2036,80 +2022,89 @@ yyreduce:
                                                     ;}
     break;
 
-  case 68:
-#line 421 "compiler.y"
+  case 63:
+#line 416 "compiler.y"
     { sprintf(temp, "( %s )", (yyvsp[(2) - (3)].cadena));
-                                                      (yyval.cadena) = generate_string(temp); ;}
+                                                      (yyval.cadena) = generateString(temp); ;}
+    break;
+
+  case 64:
+#line 421 "compiler.y"
+    {  sprintf (temp, "false");
+                                                   (yyval.cadena) = generateString(temp); ;}
+    break;
+
+  case 65:
+#line 424 "compiler.y"
+    {  sprintf (temp, "%s", (yyvsp[(1) - (1)].cadena));
+                                                   (yyval.cadena) = generateString(temp); ;}
+    break;
+
+  case 66:
+#line 427 "compiler.y"
+    {  sprintf (temp, "%s", (yyvsp[(1) - (1)].cadena));
+                                                   (yyval.cadena) = generateString(temp); ;}
+    break;
+
+  case 67:
+#line 431 "compiler.y"
+    {  sprintf (temp, "-1");
+                                                   (yyval.cadena) = generateString(temp); ;}
+    break;
+
+  case 68:
+#line 434 "compiler.y"
+    {  sprintf (temp, "%d", (yyvsp[(1) - (1)].valor));
+                                                   (yyval.cadena) = generateString(temp); ;}
     break;
 
   case 69:
-#line 425 "compiler.y"
-    { sprintf(temp,"[c_neighbours[1][0]][c_neighbours[1][1]]");
-                                                      (yyval.cadena) = generate_string(temp);;}
+#line 438 "compiler.y"
+    {  sprintf (temp, "0.0");
+                                                   (yyval.cadena) = generateString(temp); ;}
     break;
 
   case 70:
-#line 427 "compiler.y"
-    { sprintf(temp,"[c_neighbours[5][0]][c_neighbours[5][1]]");
-                                                      (yyval.cadena) = generate_string(temp);;}
+#line 441 "compiler.y"
+    {  sprintf (temp, "%d.%d", (yyvsp[(1) - (3)].valor), (yyvsp[(3) - (3)].valor));
+                                                   (yyval.cadena) = generateString(temp); ;}
     break;
 
   case 71:
-#line 429 "compiler.y"
-    { sprintf(temp,"[c_neighbours[7][0]][c_neighbours[7][1]]");
-                                                      (yyval.cadena) = generate_string(temp);;}
+#line 444 "compiler.y"
+    {  sprintf (temp, "%d.0", (yyvsp[(1) - (1)].valor));
+                                                   (yyval.cadena) = generateString(temp); ;}
     break;
 
   case 72:
-#line 431 "compiler.y"
-    { sprintf(temp,"[c_neighbours[3][0]][c_neighbours[3][1]]");
-                                                      (yyval.cadena) = generate_string(temp);;}
+#line 450 "compiler.y"
+    { sprintf(temp,"[c_neighbours[1][0]][c_neighbours[1][1]]");
+                                                      (yyval.cadena) = generateString(temp);;}
     break;
 
   case 73:
-#line 433 "compiler.y"
-    { if(neighborhood_type != NEUMANN_T) {
-                                                        sprintf(temp,"[c_neighbours[2][0]][c_neighbours[2][1]]");
-                                                        (yyval.cadena) = generate_string(temp);
-                                                      } else {
-                                                          sprintf(temp, "ERROR: %s not allow in this type of neighborhood", (yyvsp[(1) - (1)].cadena));          
-                                                          yyerror(temp);
-                                                          exit(1);
-                                                      }
-                                                    ;}
+#line 452 "compiler.y"
+    { sprintf(temp,"[c_neighbours[5][0]][c_neighbours[5][1]]");
+                                                      (yyval.cadena) = generateString(temp);;}
     break;
 
   case 74:
-#line 442 "compiler.y"
-    { if(neighborhood_type != NEUMANN_T) {
-                                                        sprintf(temp,"[c_neighbours[0][0]][c_neighbours[0][1]]");
-                                                        (yyval.cadena) = generate_string(temp);
-                                                      } else {
-                                                          sprintf(temp, "ERROR: %s not allow in this type of neighborhood", (yyvsp[(1) - (1)].cadena));          
-                                                          yyerror(temp);
-                                                          exit(1);
-                                                      }
-                                                    ;}
+#line 454 "compiler.y"
+    { sprintf(temp,"[c_neighbours[7][0]][c_neighbours[7][1]]");
+                                                      (yyval.cadena) = generateString(temp);;}
     break;
 
   case 75:
-#line 451 "compiler.y"
-    { if(neighborhood_type != NEUMANN_T) {
-                                                        sprintf(temp,"[c_neighbours[4][0]][c_neighbours[4][1]]");
-                                                        (yyval.cadena) = generate_string(temp);
-                                                      } else {
-                                                          sprintf(temp, "ERROR: %s not allow in this type of neighborhood", (yyvsp[(1) - (1)].cadena));          
-                                                          yyerror(temp);
-                                                          exit(1);
-                                                      }
-                                                    ;}
+#line 456 "compiler.y"
+    { sprintf(temp,"[c_neighbours[3][0]][c_neighbours[3][1]]");
+                                                      (yyval.cadena) = generateString(temp);;}
     break;
 
   case 76:
-#line 460 "compiler.y"
-    { if(neighborhood_type != NEUMANN_T) {
-                                                        sprintf(temp,"[c_neighbours[6][0]][c_neighbours[6][1]]");
-                                                        (yyval.cadena) = generate_string(temp);
+#line 458 "compiler.y"
+    { if(neighborhoodType != NEUMANN_T) {
+                                                        sprintf(temp,"[c_neighbours[2][0]][c_neighbours[2][1]]");
+                                                        (yyval.cadena) = generateString(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", (yyvsp[(1) - (1)].cadena));          
                                                           yyerror(temp);
@@ -2119,10 +2114,10 @@ yyreduce:
     break;
 
   case 77:
-#line 469 "compiler.y"
-    { if(neighborhood_type != NEUMANN_T && neighborhood_type != MOORE) {
-                                                        sprintf(temp,"[c_neighbours[8][0]][c_neighbours[8][1]]");
-                                                        (yyval.cadena) = generate_string(temp);
+#line 467 "compiler.y"
+    { if(neighborhoodType != NEUMANN_T) {
+                                                        sprintf(temp,"[c_neighbours[0][0]][c_neighbours[0][1]]");
+                                                        (yyval.cadena) = generateString(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", (yyvsp[(1) - (1)].cadena));          
                                                           yyerror(temp);
@@ -2132,10 +2127,10 @@ yyreduce:
     break;
 
   case 78:
-#line 478 "compiler.y"
-    { if(neighborhood_type != NEUMANN_T && neighborhood_type != MOORE) {
-                                                        sprintf(temp,"[c_neighbours[10][0]][c_neighbours[10][1]]");
-                                                        (yyval.cadena) = generate_string(temp);
+#line 476 "compiler.y"
+    { if(neighborhoodType != NEUMANN_T) {
+                                                        sprintf(temp,"[c_neighbours[4][0]][c_neighbours[4][1]]");
+                                                        (yyval.cadena) = generateString(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", (yyvsp[(1) - (1)].cadena));          
                                                           yyerror(temp);
@@ -2145,10 +2140,10 @@ yyreduce:
     break;
 
   case 79:
-#line 487 "compiler.y"
-    { if(neighborhood_type != NEUMANN_T && neighborhood_type != MOORE) {
-                                                        sprintf(temp,"[c_neighbours[11][0]][c_neighbours[11][1]]");
-                                                        (yyval.cadena) = generate_string(temp);
+#line 485 "compiler.y"
+    { if(neighborhoodType != NEUMANN_T) {
+                                                        sprintf(temp,"[c_neighbours[6][0]][c_neighbours[6][1]]");
+                                                        (yyval.cadena) = generateString(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", (yyvsp[(1) - (1)].cadena));          
                                                           yyerror(temp);
@@ -2158,10 +2153,49 @@ yyreduce:
     break;
 
   case 80:
-#line 496 "compiler.y"
-    { if(neighborhood_type != NEUMANN_T && neighborhood_type != MOORE) {
+#line 494 "compiler.y"
+    { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
+                                                        sprintf(temp,"[c_neighbours[8][0]][c_neighbours[8][1]]");
+                                                        (yyval.cadena) = generateString(temp);
+                                                      } else {
+                                                          sprintf(temp, "ERROR: %s not allow in this type of neighborhood", (yyvsp[(1) - (1)].cadena));          
+                                                          yyerror(temp);
+                                                          exit(1);
+                                                      }
+                                                    ;}
+    break;
+
+  case 81:
+#line 503 "compiler.y"
+    { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
+                                                        sprintf(temp,"[c_neighbours[10][0]][c_neighbours[10][1]]");
+                                                        (yyval.cadena) = generateString(temp);
+                                                      } else {
+                                                          sprintf(temp, "ERROR: %s not allow in this type of neighborhood", (yyvsp[(1) - (1)].cadena));          
+                                                          yyerror(temp);
+                                                          exit(1);
+                                                      }
+                                                    ;}
+    break;
+
+  case 82:
+#line 512 "compiler.y"
+    { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
+                                                        sprintf(temp,"[c_neighbours[11][0]][c_neighbours[11][1]]");
+                                                        (yyval.cadena) = generateString(temp);
+                                                      } else {
+                                                          sprintf(temp, "ERROR: %s not allow in this type of neighborhood", (yyvsp[(1) - (1)].cadena));          
+                                                          yyerror(temp);
+                                                          exit(1);
+                                                      }
+                                                    ;}
+    break;
+
+  case 83:
+#line 521 "compiler.y"
+    { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
                                                         sprintf(temp,"[c_neighbours[9][0]][c_neighbours[9][1]]");
-                                                        (yyval.cadena) = generate_string(temp);
+                                                        (yyval.cadena) = generateString(temp);
                                                       } else {
                                                           sprintf(temp, "ERROR: %s not allow in this type of neighborhood", (yyvsp[(1) - (1)].cadena));          
                                                           yyerror(temp);
@@ -2172,7 +2206,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 2176 "compiler.tab.c"
+#line 2210 "compiler.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2386,7 +2420,7 @@ yyreturn:
 }
 
 
-#line 507 "compiler.y"
+#line 532 "compiler.y"
     
                                 // SECCION 4    Codigo en C
 int n_line = 1 ;
@@ -2399,7 +2433,7 @@ char *message ;
     printf ( "\n") ;	// bye
 }
 
-char *mi_malloc (int nbytes)       // n bytes reserved in dynamic memory
+char *miMalloc (int nbytes)       // n bytes reserved in dynamic memory
 {
     char *p ;
     static long int nb = 0;        // quantify memory
@@ -2422,12 +2456,12 @@ char *mi_malloc (int nbytes)       // n bytes reserved in dynamic memory
 /**************************** Stop Words Section ***************************/
 /***************************************************************************/
 
-typedef struct s_stop_words { // for the stop words of C
+typedef struct sStopWords { // for the stop words of C
     char *name ;
     int token ;
-} t_stop ;
+} tStop ;
 
-t_stop stop_words [] = { // Stop words
+tStop stopWords [] = { // Stop words
     "bool",         BOOL,
     "cells",        CELLS,
     "condition",    CONDITION,
@@ -2441,7 +2475,8 @@ t_stop stop_words [] = { // Stop words
     "neumann",      NEUMANN,
     "ngh",          NGH,
     "prop",         PROP,
-    "rule",         RULE,
+    "if",           IF,
+    "else",         ELSE,
     "random",       RANDOM,
     "state",        STATE,
     "ticks",        TICKS,
@@ -2467,13 +2502,13 @@ t_stop stop_words [] = { // Stop words
      NULL,          0               // End of table
 } ;
 
-t_stop *search_stop_word (char *symbol_name)
+tStop *searchStopWord (char *symbol_name)
 {                                  // Search in the stop word table
     int i ;
-    t_stop *sim ;
+    tStop *sim ;
 
     i = 0 ;
-    sim = stop_words ;
+    sim = stopWords ;
     while (sim [i].name != NULL) {
            if (strcmp (sim [i].name, symbol_name) == 0) {
                                          // strcmp(a, b) return == 0 if a==b
@@ -2490,13 +2525,13 @@ t_stop *search_stop_word (char *symbol_name)
 /************************* Lexicographical Analizer ************************/
 /***************************************************************************/
 
-char *generate_string (char *name)     // copy the argument in a string 
+char *generateString (char *name)     // copy the argument in a string 
 {                                      
       char *p ;
       int l ;
 
       l = strlen (name)+1 ;
-      p = (char *) mi_malloc (l) ;
+      p = (char *) miMalloc (l) ;
       strcpy (p, name) ;
 
       return p ;
@@ -2510,7 +2545,7 @@ int yylex ()
     unsigned char cc ;
     char ops_expandibles [] = "!<=>|%&+-/*" ;
     char cadena [256] ;
-    t_stop *symbol ;
+    tStop *symbol ;
 
     do {
     	c = getchar () ;
@@ -2553,9 +2588,9 @@ int yylex ()
          } while (c != '\"' && i < 255) ;
          if (i == 256) {
               printf ("AVISO: string con mas de 255 caracteres en linea %d\n", n_line) ;
-         }		 	// habria que leer hasta el siguiente " , pero, y si falta?
+         }		 	
          cadena [--i] = '\0' ;
-         yylval.cadena = generate_string (cadena) ;
+         yylval.cadena = generateString (cadena) ;
          return (STRING) ;
     }
 
@@ -2576,8 +2611,8 @@ int yylex ()
          cadena [i] = '\0' ;
          ungetc (c, stdin) ;
 
-         yylval.cadena = generate_string (cadena) ;
-         symbol = search_stop_word (yylval.cadena) ;
+         yylval.cadena = generateString (cadena) ;
+         symbol = searchStopWord (yylval.cadena) ;
          if (symbol == NULL) {    // isn't an stop word -> identif 
 //               printf ("\nDEV: IDENTIF %s\n", yylval.cadena) ;    // PARA DEPURAR
                return (IDENTIF) ;
@@ -2590,13 +2625,13 @@ int yylex ()
     if (strchr (ops_expandibles, c) != NULL) { // busca c en ops_expandibles
          cc = getchar () ;
          sprintf (cadena, "%c%c", (char) c, (char) cc) ;
-         symbol = search_stop_word (cadena) ;
+         symbol = searchStopWord (cadena) ;
          if (symbol == NULL) {
               ungetc (cc, stdin) ;
               yylval.cadena = NULL ;
               return (c) ;
          } else {
-              yylval.cadena = generate_string (cadena) ; // aunque no se use
+              yylval.cadena = generateString (cadena) ; // aunque no se use
               return (symbol->token) ;
          }
     }
@@ -2612,7 +2647,7 @@ int yylex ()
 
 char * toUpper(char aux[]){
     char *word;
-    word = generate_string(aux);
+    word = generateString(aux);
     // counter for the loop
     int i = 0;
 
@@ -2630,7 +2665,7 @@ char * toUpper(char aux[]){
 
 /*-----------Fuctions for the Linked List----------*/
 // Add new nodes to the list
-int Add(char *name, char *type, int type2)
+int Add(char *name, char *type, int type2, char *defValue, char *actualValue)
 {
     nodeList *p = List;    //Pointer
 
@@ -2646,6 +2681,8 @@ int Add(char *name, char *type, int type2)
     nodeList *newNode = (nodeList *)malloc(sizeof(nodeList));
     strcpy(newNode->name, name);
     strcpy(newNode->type, type);
+    strcpy(newNode->defValue, defValue);
+    strcpy(newNode->actualValue, actualValue);
     newNode->type2 = type2;
     newNode->next = List;    
     List = newNode;

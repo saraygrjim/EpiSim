@@ -10,8 +10,8 @@ state HOLA (300,5,10)
 state ADIOS (300,5.6,10) 
 state PRUEBA (15.876, 2, 90) 
 
-
-rule {
-    condition: alive == true; probability > random
-    effect: days = days + 1;  daysToInfect = daysToInfect + 1; probability_c = ADIOS
+if (alive == true && probability > random ) {
+    days = days + 1;  
+    daysToInfect = daysToInfect + 1; 
+    probability_c = ADIOS;
 }

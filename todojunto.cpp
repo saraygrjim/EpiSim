@@ -14,6 +14,7 @@ using namespace std;
 using std::vector;
 
 #define MAX_NEIGH  12
+
 #define N 200
 
 // Types of cell states
@@ -26,7 +27,6 @@ using std::vector;
 
 
 // For the simulation
-// int n          = 50;
 int days       = 170;  // Days to simulate
 int neighType  = NEUMANN;
 
@@ -50,13 +50,14 @@ int    quaratineDays       = 7;
 class Cell{
    public:
     bool alive;
-    int incubation;           //Days of incubation before the cell is infectious
+    int state;
     bool infected;            // If the cell is infected or not
+    
+    int incubation;           // Days of incubation before the cell is infectious
     int duration;             // How many days to finish and recover or to get worse
     int inmunity;             // How inmune the cell is to infection after recovery or not
     bool medication;          // If the cell has taken its medication or not
     bool quarantined;         // If the cell is in quarantine
-    int state;
     int quaratineDays; 
 
     Cell();
@@ -88,8 +89,6 @@ void Cell::infect(int incubation, int duration){
 }
 
 
-
-
 bool search(int** neighbours, int state, vector<vector<Cell>> &cells){
     int i = 0;
     int x = neighbours[i][0];
@@ -105,8 +104,6 @@ bool search(int** neighbours, int state, vector<vector<Cell>> &cells){
         y = neighbours[i][1];
         i++;
     }
-
-
     return found;
 }
 
@@ -130,15 +127,9 @@ int sum_quarantined(int** neighbours, vector<vector<Cell>> &cells){
 
 void evaluation(vector<vector<Cell>> &cells, int currentDay){
 
-    // vector<vector<Cell>> cells(N, vector<Cell>(N));
-    // for (int i = 0; i < N; i++){
-    //     for (int j = 0; j < N; j++){ 
-    //         cells[i][j] = c[i][j];
-    //     }
-    // } 
-
     for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++){   
+
             // CAMBIO DE ESTADO DEPENDIENDO DE VECINOS  
             int** c_neighbours;
             c_neighbours = (int**)malloc(MAX_NEIGH*sizeof(int *));
@@ -152,6 +143,7 @@ void evaluation(vector<vector<Cell>> &cells, int currentDay){
             }
             searchNeighbours(c_neighbours, N, i, j, neighType);
 
+
             //LAS REGLAS SE EMPIEZAN A COLOCAR AQUI
             if (cells[i][j].state == NO_CHANGE && search(c_neighbours, INFECTED, cells)){ //The cell has never been infected
                 double num = (rand() % (1001))/1000.0;
@@ -161,7 +153,7 @@ void evaluation(vector<vector<Cell>> &cells, int currentDay){
                     cells[i][j].incubation = incubation;
                     cells[i][j].duration   = duration;
                 }
-                continue;
+                // continue;
 
             }
 
@@ -174,21 +166,21 @@ void evaluation(vector<vector<Cell>> &cells, int currentDay){
                     cells[i][j].incubation  = incubation;
                     cells[i][j].duration    = duration;
                 }
-                continue;
+                // continue;
             }
 
             if (cells[i][j].state == INFECTED && sum_quarantined(c_neighbours, cells) > 2){
                 cells[i][j].state         = QUARANTINE; //Blue
                 cells[i][j].quarantined   = true;
                 cells[i][j].quaratineDays = quaratineDays;
-                continue;
+                // continue;
             }
 
             if (cells[i][j].state != INFECTED && cells[i][j].state != DIE && cells[i][j].state != RECOVER && search(c_neighbours, INFECTED, cells) && quaratineInit < currentDay){
                 cells[i][j].state         = QUARANTINE; //Blue
                 cells[i][j].quarantined   = true;
                 cells[i][j].quaratineDays = quaratineDays;
-                continue;
+                // continue;
             }
             //LAS REGLAS TERMINAN DE COLOCARSE AQUI 
             
