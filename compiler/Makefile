@@ -19,4 +19,4 @@ compilar:
 clean:
 	@echo "Cleaning..."
 	# @rm -rf compiler_general compiler_general.tab.c compiler_cell compiler_cell.tab.c *Result.txt
-	@rm -rf compiler compiler.tab.c *Result.c
+	@rm -rf compiler compiler.tab.c *Result.cpp

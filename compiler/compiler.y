@@ -28,7 +28,8 @@ nodeList *List;              // Lista enlazada para almacenar variables
 int neighborhoodType = NEUMANN_T;
 int section = GLOBAL_T;
 
-char beginEvaluation [] = "void evaluation(vector<vector<Cell>> &cells, int currentDay){ \n  \n     for (int i = 0; i < N; i++){ \n         for (int j = 0; j < N; j++){    \n  \n             int** c_neighbours; \n             c_neighbours = (int**)malloc(MAX_NEIGH*sizeof(int *)); \n             for (int i = 0; i<MAX_NEIGH; i++){ \n                 c_neighbours[i] = (int *)malloc(2*sizeof(int)); \n             } \n             for (int i = 0; i<MAX_NEIGH; i++){ \n                 for (int j = 0; j<2; j++){ \n                     c_neighbours[i][j] = -1; \n                 } \n             } \n             searchNeighbours(c_neighbours, N, i, j, neighType); \n  \n ";
+char beginEvaluation [] = "void evaluation(vector<vector<Cell>> &cells, int currentDay){ \n  \n ";   
+char beginStrain [] = "for (int i = 0; i < N; i++){ \n         for (int j = 0; j < N; j++){    \n  \n             int** c_neighbours; \n             c_neighbours = (int**)malloc(MAX_NEIGH*sizeof(int *)); \n             for (int i = 0; i<MAX_NEIGH; i++){ \n                 c_neighbours[i] = (int *)malloc(2*sizeof(int)); \n             } \n             for (int i = 0; i<MAX_NEIGH; i++){ \n                 for (int j = 0; j<2; j++){ \n                     c_neighbours[i][j] = -1; \n                 } \n             } \n             searchNeighbours(c_neighbours, N, i, j, neighType); \n  \n ";
 char searchFunction [] = "bool search(int** neighbours, int state, vector<vector<Cell>> &cells){ \n int i = 0; \n int x = neighbours[i][0]; \n int y = neighbours[i][1]; \n bool found = false; \n while (found == false && i < MAX_NEIGH){  \n if (x != -1){ \n     if(cells[x][y].state == state && (duration - cells[x][y].duration) >= daysToInfect){ \n         found = true; \n     } \n } \n x = neighbours[i][0]; \n y = neighbours[i][1]; \n i++; \n } \n return found; \n }\n";
 char sumQuarantinedFunction [] = "int sum_quarantined(int** neighbours, vector<vector<Cell>> &cells){ \n int i = 0; \n int x = neighbours[i][0]; \n int y = neighbours[i][1]; \n int sum = 0; \n while (i < MAX_NEIGH){  \n     if(x != -1 && cells[x][y].quarantined){ \n         sum++; \n     } \n \n     x = neighbours[i][0]; \n     y = neighbours[i][1]; \n     i++; \n } \n return sum; \n }\n";
 char includes [] = "#include <GL/gl.h> \n #include <GL/glut.h> \n #include <stdio.h> \n #include <cstdlib> \n #include <stdlib.h> \n #include <time.h> \n #include <string.h> \n #include <iostream> \n #include \"sim.h\" \n #include \"grid.h\" \n #include <vector> \n  \n using namespace std; \n using std::vector; \n  \n #define MAX_NEIGH  12 \n";
@@ -90,7 +91,7 @@ void generateCellClass();
 %token <cadena> WESTP
 %token <cadena> EASTP
 %token <cadena> STRAIN
-%token <cadena> STRAINS
+%token <cadena> NUM_STRAINS
 
 
 %type  <cadena> program
@@ -103,8 +104,8 @@ void generateCellClass();
 %type  <cadena> doubleValue   
 %type  <cadena> cellProperties
 %type  <cadena> states
-%type  <cadena> color
 %type  <cadena> state
+%type  <cadena> color
 %type  <cadena> code
 %type  <cadena> rules
 %type  <cadena> assignment 
@@ -119,6 +120,8 @@ void generateCellClass();
 %type  <cadena> time
 %type  <cadena> nCells
 %type  <cadena> cell
+%type  <cadena> nStrains
+%type  <cadena> strains
 
 
 %right '='                    // es la ultima operacion que se debe realizar
@@ -128,11 +131,13 @@ void generateCellClass();
 
 %%
                                           
-program:        general   cell    { sprintf(temp, "%s", $1);
+program:        general   cell  strains  { sprintf(temp, "%s", $1);
                                     generateCellClass();
-                                    printf ("%s\n %s\n %s\n %s\n %s\n %s\n", includes, define, temp, construct, searchFunction, sumQuarantinedFunction); 
+                                    printf ("%s\n %s\n %s\n %s\n %s\n %s\n  ", includes, define, temp, construct, searchFunction, sumQuarantinedFunction); 
+                                    sprintf(temp, "%s", $3);
+                                    printf("%s\n %s }", beginEvaluation, temp );
                                   }
-                rules           { }
+                                  
                 ;
 
 /*------------------ propiedades globales ------------------*/
@@ -190,7 +195,7 @@ nStrains:         /*lambda*/                { sprintf (temp, "int nStrain  = 1;\
                                               $$ = generateString(temp);
                                             } 
 
-                | STRAINS NUMBER            { sprintf (temp, "int nStrain  = %;\n", $2);
+                | NUM_STRAINS NUMBER        { sprintf (temp, "int nStrain  = %d;\n", $2);
                                               $$ = generateString(temp);
                                             }
                 ;
@@ -311,16 +316,22 @@ declaration:      BOOL IDENTIF '=' boolValue        { if(Get($2) == NULL) {
                 ;
 
 /*-------- Rules  --------*/ 
-strains:            STRAIN IDENTIF '{' rules '}'            {  }
-                  | STRAIN IDENTIF '{' rules '}'  strains   {  }
+strains:            STRAIN IDENTIF '(' NUMBER ')' '{' rules '}'            { sprintf(temp, " if(currentDay >= %d) {\n %s %s \n } \n } \n ", $4, beginStrain, $7);
+                                                                                     $$ = generateString(temp); }
+                  | STRAIN IDENTIF '(' NUMBER ')' '{' rules '}'  strains   { sprintf(temp, " if(currentDay >= %d) {\n %s %s \n } \n } \n %s ", $4, beginStrain, $7, $9);
+                                                                                     $$ = generateString(temp); }
+                  | STRAIN IDENTIF '('  ')' '{' rules '}'                  { sprintf(temp, " if(currentDay >= 0) {\n %s %s \n } \n } \n ", beginStrain, $6);
+                                                                                     $$ = generateString(temp); }
+                  | STRAIN IDENTIF '('  ')' '{' rules '}'  strains         { sprintf(temp, " if(currentDay >= 0) {\n %s %s \n } \n } \n %s ", beginStrain, $6, $8);
+                                                                                     $$ = generateString(temp); }
                   ;
 
-rules:            beginIf                       { 
-                                                  sprintf(temp, "%s %s \n }", beginEvaluation, $1);
-                                                  printf ("%s", temp); }
+
+rules:            beginIf                       { sprintf(temp, "%s \n }", $1);
+                                                  $$ = generateString(temp); }
                                                 
                 | beginIf rules                 { sprintf(temp, "%s \n %s", $1, $2);
-                                                  printf ("%s", temp); }
+                                                  $$ = generateString(temp); }
                 ;
 
 
@@ -650,7 +661,7 @@ tStop stopWords [] = { // Stop words
     "random",       RANDOM,
     "state",        STATE,
     "strain",       STRAIN,
-    "strains",      NUNSTRAINS,
+    "strains",      NUM_STRAINS,
     "ticks",        TICKS,
     "true",         TRUE,
     "&&",           AND,
