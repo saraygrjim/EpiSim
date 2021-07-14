@@ -28,6 +28,7 @@ using std::vector;
 // For the simulation
 int days       = 170;  // Days to simulate
 int neighType  = NEUMANN;
+int nStrain   = 1;
 
 // Simulation parameters
 double probability  = 0.6;   // Probability that infections happens
@@ -127,6 +128,7 @@ int sum_quarantined(int** neighbours, vector<vector<Cell>> &cells){
 
 void evaluation(vector<vector<Cell>> &cells, int currentDay){
 
+    // Cepa 1 
     for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++){   
 
@@ -265,7 +267,38 @@ void evaluation(vector<vector<Cell>> &cells, int currentDay){
         }
     }
 
+    // Cepa 2
+    if(currentDay >= 50) {
+        for (int i = 0; i < N; i++){
+            for (int j = 0; j < N; j++){   
+
+                // CAMBIO DE ESTADO DEPENDIENDO DE VECINOS  
+                int** c_neighbours;
+                c_neighbours = (int**)malloc(MAX_NEIGH*sizeof(int *));
+                for (int i = 0; i<MAX_NEIGH; i++){
+                    c_neighbours[i] = (int *)malloc(2*sizeof(int));
+                }
+                for (int i = 0; i<MAX_NEIGH; i++){
+                    for (int j = 0; j<2; j++){
+                        c_neighbours[i][j] = -1;
+                    }
+                }
+                searchNeighbours(c_neighbours, N, i, j, neighType);
+
+
+                if (cells[i][j].state == NO_INFECTIOUS && search(c_neighbours, INFECTED, cells)){ //The cell has never been infected
+                    // double num = (rand() % (1001))/1000.0;
+                    cells[i][j].state      = INFECTED; //Yellow
+                    cells[i][j].infected   = true;
+                    cells[i][j].incubation = incubation;
+                    cells[i][j].duration   = duration;
+                    // continue;
+                }
+        }
+        }
+
     // return cells;
+    }
 }
 
 /*FUNCION DRAWCELL*/

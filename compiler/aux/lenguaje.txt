@@ -4,6 +4,7 @@ Idea: pueden añadirse en diferentes archivos como en clips
 ngh NEUMANN | MOORE | EXTENDED (MOORE default)
 cells INTEGER (100 default)
 ticks INTEGER  (500 default)
+strains INTEGER (1 default)
 
 # VARIABLES GLOBALES
 global double probability  = 0.6 
@@ -35,10 +36,20 @@ state (1,0,0) {
     - habría que tener en cuenta continuamente qué tipo de vecindario se tiene, si es de tipo Neumann no podría usarse ng(se) o ng(s+)
     - necesario una palabra reservada para decir que algun vecino cumpla una condicion sin importar que vecino o que minimo x vecinos la cumpla sin importar qué vecino
 
-rule {
-    condition: ngh(n).alive = false
-    effect: alive = false
+
+strain NAME1(introducingDay){
+    if ( ngh(n).alive = false ) {
+        alive = false;
+    }
 }
+
+strain NAME2(introducingDay) {
+    # Rules
+
+}
+
+
+
 
 
 

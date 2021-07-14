@@ -89,6 +89,8 @@ void generateCellClass();
 %token <cadena> SOUTHP
 %token <cadena> WESTP
 %token <cadena> EASTP
+%token <cadena> STRAIN
+%token <cadena> STRAINS
 
 
 %type  <cadena> program
@@ -140,8 +142,8 @@ general:        header   properties         { sprintf(temp, "%s \n %s \n", $1, $
                 ;
 
 /*------------------ header ------------------*/
-header:         nCells neighbourhood  time {  sprintf(temp, "%s \n %s", $2, $3);
-                                              $$ = generateString(temp) }
+header:         nCells neighbourhood  time nStrains {  sprintf(temp, "%s \n %s \n %s", $2, $3, $4);
+                                                        $$ = generateString(temp) }
                 ;
 
 neighbourhood:   /*lambda*/                 {   sprintf (temp, "int neighType  = NEUMANN;\n");
@@ -153,31 +155,44 @@ neighbourhood:   /*lambda*/                 {   sprintf (temp, "int neighType  =
                                               sprintf (temp, "int neighType = %s;\n", toUpper(temp));
                                               $$ = generateString(temp);
                                               // printf ("%s", temp); 
-                                              neighborhoodType = NEUMANN_T; }
+                                              neighborhoodType = NEUMANN_T; 
+                                            }
 
                 | NGH MOORE                 { sprintf(temp, "%s", $2);
                                               sprintf (temp, "int neighType = %s;\n", toUpper(temp));
                                               $$ = generateString(temp);
                                               // printf ("%s", temp); 
-                                              neighborhoodType = MOORE_T; }
+                                              neighborhoodType = MOORE_T; 
+                                            }
 
                 | NGH EXTENDED              { sprintf(temp, "%s", $2);
                                               sprintf (temp, "int neighType = %s;\n", toUpper(temp));
                                               $$ = generateString(temp);
                                               // printf ("%s", temp); 
-                                              neighborhoodType = EXTENDED_T; }
+                                              neighborhoodType = EXTENDED_T; 
+                                            }
                 ;
 
 nCells:         /*lambda*/                  { sprintf (temp, "#define N 100\n");
                                               strcat ( define, temp); 
                                               sprintf (temp, "");
                                               $$ = generateString(temp);
-                                              } 
+                                            } 
 
                 | CELLS NUMBER              { sprintf (temp, "#define N %d\n", $2);
                                               strcat ( define, temp); 
                                               sprintf (temp, "");
-                                              $$ = generateString(temp);}
+                                              $$ = generateString(temp);
+                                            }
+                ;
+
+nStrains:         /*lambda*/                { sprintf (temp, "int nStrain  = 1;\n");
+                                              $$ = generateString(temp);
+                                            } 
+
+                | STRAINS NUMBER            { sprintf (temp, "int nStrain  = %;\n", $2);
+                                              $$ = generateString(temp);
+                                            }
                 ;
 
 time:            /*lambda*/                 { sprintf (temp, "int days = 500;\n");
@@ -296,6 +311,10 @@ declaration:      BOOL IDENTIF '=' boolValue        { if(Get($2) == NULL) {
                 ;
 
 /*-------- Rules  --------*/ 
+strains:            STRAIN IDENTIF '{' rules '}'            {  }
+                  | STRAIN IDENTIF '{' rules '}'  strains   {  }
+                  ;
+
 rules:            beginIf                       { 
                                                   sprintf(temp, "%s %s \n }", beginEvaluation, $1);
                                                   printf ("%s", temp); }
@@ -630,6 +649,8 @@ tStop stopWords [] = { // Stop words
     "else",         ELSE,
     "random",       RANDOM,
     "state",        STATE,
+    "strain",       STRAIN,
+    "strains",      NUNSTRAINS,
     "ticks",        TICKS,
     "true",         TRUE,
     "&&",           AND,
