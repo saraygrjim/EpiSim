@@ -1,30 +1,52 @@
 ngh MOORE
 ticks 100
 
-global double probability  = 0.6 
-global int daysToInfect = 4
+global double probability      = 0.6
+global int    daysToInfect     = 4
+global int    incubation       = 3
+global int    duration         = 10
+global double deadliness       = 0.02
+global double inmunity         = 0.5
+global int    quaratineInit    = 100
+global int    quaratineDays    = 7
 
-prop bool alive = true
-prop int days = 1
-prop double probability_c = 0.7
+cell() {
+    int cincubation = 1   
+    int cduration = 1   
+    int cinmunity = 1   
+    bool medication = false
+    bool quarantined = false
+    int cquaratineDays = 1
 
-state HOLA (300,5,10)
-state ADIOS (300,5.6,10) 
-state PRUEBA (15.876, 2, 90) 
+    state NO_CHANGE     (1.0, 1.0, 1.0)
+    state NO_INFECTIOUS (0.9804, 0.7765, 0.0)
+    state HINFECTED      (0.8431, 0.0353, 0.1149)
+    state RECOVER       (0.0941, 0.5529, 0.251)
+    state QUARANTINE    (0.2039, 0.7333, 0.854)
+    state DIE           (0.0, 0.0, 0.0)
+}
+
 
 strain NAME1(){
-    if ( alive == true && probability > random ) {
-        days = days + 1;  
-        daysToInfect = daysToInfect + 1; 
-        probability_c = ADIOS;
+    if ( state == NO_INFECTIOUS ) {
+        state      = HINFECTED; 
+        infected   = true;
+        cincubation = incubation;
+        cduration = duration;
     }
 }
 
 strain NAME2(50) {
-   if ( alive == true && probability > random ) {
-        days = days + 1;  
-        daysToInfect = daysToInfect + 1; 
-        probability_c = ADIOS;
+   if ( state == HINFECTED ) {
+        state      = RECOVER; 
+        infected   = true;
+        cincubation = incubation;
+        cduration  = duration;
     }
 
+}
+
+init() {
+    cincubation = incubation;
+    cduration   = duration;
 }

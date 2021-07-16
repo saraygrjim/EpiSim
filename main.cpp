@@ -92,7 +92,7 @@ void newPopulation(){
 void infectOneCell(){
     int i = N/2;
     int j = N/2;
-    cells[i][j].infect(incubation, duration);
+    cells[i][j].infect();
 }
 
 void simulation(){

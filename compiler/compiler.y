@@ -16,6 +16,7 @@
 #define GLOBAL_T        0
 #define CELL_T          1
 #define STATE_T         2
+#define INIT_T          3
  
 int  memoria [26];         	// Se define una zona de memoria para las variables 
 char temp [2048];
@@ -28,11 +29,12 @@ nodeList *List;              // Lista enlazada para almacenar variables
 int neighborhoodType = NEUMANN_T;
 int section = GLOBAL_T;
 
-char beginEvaluation [] = "void evaluation(vector<vector<Cell>> &cells, int currentDay){ \n  \n ";   
-char beginStrain [] = "for (int i = 0; i < N; i++){ \n         for (int j = 0; j < N; j++){    \n  \n             int** c_neighbours; \n             c_neighbours = (int**)malloc(MAX_NEIGH*sizeof(int *)); \n             for (int i = 0; i<MAX_NEIGH; i++){ \n                 c_neighbours[i] = (int *)malloc(2*sizeof(int)); \n             } \n             for (int i = 0; i<MAX_NEIGH; i++){ \n                 for (int j = 0; j<2; j++){ \n                     c_neighbours[i][j] = -1; \n                 } \n             } \n             searchNeighbours(c_neighbours, N, i, j, neighType); \n  \n ";
-char searchFunction [] = "bool search(int** neighbours, int state, vector<vector<Cell>> &cells){ \n int i = 0; \n int x = neighbours[i][0]; \n int y = neighbours[i][1]; \n bool found = false; \n while (found == false && i < MAX_NEIGH){  \n if (x != -1){ \n     if(cells[x][y].state == state && (duration - cells[x][y].duration) >= daysToInfect){ \n         found = true; \n     } \n } \n x = neighbours[i][0]; \n y = neighbours[i][1]; \n i++; \n } \n return found; \n }\n";
+char beginEvaluation [] = "void evaluation(vector<vector<Cell>> &cells, int currentTick){ \n  \n";   
+char beginStrain [] = "for (int i = 0; i < N; i++){ \n\tfor (int j = 0; j < N; j++){\n  \n\t\tint** c_neighbours; \n\t\tc_neighbours = (int**)malloc(MAX_NEIGH*sizeof(int *)); \n\t\tfor (int i = 0; i<MAX_NEIGH; i++){ \n\t\t\tc_neighbours[i] = (int *)malloc(2*sizeof(int)); \n\t\t} \n\t\tfor (int i = 0; i<MAX_NEIGH; i++){ \n \t\t\tfor (int j = 0; j<2; j++){ \n\t\t\t\tc_neighbours[i][j] = -1; \n\t\t\t} \n \t\t} \n\t\tsearchNeighbours(c_neighbours, N, i, j, neighType); \n  \n";
+char searchFunction [] = "bool search(int** neighbours, int state, vector<vector<Cell>> &cells){ \n int i = 0; \n int x = neighbours[i][0]; \n int y = neighbours[i][1]; \n bool found = false; \n while (found == false && i < MAX_NEIGH){  \n if (x != -1){ \n     if (cells[x][y].state == state){ \n         found = true; \n     } \n } \n x = neighbours[i][0]; \n y = neighbours[i][1]; \n i++; \n } \n return found; \n }\n";
 char sumQuarantinedFunction [] = "int sum_quarantined(int** neighbours, vector<vector<Cell>> &cells){ \n int i = 0; \n int x = neighbours[i][0]; \n int y = neighbours[i][1]; \n int sum = 0; \n while (i < MAX_NEIGH){  \n     if(x != -1 && cells[x][y].quarantined){ \n         sum++; \n     } \n \n     x = neighbours[i][0]; \n     y = neighbours[i][1]; \n     i++; \n } \n return sum; \n }\n";
 char includes [] = "#include <GL/gl.h> \n #include <GL/glut.h> \n #include <stdio.h> \n #include <cstdlib> \n #include <stdlib.h> \n #include <time.h> \n #include <string.h> \n #include <iostream> \n #include \"sim.h\" \n #include \"grid.h\" \n #include <vector> \n  \n using namespace std; \n using std::vector; \n  \n #define MAX_NEIGH  12 \n";
+char infectFunction [] = "void Cell::infect(){ \n\tinfected = true; \n\tstate = 1;\n";
 #define FF fflush(stdout);    // para forzar la impresion inmediata
 
 int  yylex();
@@ -67,8 +69,9 @@ void generateCellClass();
 %token <cadena> PROP
 %token <cadena> RANDOM
 %token <cadena> IF
+%token <cadena> INIT
 %token <cadena> ELSE
-%token <cadena> STATE
+%token <cadena> CELL
 %token <cadena> STRING
 %token <cadena> TICKS
 %token <cadena> TRUE
@@ -101,6 +104,7 @@ void generateCellClass();
 %type  <cadena> declaration
 %type  <cadena> boolValue 
 %type  <cadena> intValue 
+%type  <cadena> init 
 %type  <cadena> doubleValue   
 %type  <cadena> cellProperties
 %type  <cadena> states
@@ -109,6 +113,7 @@ void generateCellClass();
 %type  <cadena> code
 %type  <cadena> rules
 %type  <cadena> assignment 
+%type  <cadena> initialAssigments 
 %type  <cadena> expression
 %type  <cadena> termino
 %type  <cadena> operand 
@@ -131,12 +136,16 @@ void generateCellClass();
 
 %%
                                           
-program:        general   cell  strains  { sprintf(temp, "%s", $1);
-                                    generateCellClass();
-                                    printf ("%s\n %s\n %s\n %s\n %s\n %s\n  ", includes, define, temp, construct, searchFunction, sumQuarantinedFunction); 
-                                    sprintf(temp, "%s", $3);
-                                    printf("%s\n %s }", beginEvaluation, temp );
-                                  }
+program:                                     { Add("state", "int", CELL_T, "0", "0");
+                                              Add("alive", "bool", CELL_T, "true", "true");
+                                              Add("infected", "bool", CELL_T, "false", "false");
+                                            }
+              general   cell  strains  init { sprintf(temp, "%s", $2);
+                                              generateCellClass();
+                                              printf ("%s\n %s\n %s\n %s\n %s\n %s\n  ", includes, define, temp, construct, searchFunction, sumQuarantinedFunction); 
+                                              sprintf(temp, "%s", $4);
+                                              printf("%s\n %s } \n %s", beginEvaluation, temp, drawCell);
+                                            }
                                   
                 ;
 
@@ -148,7 +157,7 @@ general:        header   properties         { sprintf(temp, "%s \n %s \n", $1, $
 
 /*------------------ header ------------------*/
 header:         nCells neighbourhood  time nStrains {  sprintf(temp, "%s \n %s \n %s", $2, $3, $4);
-                                                        $$ = generateString(temp) }
+                                                        $$ = generateString(temp); }
                 ;
 
 neighbourhood:   /*lambda*/                 {   sprintf (temp, "int neighType  = NEUMANN;\n");
@@ -180,14 +189,14 @@ neighbourhood:   /*lambda*/                 {   sprintf (temp, "int neighType  =
 
 nCells:         /*lambda*/                  { sprintf (temp, "#define N 100\n");
                                               strcat ( define, temp); 
-                                              sprintf (temp, "");
-                                              $$ = generateString(temp);
+                                              // sprintf (temp, "");
+                                              // $$ = generateString(temp);
                                             } 
 
                 | CELLS NUMBER              { sprintf (temp, "#define N %d\n", $2);
                                               strcat ( define, temp); 
-                                              sprintf (temp, "");
-                                              $$ = generateString(temp);
+                                              // sprintf (temp, "");
+                                              // $$ = generateString(temp);
                                             }
                 ;
 
@@ -223,39 +232,47 @@ properties:       GLOB  declaration                  {  sprintf (temp, "%s", $2)
 
 /*------------------ cell atributes ------------------*/ 
 
-cell:                                   { section = CELL_T; }
+cell:           CELL   '(' ')' '{'       { section = CELL_T; }
                 cellProperties          { section = STATE_T; }
-                states                  {  }    
+                states '}'              {  }    
                 ;
 
 /*------------------ cellProperties ------------------*/
 
-cellProperties:       PROP  declaration                       { }
-                    | PROP  declaration  cellProperties       { }
+cellProperties:       declaration                       { }
+                    | declaration  cellProperties       { }
                     ;
 
 /*------------------ states ------------------*/
 // tengo que guardar los identificadores para introducirlos luego 
 
-states:         STATE IDENTIF color state               { if(Get($2) == NULL) { 
-                                                            Add($2, "none", section, " ", " "); 
-                                                            sprintf(temp, "%s", $2);
-                                                            char aux[1024];
-                                                            sprintf(aux, "#define %s %d\n", toUpper(temp), counter);
-                                                            strcat(define, aux);
-                                                            // printf ("%s", define);
-                                                            sprintf(drawCell, "void drawCell(Cell cells[N][N]){ \n for (int i = 0; i < N; i++){ \n for (int j = 0; j < N; j++){ \n switch (cells[i][j].state){ \n case %s:\n glColor3f%s; \n break;\n %s } \n glRectd(i, j, i+1, j+1); \n }\n }\n  }\n ", toUpper(temp), $3, $4); 
-                                                            
-                                                          }
-                                                          else { yyerror("ERROR: Nombre de estado duplicado"); exit(1);}
-                                                        }
+
+// comproacion de que el primer identif sea state
+states:         IDENTIF IDENTIF color state   { if(strcmp($1, "state") != 0) {
+                                                  yyerror();
+                                                }
+                                                if(Get($2) == NULL) { 
+                                                  Add($2, "none", section, " ", " "); 
+                                                  sprintf(temp, "%s", $2);
+                                                  char aux[1024];
+                                                  sprintf(aux, "#define %s %d\n", toUpper(temp), counter);
+                                                  strcat(define, aux);
+                                                  // printf ("%s", define);
+                                                  sprintf(drawCell, "void drawCell(vector<vector<Cell>> &cells){ \n for (int i = 0; i < N; i++){ \n for (int j = 0; j < N; j++){ \n switch (cells[i][j].state){ \n case %s:\n glColor3f%s; \n break;\n %s } \n glRectd(i, j, i+1, j+1); \n }\n }\n  }\n ", toUpper(temp), $3, $4); 
+                                                  
+                                                }
+                                                else { yyerror("ERROR: Nombre de estado duplicado"); exit(1);}
+                                              }
                 ;
 
 state:          /*lambda*/                              { //sprintf(define, "\n"); 
                                                           sprintf(temp, " "); 
                                                           $$ = generateString(temp); }
 
-                | STATE IDENTIF color  state            { if(Get($2) == NULL) { 
+                | IDENTIF IDENTIF color  state          { if(strcmp($1, "state") != 0) {
+                                                              yyerror();
+                                                          }
+                                                          if(Get($2) == NULL) { 
                                                             Add($2, "none", section, "", ""); 
                                                             sprintf(temp, "%s", $2);
                                                             char aux[1024];
@@ -316,13 +333,13 @@ declaration:      BOOL IDENTIF '=' boolValue        { if(Get($2) == NULL) {
                 ;
 
 /*-------- Rules  --------*/ 
-strains:            STRAIN IDENTIF '(' NUMBER ')' '{' rules '}'            { sprintf(temp, " if(currentDay >= %d) {\n %s %s \n } \n } \n ", $4, beginStrain, $7);
+strains:            STRAIN IDENTIF '(' NUMBER ')' '{' rules '}'            { sprintf(temp, " if(currentTick >= %d) {\n %s %s \n } \n } \n ", $4, beginStrain, $7);
                                                                                      $$ = generateString(temp); }
-                  | STRAIN IDENTIF '(' NUMBER ')' '{' rules '}'  strains   { sprintf(temp, " if(currentDay >= %d) {\n %s %s \n } \n } \n %s ", $4, beginStrain, $7, $9);
+                  | STRAIN IDENTIF '(' NUMBER ')' '{' rules '}'  strains   { sprintf(temp, " if(currentTick >= %d) {\n %s %s \n } \n } \n %s ", $4, beginStrain, $7, $9);
                                                                                      $$ = generateString(temp); }
-                  | STRAIN IDENTIF '('  ')' '{' rules '}'                  { sprintf(temp, " if(currentDay >= 0) {\n %s %s \n } \n } \n ", beginStrain, $6);
+                  | STRAIN IDENTIF '('  ')' '{' rules '}'                  { sprintf(temp, " if(currentTick >= 0) {\n %s %s \n } \n } \n ", beginStrain, $6);
                                                                                      $$ = generateString(temp); }
-                  | STRAIN IDENTIF '('  ')' '{' rules '}'  strains         { sprintf(temp, " if(currentDay >= 0) {\n %s %s \n } \n } \n %s ", beginStrain, $6, $8);
+                  | STRAIN IDENTIF '('  ')' '{' rules '}'  strains         { sprintf(temp, " if(currentTick >= 0) {\n %s %s \n } \n } \n %s ", beginStrain, $6, $8);
                                                                                      $$ = generateString(temp); }
                   ;
 
@@ -363,6 +380,19 @@ codeIf:        /* lambda */                           {   sprintf(temp, " ");
                                                         $$ = generateString(temp);} 
             ;
 
+/*-------- Initial state -------*/
+init:                                                 { section = INIT_T; }
+            INIT '(' ')' '{' initialAssigments '}'    { sprintf(temp, "%s }", $6); 
+                                                        strcat(infectFunction, temp);
+                                                      }
+            ;
+initialAssigments:    /*lambda*/                      { sprintf(temp, " ");
+                                                        $$ = generateString(temp);
+                                                      }
+                    | assignment initialAssigments    { sprintf(temp, "%s \n %s \n", $1, $2);
+                                                        $$ = generateString(temp);
+                                                      }
+                    ;
 /*-------- Assigning values ​​to variables --------*/
 assignment:      IDENTIF '=' expression ';'                 { nodeList *p = Get($1);
                                                               if(p == NULL) { 
@@ -372,13 +402,17 @@ assignment:      IDENTIF '=' expression ';'                 { nodeList *p = Get(
                                                               } else {
                                                                 if(p->type2 == CELL_T){
                                                                   // strcpy(p->actualValue, $3);
-                                                                  sprintf(temp, "cells[i][j].%s = %s; ", $1, $3);
+                                                                  if (section != INIT_T ) {
+                                                                    sprintf(temp, "cells[i][j].%s = %s; ", $1, $3);
+                                                                  } else {
+                                                                    sprintf(temp, "%s = %s; ", $1, $3);
+                                                                  }
                                                                   $$ = generateString(temp); 
                                                                 } else if(p->type2 == GLOBAL_T) {
                                                                   // strcpy(p->actualValue, $3);
                                                                   sprintf(temp, "%s = %s; ", $1, $3);
                                                                   $$ = generateString(temp); 
-                                                                }
+                                                                } 
                                                               }
                                                             }
                 ;
@@ -657,9 +691,10 @@ tStop stopWords [] = { // Stop words
     "ngh",          NGH,
     "prop",         PROP,
     "if",           IF,
+    "init",         INIT,
     "else",         ELSE,
     "random",       RANDOM,
-    "state",        STATE,
+    "cell",         CELL,
     "strain",       STRAIN,
     "strains",      NUM_STRAINS,
     "ticks",        TICKS,
@@ -927,8 +962,8 @@ int main ()
 void generateCellClass(){
   // char construct[2048];
   char assignment[2048];
-  sprintf(construct, "class Cell{ \n public: \n bool alive; \n int state; \n bool infected;  \n ");
-  sprintf(assignment, "Cell::Cell (){\n alive = true;\n state  = 0;\n infected = false;\n ");
+  sprintf(construct, "class Cell{ \n public: \n int state;\n");
+  sprintf(assignment, "Cell::Cell (){\n \n state  = 0;\n ");
 
   nodeList *p = List; //Pointer
   while(p->next != NULL){
@@ -946,10 +981,11 @@ void generateCellClass(){
     p = p->next;
   }
 
-  strcat(construct, " Cell(); \n void infect(int, int); \n }; \n");
-  strcat(assignment, "}\n void Cell::infect(int incubation, int duration){ \n     infected   = true; \n     state      = 1; \n     incubation = incubation; \n     duration   = duration; \n } \n  ");
+  strcat(construct, " Cell(); \n void infect(); \n }; \n");
+  strcat(assignment, "}\n  \n  ");
 
 
   strcat(construct, assignment);
+  strcat(construct, infectFunction);
   // return construct;
 }

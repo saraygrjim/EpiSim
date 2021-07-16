@@ -48,59 +48,6 @@ strain NAME2(introducingDay) {
 
 }
 
-
-
-
-
-
-
-
- 
-%token <valor>  NUMERO         // Todos los token tienen un tipo para la pila
-%token <cadena> INTEGER       // identifica la definicion de un entero
-%token <cadena> DOUBLE
-%token <cadena> NGH
-%token <cadena> CELLS
-%token <cadena> TICKS
-
-%type  <cadena>  programa
-%type  <cadena>  header
-%type  <cadena>  neighbourhood
-%type  <cadena>  n_cells
-%type  <cadena>  time
-
-programa:       header                     { sprintf(temp, "%s fin", $1);
-                                                 printf("%s\n", temp);} 
-                // cell_properties         { } 
-                // cell_states             { }
-                // simulation_variables    { }   
-                // rules                   { }                
-                ; 
-
-header:         neighbourhood  n_cells time       { sprintf(temp, "%s %s %s", $1, $2, $3);
-                                                 printf("%s\n", temp);}
-                
-                ;
-
-//Cambiar a palabras reservadas y cosas asi
-neighbourhood:  /*lambda*/                {sprintf (temp, "ngh NEUMANN\n");
-                                            $$ = genera_cadena (temp);  } //MOORE default
-                | NGH                     {sprintf (temp, "%s\n", $1);
-                                           $$ = genera_csadena (temp);  }
-                // | NGH 'MOORE'             {sprintf (temp, "%s %s\n", $1, $2);
-                //                            $$ = genera_csadena (temp); }
-                // | NGH 'EXTENDED'          { sprintf (temp, "%s %s\n", $1, $2);
-                //                            $$ = genera_csadena (temp);}
-                ;
-
-n_cells:        /*lambda*/              { sprintf (temp, "cells 500\n");
-                                        $$ = genera_cadena (temp);  } //500 default
-                // | CELLS NUMERO          { sprintf (temp, "%s %d\n", $1, $2);
-                //                         $$ = genera_cadena (temp); }
-                ;
-
-time:           /*lambda*/              { sprintf (temp, "ticks 500\n");
-                                        $$ = genera_cadena (temp); } 
-                // | TICKS NUMERO          { sprintf (temp, "%s %d\n", $1, $2);
-                //                         $$ = genera_cadena (temp); }
-                ;
+init () {
+    # variables con valores asignados
+}

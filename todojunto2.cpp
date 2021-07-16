@@ -28,13 +28,13 @@ using std::vector;
 // For the simulation
 int days       = 170;  // Days to simulate
 int neighType  = NEUMANN;
-int nStrain   = 1;
+int nStrain   = 2;
 
 // Simulation parameters
 double probability  = 0.6;   // Probability that infections happens
 int    daysToInfect = 4;     // Days to become infect
-int    incubation   = 3;     // Days of incubation before the cell is infectious
-int    duration     = 10;    // How man days to finish and recover or to get worse
+int    gincubation   = 3;     // Days of incubation before the cell is infectious
+int    gduration     = 10;    // How man days to finish and recover or to get worse
 double deadliness   = 0.02;  // How deadly is the disease
 double inmunity     = 0.5;   // How inmune the cell is to infection after recovery
 
@@ -61,7 +61,7 @@ class Cell{
     int quaratineDays; 
 
     Cell();
-    void infect(int, int);
+    void infect();
 
 };
 
@@ -82,11 +82,11 @@ Cell::Cell (){
 
 // Esto hay que ver como hacerlo y que variables tienen que existir si o si y cosas así
 // Cell become infected  
-void Cell::infect(int incubation, int duration){
+void Cell::infect(){
     infected   = true;
     state      = 1;
-    incubation = incubation;
-    duration   = duration;
+    incubation = gincubation;
+    duration   = gduration;
 }
 
 
@@ -97,7 +97,7 @@ bool search(int** neighbours, int state, vector<vector<Cell>> &cells){
     bool found = false;
     while (found == false && i < MAX_NEIGH){ 
         if (x != -1){
-            if(cells[x][y].state == state && (duration - cells[x][y].duration) >= daysToInfect){
+            if(cells[x][y].state == state && (gduration - cells[x][y].duration) >= daysToInfect){
                 found = true;
             }
         }
@@ -126,7 +126,7 @@ int sum_quarantined(int** neighbours, vector<vector<Cell>> &cells){
 }
 
 
-void evaluation(vector<vector<Cell>> &cells, int currentDay){
+void evaluation(vector<vector<Cell>> &cells, int currentTick){
 
     // Cepa 1 
     for (int i = 0; i < N; i++){
@@ -152,8 +152,8 @@ void evaluation(vector<vector<Cell>> &cells, int currentDay){
                 if (num < probability){
                     cells[i][j].state      = NO_INFECTIOUS; //Yellow
                     cells[i][j].infected   = true;
-                    cells[i][j].incubation = incubation;
-                    cells[i][j].duration   = duration;
+                    cells[i][j].incubation = gincubation;
+                    cells[i][j].duration   = gduration;
                 }
                 // continue;
 
@@ -165,8 +165,8 @@ void evaluation(vector<vector<Cell>> &cells, int currentDay){
                 if (num > cells[i][j].inmunity){
                     cells[i][j].state       = NO_INFECTIOUS;
                     cells[i][j].infected    = true;
-                    cells[i][j].incubation  = incubation;
-                    cells[i][j].duration    = duration;
+                    cells[i][j].incubation  = gincubation;
+                    cells[i][j].duration    = gduration;
                 }
                 // continue;
             }
@@ -178,7 +178,7 @@ void evaluation(vector<vector<Cell>> &cells, int currentDay){
                 // continue;
             }
 
-            if (cells[i][j].state != INFECTED && cells[i][j].state != DIE && cells[i][j].state != RECOVER && search(c_neighbours, INFECTED, cells) && quaratineInit < currentDay){
+            if (cells[i][j].state != INFECTED && cells[i][j].state != DIE && cells[i][j].state != RECOVER && search(c_neighbours, INFECTED, cells) && quaratineInit < currentTick){
                 cells[i][j].state         = QUARANTINE; //Blue
                 cells[i][j].quarantined   = true;
                 cells[i][j].quaratineDays = quaratineDays;
@@ -268,7 +268,7 @@ void evaluation(vector<vector<Cell>> &cells, int currentDay){
     }
 
     // Cepa 2
-    if(currentDay >= 50) {
+    if(currentTick >= 50) {
         for (int i = 0; i < N; i++){
             for (int j = 0; j < N; j++){   
 
@@ -290,8 +290,8 @@ void evaluation(vector<vector<Cell>> &cells, int currentDay){
                     // double num = (rand() % (1001))/1000.0;
                     cells[i][j].state      = INFECTED; //Yellow
                     cells[i][j].infected   = true;
-                    cells[i][j].incubation = incubation;
-                    cells[i][j].duration   = duration;
+                    cells[i][j].incubation = gincubation;
+                    cells[i][j].duration   = gduration;
                     // continue;
                 }
         }
