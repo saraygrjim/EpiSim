@@ -16,4 +16,4 @@ compilar:
 
 clean:
 	@echo "Cleaning..."
-	@rm -rf compiler compiler.tab.c *Result.cpp
+	@rm -rf compiler compiler.tab.c *todojunto.cpp
