@@ -179,7 +179,7 @@ return ret;
  for (int j = 0; j < N; j++){ 
  switch (cells[i][j].state){ 
  case NO_CHANGE:
- glColor3f(1.000000,1.000000,1.000000); 
+ glColor3f(1.000000,1.0,1.000000); 
  break;
  case NO_INFECTIOUS:
  glColor3f(0.980400,0.776500,0.000000); 

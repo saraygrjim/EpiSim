@@ -24,6 +24,8 @@ char identif[2048];
 char define[2048];
 char drawCell[2048];
 char construct[2048];
+char foundFunction[2048];
+
 int  counter = 0;
 nodeList *List;              // Lista enlazada para almacenar variables
 int neighborhoodType = NEUMANN_T;
@@ -31,10 +33,10 @@ int section = GLOBAL_T;
 
 char beginEvaluation [] = "void evaluation(vector<vector<Cell>> &cells, int currentTick){ \n  \n";   
 char beginStrain [] = "for (int i = 0; i < N; i++){ \n\tfor (int j = 0; j < N; j++){\n  \n\t\tint** c_neighbours; \n\t\tc_neighbours = (int**)malloc(MAX_NEIGH*sizeof(int *)); \n\t\tfor (int i = 0; i<MAX_NEIGH; i++){ \n\t\t\tc_neighbours[i] = (int *)malloc(2*sizeof(int)); \n\t\t} \n\t\tfor (int i = 0; i<MAX_NEIGH; i++){ \n \t\t\tfor (int j = 0; j<2; j++){ \n\t\t\t\tc_neighbours[i][j] = -1; \n\t\t\t} \n \t\t} \n\t\tsearchNeighbours(c_neighbours, N, i, j, neighType); \n  \n";
-char searchFunction [] = "bool search(int** neighbours, int state, vector<vector<Cell>> &cells){ \n int i = 0; \n int x = neighbours[i][0]; \n int y = neighbours[i][1]; \n bool found = false; \n while (found == false && i < MAX_NEIGH){  \n if (x != -1){ \n     if (cells[x][y].state == state){ \n         found = true; \n     } \n } \n x = neighbours[i][0]; \n y = neighbours[i][1]; \n i++; \n } \n return found; \n }\n";
-char sumQuarantinedFunction [] = "int sum_quarantined(int** neighbours, vector<vector<Cell>> &cells){ \n int i = 0; \n int x = neighbours[i][0]; \n int y = neighbours[i][1]; \n int sum = 0; \n while (i < MAX_NEIGH){  \n     if(x != -1 && cells[x][y].quarantined){ \n         sum++; \n     } \n \n     x = neighbours[i][0]; \n     y = neighbours[i][1]; \n     i++; \n } \n return sum; \n }\n";
+char countFunction [] = "int count(int** neighbours, string variable, string value, vector<vector<Cell>> &cells){ \n     int i = 0; \n     int x = neighbours[i][0]; \n     int y = neighbours[i][1]; \n     int found = 0; \n     while (found == false && i < MAX_NEIGH){  \n         if (x != -1){ \n             if(foundVariable(cells[x][y], variable).compare(value) == 0){ \n                 found ++; \n             } \n         } \n         x = neighbours[i][0]; \n         y = neighbours[i][1]; \n         i++; \n     } \n     return found; \n } \n";
 char includes [] = "#include <GL/gl.h> \n #include <GL/glut.h> \n #include <stdio.h> \n #include <cstdlib> \n #include <stdlib.h> \n #include <time.h> \n #include <string.h> \n #include <iostream> \n #include \"sim.h\" \n #include \"grid.h\" \n #include <vector> \n  \n using namespace std; \n using std::vector; \n  \n #define MAX_NEIGH  12 \n";
 char infectFunction [] = "void Cell::infect(){ \n\tinfected = true; \n\tstate = 1;\n";
+
 #define FF fflush(stdout);    // para forzar la impresion inmediata
 
 int  yylex();
@@ -43,6 +45,7 @@ int  yyparse();
 char *generateString();
 char * toUpper(char aux[]);
 void generateCellClass();
+void generateFoundFunction();
 
 %}
 
@@ -55,6 +58,7 @@ void generateCellClass();
 %token <cadena> BOOL  //nombres de variables
 %token <cadena> CELLS
 %token <cadena> CONDITION
+%token <cadena> COUNT
 %token <cadena> DOUBLE
 %token <cadena> EXTENDED
 %token <cadena> EFFECT
@@ -136,15 +140,17 @@ void generateCellClass();
 
 %%
                                           
-program:                                     { Add("state", "int", CELL_T, "0", "0");
+program:                                    { Add("state", "int", CELL_T, "0", "0");
                                               Add("alive", "bool", CELL_T, "true", "true");
                                               Add("infected", "bool", CELL_T, "false", "false");
                                             }
               general   cell  strains  init { sprintf(temp, "%s", $2);
                                               generateCellClass();
-                                              printf ("%s\n %s\n %s\n %s\n %s\n %s\n  ", includes, define, temp, construct, searchFunction, sumQuarantinedFunction); 
+                                              generateFoundFunction();
+                                              printf ("%s\n %s\n %s\n %s\n %s\n %s\n ", includes, define, temp, construct, foundFunction, countFunction); 
                                               sprintf(temp, "%s", $4);
                                               printf("%s\n %s } \n %s", beginEvaluation, temp, drawCell);
+                                              // fprintf (stderr, "AAAAAAAAAAA %s %s %d \n", Get("state")->name, Get("state")->type, Get("state")->type2);
                                             }
                                   
                 ;
@@ -293,11 +299,13 @@ color:           '(' code ',' code ',' code ')'         { sprintf(temp, "(%s,%s,
 code:        NUMBER '.' NUMBER                          { char *eptr;
                                                           sprintf(temp, " %d.%d", $1, $3);
                                                           double number = strtod(temp, &eptr);
-                                                          if (number > 255.0) { sprintf(temp, "255");}
+                                                          if (number > 1.0) { sprintf(temp, "1.0");}
+                                                          else if (number < 0.0) { sprintf(temp, "0.0");}
                                                           else { sprintf(temp, "%f", number); }
                                                           $$ = generateString(temp); }
 
-            | NUMBER                                    { if($1 > 255) { sprintf(temp, "255"); } 
+            | NUMBER                                    { if($1 > 1) { sprintf(temp, "1"); } 
+                                                          else if ($1 < 0) { sprintf(temp, "0");}
                                                           else { sprintf(temp, "%d", $1); }
                                                           $$ = generateString(temp); }
 
@@ -314,7 +322,7 @@ declaration:      BOOL IDENTIF '=' boolValue        { if(Get($2) == NULL) {
                                                     }
 
                 | INT IDENTIF '=' intValue          { if(Get($2) == NULL) { 
-                                                        Add($2, "bool", section, $4, $4); 
+                                                        Add($2, "int", section, $4, $4); 
                                                         sprintf (temp, "%s %s = %s;\n", $1, $2, $4);
                                                         // printf ("%s", temp); 
                                                         $$ = generateString(temp);
@@ -323,7 +331,7 @@ declaration:      BOOL IDENTIF '=' boolValue        { if(Get($2) == NULL) {
                                                     }
 
                 | DOUBLE IDENTIF '=' doubleValue    { if(Get($2) == NULL) { 
-                                                        Add($2, "bool", section, $4, $4); 
+                                                        Add($2, "double", section, $4, $4); 
                                                         sprintf (temp, "%s %s = %s;\n", $1, $2, $4);
                                                         // printf ("%s", temp); 
                                                         $$ = generateString(temp);
@@ -503,6 +511,16 @@ operand:        IDENTIF                             { nodeList *p = Get($1);
                                                       
                 // | NGH '.' IDENTIF                   { }
 
+                | COUNT '(' IDENTIF ',' termino ')'     { if( Get($3)->type2 == CELL_T ) {
+                                                            sprintf(temp, "count(c_neighbours, string(\"%s\"), std::to_string(%s), cells)", $3, $5); 
+                                                            $$ = generateString(temp);
+                                                          } else {
+                                                            sprintf(temp, "ERROR: Variable %s isn't an atribute of a cell type", $3);          
+                                                            yyerror(temp);
+                                                            exit(1);
+                                                          }
+                                                        }
+
                 | NGH '(' position ')' '.' IDENTIF  { nodeList *p = Get($1);
                                                       if(p == NULL) { 
                                                         sprintf(temp, "ERROR: Variable %s doesn't exist", $1);          
@@ -680,6 +698,7 @@ tStop stopWords [] = { // Stop words
     "bool",         BOOL,
     "cells",        CELLS,
     "condition",    CONDITION,
+    "count",        COUNT,
     "double",       DOUBLE,
     "effect",       EFFECT,
     "extended",     EXTENDED,
@@ -960,13 +979,12 @@ int main ()
 
 
 void generateCellClass(){
-  // char construct[2048];
   char assignment[2048];
-  sprintf(construct, "class Cell{ \n public: \n int state;\n");
-  sprintf(assignment, "Cell::Cell (){\n \n state  = 0;\n ");
+  sprintf(construct, "class Cell{ \n public: \n");
+  sprintf(assignment, "Cell::Cell (){\n \n");
 
   nodeList *p = List; //Pointer
-  while(p->next != NULL){
+  while(p != NULL){
     if(p->type2 == CELL_T){
         strcat(construct, p->type);
         strcat(construct, " ");
@@ -977,6 +995,10 @@ void generateCellClass(){
         strcat(assignment, " = ");
         strcat(assignment, p->defValue);
         strcat(assignment, ";\n");
+
+
+
+
     }
     p = p->next;
   }
@@ -987,5 +1009,28 @@ void generateCellClass(){
 
   strcat(construct, assignment);
   strcat(construct, infectFunction);
-  // return construct;
+}
+
+void generateFoundFunction() {
+    char aux[1024];
+    strcat(foundFunction, "string foundVariable(Cell c, string variable) { \n     char aux[100]; \n     string ret = \"\"; \n");
+    
+    nodeList *p = List; //Pointer
+    // fprintf (stderr, "BBBBBB %s\n", Get("state")->name);
+    while(p != NULL){ 
+      // fprintf (stderr, "CCCCC %s\n", p->name);
+      if(p->type2 == CELL_T){
+        if (strcmp(p->type, "int") == 0 || strcmp(p->type, "bool") == 0) {
+          sprintf(aux, " if (variable.compare(\"%s\")==0) { \nsprintf(aux, \"%%d\", c.%s);\n}", p->name, p->name );
+        } else if (strcmp(p->type, "double") == 0) {
+          sprintf(aux, " if (variable.compare(\"%s\")==0) { \nsprintf(aux, \"%%f\", c.%s);\n}", p->name, p->name );
+          // fprintf (stderr, "BBBBBB%s\n", p->name);
+        }
+        strcat(foundFunction, aux);
+      }
+      p = p->next;
+    } 
+
+    strcat(foundFunction, "ret = aux; \nreturn ret; \n}");
+  
 }

@@ -16,9 +16,9 @@ cell() {
     int cinmunity = 1   
     bool medication = false
     bool quarantined = false
-    int cquaratineDays = 1
+    double cquaratineDays = 1.0
 
-    state NO_CHANGE     (1.0, 1.0, 1.0)
+    state NO_CHANGE     (1.0, 1.2, 1.0)
     state NO_INFECTIOUS (0.9804, 0.7765, 0.0)
     state HINFECTED      (0.8431, 0.0353, 0.1149)
     state RECOVER       (0.0941, 0.5529, 0.251)
@@ -28,7 +28,7 @@ cell() {
 
 
 strain NAME1(){
-    if ( state == NO_INFECTIOUS ) {
+    if ( state == NO_INFECTIOUS && (count(quarantined, true) > 2) ) {
         state      = HINFECTED; 
         infected   = true;
         cincubation = incubation;
@@ -37,7 +37,7 @@ strain NAME1(){
 }
 
 strain NAME2(50) {
-   if ( state == HINFECTED ) {
+   if ( state == HINFECTED && (count(state, HINFECTED) > 1) ) {
         state      = RECOVER; 
         infected   = true;
         cincubation = incubation;
