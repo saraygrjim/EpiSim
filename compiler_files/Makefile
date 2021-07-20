@@ -10,9 +10,9 @@ init:
 
 compilar: 
 	@echo "Compiling..."
-	bison compiler.y
-	gcc compiler.tab.c -o compiler
-	./run.sh
+	@bison compiler.y
+	@gcc compiler.tab.c -o compiler
+	@./run.sh
 
 clean:
 	@echo "Cleaning..."
