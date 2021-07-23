@@ -14,7 +14,7 @@
 using namespace std;
 using std::vector;
 
-#define FPS        10
+#define FPS        100000
 
 void timerCallback(int);
 void displayCallback();

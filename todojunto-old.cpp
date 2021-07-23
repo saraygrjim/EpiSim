@@ -50,7 +50,7 @@ int    quaratineDays       = 7;
 class Cell{
    public:
     bool alive;
-    int  state;
+    int state;
     bool infected;            // If the cell is infected or not
     
     int incubation;           // Days of incubation before the cell is infectious
@@ -89,44 +89,16 @@ void Cell::infect(){
     duration   = gduration;
 }
 
-string foundVariable(Cell c, string variable) {
-    char aux[100];
-    string ret = "";
 
-    if (variable.compare("alive")==0) {
-        sprintf(aux, "%d", c.alive);
-    } else if ( variable.compare("state")==0) {
-        sprintf(aux, "%d", c.state);
-    } else if ( variable.compare("infected")==0) {
-        sprintf(aux, "%d", c.infected);
-    } else if ( variable.compare("incubation")==0) {
-        sprintf(aux, "%d", c.incubation);
-    } else if ( variable.compare("duration")==0) {
-        sprintf(aux, "%d", c.duration);
-    } else if ( variable.compare("inmunity")==0) {
-        sprintf(aux, "%d", c.inmunity);
-    } else if ( variable.compare("medication")==0) {
-        sprintf(aux, "%d", c.medication);
-    } else if ( variable.compare("quarantined")==0) {
-        sprintf(aux, "%d", c.quarantined);
-    } else if ( variable.compare("quaratineDays")==0) {
-        sprintf(aux, "%d", c.quaratineDays);
-    }   
-    ret = aux;
-    return ret;
-
-}
-
-
-int count(int** neighbours, string variable, string value, vector<vector<Cell>> &cells){
+bool search(int** neighbours, int state, vector<vector<Cell>> &cells){
     int i = 0;
     int x = neighbours[i][0];
     int y = neighbours[i][1];
-    int found = 0;
+    bool found = false;
     while (found == false && i < MAX_NEIGH){ 
         if (x != -1){
-            if(foundVariable(cells[x][y], variable).compare(value) == 0){
-                found ++;
+            if(cells[x][y].state == state && (gduration - cells[x][y].duration) >= daysToInfect){
+                found = true;
             }
         }
         x = neighbours[i][0];
@@ -136,6 +108,22 @@ int count(int** neighbours, string variable, string value, vector<vector<Cell>> 
     return found;
 }
 
+int sum_quarantined(int** neighbours, vector<vector<Cell>> &cells){
+    int i = 0;
+    int x = neighbours[i][0];
+    int y = neighbours[i][1];
+    int sum = 0;
+    while (i < MAX_NEIGH){ 
+        if(x != -1 && cells[x][y].quarantined){
+            sum++;
+        }
+
+        x = neighbours[i][0];
+        y = neighbours[i][1];
+        i++;
+    }
+    return sum;
+}
 
 
 void evaluation(vector<vector<Cell>> &cells, int currentTick){
@@ -159,7 +147,7 @@ void evaluation(vector<vector<Cell>> &cells, int currentTick){
 
 
             //LAS REGLAS SE EMPIEZAN A COLOCAR AQUI
-            if (cells[i][j].state == NO_CHANGE && count(c_neighbours, string("state"), std::to_string(INFECTED), cells) > 1){ //The cell has never been infected
+            if (cells[i][j].state == NO_CHANGE && search(c_neighbours, INFECTED, cells)){ //The cell has never been infected
                 double num = (rand() % (1001))/1000.0;
                 if (num < probability){
                     cells[i][j].state      = NO_INFECTIOUS; //Yellow
@@ -171,7 +159,7 @@ void evaluation(vector<vector<Cell>> &cells, int currentTick){
 
             }
 
-            if (cells[i][j].state == RECOVER && count(c_neighbours, string("state"), std::to_string(INFECTED), cells) > 1){
+            if (cells[i][j].state == RECOVER && search(c_neighbours, INFECTED, cells)){
                 
                 double num = (rand() % (1001))/1000.0;
                 if (num > cells[i][j].inmunity){
@@ -183,14 +171,14 @@ void evaluation(vector<vector<Cell>> &cells, int currentTick){
                 // continue;
             }
 
-            if (cells[i][j].state == INFECTED && count(c_neighbours, string("quarantined"), std::to_string(true), cells) > 2){
+            if (cells[i][j].state == INFECTED && sum_quarantined(c_neighbours, cells) > 2){
                 cells[i][j].state         = QUARANTINE; //Blue
                 cells[i][j].quarantined   = true;
                 cells[i][j].quaratineDays = quaratineDays;
                 // continue;
             }
 
-            if (cells[i][j].state != INFECTED && cells[i][j].state != DIE && cells[i][j].state != RECOVER && count(c_neighbours, string("state"), std::to_string(INFECTED), cells) > 1 && quaratineInit < currentTick){
+            if (cells[i][j].state != INFECTED && cells[i][j].state != DIE && cells[i][j].state != RECOVER && search(c_neighbours, INFECTED, cells) && quaratineInit < currentTick){
                 cells[i][j].state         = QUARANTINE; //Blue
                 cells[i][j].quarantined   = true;
                 cells[i][j].quaratineDays = quaratineDays;
@@ -298,7 +286,7 @@ void evaluation(vector<vector<Cell>> &cells, int currentTick){
                 searchNeighbours(c_neighbours, N, i, j, neighType);
 
 
-                if (cells[i][j].state == NO_INFECTIOUS && count(c_neighbours, string("state"), std::to_string(INFECTED), cells) > 1){ //The cell has never been infected
+                if (cells[i][j].state == NO_INFECTIOUS && search(c_neighbours, INFECTED, cells)){ //The cell has never been infected
                     // double num = (rand() % (1001))/1000.0;
                     cells[i][j].state      = INFECTED; //Yellow
                     cells[i][j].infected   = true;
