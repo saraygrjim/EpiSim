@@ -12,13 +12,10 @@ string convertToString(char* a)
 // Driver code
 int main()
 {
-    char b[] = "geeksforgeeks";
-  
-    string s_b = convertToString(b);
-    double z = true;
-    int x = 2*3.75;
-    bool m = 0.1;
-    cout << m << endl;
-  
+    char* temp;
+    temp = (char*)malloc (2048);
+
+    sprintf(temp, "hola%d", 1);
+    sprintf(temp, "hola%d", 1);
     return 0;
 }

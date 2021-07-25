@@ -17,6 +17,7 @@
 #define CELL_T          1
 #define STATE_T         2
 #define INIT_T          3
+#define STRAIN_T        4
 
 // Type of variables
 #define NO_TYPE           0
@@ -25,7 +26,7 @@
 #define DOUBLE_T          3
 
 int  memoria [26];         	// Se define una zona de memoria para las variables 
-char temp [2048];
+// char temp[2048];
 char identif[2048];
 char define[2048];
 char drawCell[2048];
@@ -34,16 +35,17 @@ char foundFunction[2048];
 int typeExpression[100];
 int i = 0;
 int hasState = 0;
+int numStrains = 1;
 
 int  counter = 1;
 nodeList *List;              // Lista enlazada para almacenar variables
 int neighborhoodType = NEUMANN_T;
 int section = GLOBAL_T;
 
-char beginEvaluation [] = "void evaluation(vector<vector<Cell>> &cells, int currentTick){ \n  \n";   
+char beginEvaluation [] = "void evaluation(vector<vector<Cell>> &cells, int currentTick){ \n int results[nStates]; \n for (int i=0; i<nStates; i++){ \n     results[i] = 0; \n } \n";   
 char beginStrain [] = "for (int i = 0; i < N; i++){ \n\tfor (int j = 0; j < N; j++){\n  \n\t\tint** c_neighbours; \n\t\tc_neighbours = (int**)malloc(MAX_NEIGH*sizeof(int *)); \n\t\tfor (int i = 0; i<MAX_NEIGH; i++){ \n\t\t\tc_neighbours[i] = (int *)malloc(2*sizeof(int)); \n\t\t} \n\t\tfor (int i = 0; i<MAX_NEIGH; i++){ \n \t\t\tfor (int j = 0; j<2; j++){ \n\t\t\t\tc_neighbours[i][j] = -1; \n\t\t\t} \n \t\t} \n\t\tsearchNeighbours(c_neighbours, N, i, j, neighType); \n  \n";
 char countFunction [] = "int count(int** neighbours, string variable, string value, vector<vector<Cell>> &cells){ \n     int i = 0; \n     int x = neighbours[i][0]; \n     int y = neighbours[i][1]; \n     int found = 0; \n     while (found == false && i < MAX_NEIGH){  \n         if (x != -1){ \n             if(foundVariable(cells[x][y], variable).compare(value) == 0){ \n                 found ++; \n             } \n         } \n         x = neighbours[i][0]; \n         y = neighbours[i][1]; \n         i++; \n     } \n     return found; \n } \n";
-char includes [] = "#include <GL/gl.h> \n #include <GL/glut.h> \n #include <stdio.h> \n #include <cstdlib> \n #include <stdlib.h> \n #include <time.h> \n #include <string.h> \n #include <iostream> \n #include \"sim.h\" \n #include \"grid.h\" \n #include <vector> \n  \n using namespace std; \n using std::vector; \n  \n #define MAX_NEIGH  12 \n #define NO_CHANGE 0\n";
+char includes [] = "#include <GL/gl.h> \n #include <GL/glut.h> \n #include <stdio.h> \n #include <cstdlib> \n #include <stdlib.h> \n #include <time.h> \n #include <string.h> \n #include <iostream> \n #include <fstream> \n #include \"sim.h\" \n #include \"grid.h\" \n #include <vector> \n  \n using namespace std; \n using std::vector; \n  \n #define MAX_NEIGH  12 \n #define NO_CHANGE 0\n";
 char infectFunction [] = "void Cell::infect(){ \n\tinfected = true; \n \n";
 
 #define FF fflush(stdout);    // para forzar la impresion inmediata
@@ -56,6 +58,7 @@ char *generateString();
 char * toUpper(char aux[]);
 void generateCellClass();
 void generateFoundFunction();
+char * generateFirstLine();
 int foundType(int type);
 void clean();
 
@@ -159,93 +162,149 @@ program:                                    { Add("state", "int", CELL_T, "0", "
                                               Add("infected", "bool", CELL_T, "false", "false");
                                               Add("no_change", "none", STATE_T, " ", " "); 
                                             }
-              general   cell  strains  init { sprintf(temp, "%s", $2);
+              general   cell  strains  init { size_t needed = snprintf(NULL, 0, "%s", $2) + 1;
+                                              char  *buffer = malloc(needed);
+                                              sprintf(buffer, "%s", $2);
                                               generateCellClass();
                                               generateFoundFunction();
-                                              printf ("%s\n %s\n %s\n %s\n %s\n %s\n ", includes, define, temp, construct, foundFunction, countFunction); 
-                                              sprintf(temp, "%s", $4);
-                                              printf("%s\n %s } \n %s", beginEvaluation, temp, drawCell);
+                                              char aux[2048];
+                                              sprintf(aux, "\n");
+                                              // for(int j=0; j<numStrains; j++){
+                                              //   char file[100];
+                                              //   sprintf(file, "ofstream MyFile(\"DataStrain%d.csv\");\n", j); //cambiar para poner nombre de la cepa
+                                              //   strcat(aux, file);
+                                              // }
+
+                                              nodeList *p = List; //Pointer
+                                              while(p->next != NULL){
+                                                  if(STRAIN_T == p->type2){
+                                                      char file[100];
+                                                      sprintf(file, "ofstream %s(\"DataStrain%s.csv\");\n", p->name, p->name); 
+                                                      strcat(aux, file);
+                                                  }
+                                                  p = p->next;
+                                              }
+
+                                              printf ("%s\n%s\n%s\nint nStates = %d;\n%s\n%s\n%s\n%s\n ", includes, define, aux, (counter+1), buffer, construct, foundFunction, countFunction); 
+                                              
+                                              printf("%s\n %s \n%s } \n %s", beginEvaluation, generateFirstLine(), $4, drawCell);
+                                              
+                                              free(buffer);
                                             }
                                   
                 ;
 
 /*------------------ propiedades globales ------------------*/
-general:        header   properties         { sprintf(temp, "%s \n %s \n", $1, $2);
-                                              $$ = generateString(temp);
+general:        header   properties         { size_t needed = snprintf(NULL, 0, "%s \n %s \n", $1, $2) + 1;
+                                              char  *buffer = malloc(needed);
+                                              sprintf(buffer, "%s \n %s \n", $1, $2);
+                                              $$ = generateString(buffer);
+                                              free(buffer);
                                             } 
                 ;
 
 /*------------------ header ------------------*/
-header:         nCells neighbourhood  time nStrains {  sprintf(temp, "%s %s %s", $2, $3, $4);
-                                                        $$ = generateString(temp); }
+header:         nCells neighbourhood  time nStrains {  size_t needed = snprintf(NULL, 0, "%s %s %s", $2, $3, $4) + 1;
+                                                        char  *buffer = malloc(needed);
+                                                        sprintf(buffer, "%s %s %s", $2, $3, $4);
+                                                        $$ = generateString(buffer); 
+                                                        free(buffer);
+                                                    }
                 ;
 
-neighbourhood:   /*lambda*/                 {   sprintf (temp, "int neighType  = NEUMANN;\n");
-                                                //printf ("%s", temp); 
-                                                $$ = generateString(temp);
+neighbourhood:   /*lambda*/                 {   size_t needed = snprintf(NULL, 0, "int neighType  = NEUMANN;\n") + 1;
+                                                char  *buffer = malloc(needed);
+                                                sprintf(buffer, "int neighType  = NEUMANN;\n");
+                                                $$ = generateString(buffer);
+                                                free(buffer);
+
                                             }
 
-                | NGH NEUMANN               { sprintf(temp, "%s", $2);
-                                              sprintf (temp, "int neighType = %s;\n", toUpper(temp));
-                                              $$ = generateString(temp);
-                                              neighborhoodType = NEUMANN_T; 
+                | NGH NEUMANN               { neighborhoodType = NEUMANN_T; 
+                                              size_t needed = snprintf(NULL, 0, "int neighType = %s;\n", toUpper($2)) + 1;
+                                              char  *buffer = malloc(needed);
+                                              sprintf(buffer, "int neighType = %s;\n", toUpper($2));
+                                              $$ = generateString(buffer);
+                                              free(buffer);
                                             }
 
-                | NGH MOORE                 { sprintf(temp, "%s", $2);
-                                              sprintf (temp, "int neighType = %s;\n", toUpper(temp));
-                                              $$ = generateString(temp);
-                                              neighborhoodType = MOORE_T; 
+                | NGH MOORE                 { neighborhoodType = MOORE_T; 
+                                              size_t needed = snprintf(NULL, 0, "int neighType = %s;\n", toUpper($2)) + 1;
+                                              char  *buffer = malloc(needed);
+                                              sprintf(buffer, "int neighType = %s;\n", toUpper($2));
+                                              $$ = generateString(buffer);
+                                              free(buffer);
                                             }
 
-                | NGH EXTENDED              { sprintf(temp, "%s", $2);
-                                              sprintf (temp, "int neighType = %s;\n", toUpper(temp));
-                                              $$ = generateString(temp);
-                                              // printf ("%s", temp); 
-                                              neighborhoodType = EXTENDED_T; 
+                | NGH EXTENDED              { neighborhoodType = EXTENDED_T; 
+                                              size_t needed = snprintf(NULL, 0, "int neighType = %s;\n", toUpper($2)) + 1;
+                                              char  *buffer = malloc(needed);
+                                              sprintf(buffer, "int neighType = %s;\n", toUpper($2));
+                                              $$ = generateString(buffer);
+                                              free(buffer);
                                             }
                 ;
 
-nCells:         /*lambda*/                  { sprintf (temp, "#define N 100\n");
-                                              strcat ( define, temp); 
-                                              // sprintf (temp, "");
-                                              // $$ = generateString(temp);
+nCells:         /*lambda*/                  { size_t needed = snprintf(NULL, 0,  "#define N 100\n") + 1;
+                                              char  *buffer = malloc(needed);
+                                              sprintf(buffer,  "#define N 100\n");
+                                              strcat ( define, buffer); 
+                                              free(buffer);
                                             } 
 
-                | CELLS NUMBER              { sprintf (temp, "#define N %d\n", $2);
-                                              strcat ( define, temp); 
-                                              // sprintf (temp, "");
-                                              // $$ = generateString(temp);
+                | CELLS NUMBER              { size_t needed = snprintf(NULL, 0,  "#define N %d\n", $2) + 1;
+                                              char  *buffer = malloc(needed);
+                                              sprintf(buffer,  "#define N %d\n", $2);
+                                              strcat ( define, buffer); 
+                                              free(buffer);
                                             }
                 ;
 
-nStrains:         /*lambda*/                { sprintf (temp, "int nStrain  = 1;\n");
-                                              $$ = generateString(temp);
+nStrains:         /*lambda*/                { size_t needed = snprintf(NULL, 0, "int nStrain  = 1;\n") + 1;
+                                              char  *buffer = malloc(needed);
+                                              sprintf(buffer, "int nStrain  = 1;\n");
+                                              $$ = generateString(buffer);
+                                              free(buffer);
                                             } 
 
-                | NUM_STRAINS NUMBER        { sprintf (temp, "int nStrain  = %d;\n", $2);
-                                              $$ = generateString(temp);
+                | NUM_STRAINS NUMBER        { numStrains = $2;
+                                              size_t needed = snprintf(NULL, 0, "int nStrain  = %d;\n", $2) + 1;
+                                              char  *buffer = malloc(needed);
+                                              sprintf(buffer, "int nStrain  = %d;\n", $2);
+                                              $$ = generateString(buffer);
+                                              free(buffer);
                                             }
                 ;
 
-time:            /*lambda*/                 { sprintf (temp, "int days = 500;\n");
-                                              // printf ("%s", temp); 
-                                              $$ = generateString(temp);
+time:            /*lambda*/                 { size_t needed = snprintf(NULL, 0, "int days = 500;\n") + 1;
+                                              char  *buffer = malloc(needed);
+                                              sprintf(buffer, "int days = 500;\n");
+                                              $$ = generateString(buffer);
+                                              free(buffer);
                                             } 
 
-                | TICKS NUMBER              { sprintf (temp, "int days = %d;\n", $2);
-                                              // printf ("%s", temp);
-                                              $$ = generateString(temp);
+                | TICKS NUMBER              { size_t needed = snprintf(NULL, 0, "int days = %d;\n", $2) + 1;
+                                              char  *buffer = malloc(needed);
+                                              sprintf(buffer, "int days = %d;\n", $2);
+                                              $$ = generateString(buffer);
+                                              free(buffer);
                                             }
                 ;
 
 /*------------------ properties ------------------*/
 
-properties:       GLOB  declaration ';'              {  sprintf (temp, "%s", $2);
-                                                        $$ = generateString(temp);
+properties:       GLOB  declaration ';'              {  size_t needed = snprintf(NULL, 0, "%s", $2) + 1;
+                                                        char  *buffer = malloc(needed);
+                                                        sprintf(buffer, "%s", $2);
+                                                        $$ = generateString(buffer);
+                                                        free(buffer);
                                                       }
-                | GLOB  declaration ';' properties      {  sprintf (temp, "%s %s", $2, $4);
-                                                        $$ = generateString(temp);
-                                                      }
+                | GLOB  declaration ';' properties      { size_t needed = snprintf(NULL, 0, "%s %s", $2, $4) + 1;
+                                                          char  *buffer = malloc(needed);
+                                                          sprintf(buffer, "%s %s", $2, $4);
+                                                          $$ = generateString(buffer);
+                                                          free(buffer);
+                                                        }
                 ;
 
 /*------------------ cell atributes ------------------*/ 
@@ -271,62 +330,108 @@ states:         IDENTIF IDENTIF color state   { if(strcmp($1, "state") != 0) {
                                                 }
                                                 if(Get($2) == NULL) { 
                                                   Add($2, "none", section, " ", " "); 
-                                                  sprintf(temp, "%s", $2);
+                                                  size_t needed = snprintf(NULL, 0, "%s", $2) + 1;
+                                                  char  *buffer = malloc(needed);
+                                                  sprintf(buffer, "%s", $2);
                                                   char aux[1024];
-                                                  sprintf(aux, "#define %s %d\n", toUpper(temp), counter);
+                                                  sprintf(aux, "#define %s %d\n", toUpper(buffer), counter);
                                                   strcat(define, aux);
                                                   // printf ("%s", define);
-                                                  sprintf(drawCell, "void drawCell(vector<vector<Cell>> &cells){ \n for (int i = 0; i < N; i++){ \n for (int j = 0; j < N; j++){ \n switch (cells[i][j].state){ \n case NO_CHANGE: \n glColor3f(1.000000, 1.000000, 1.000000); \n break; \n case %s:\n glColor3f%s; \n break;\n %s } \n glRectd(i, j, i+1, j+1); \n }\n }\n  }\n ", toUpper(temp), $3, $4); 
-                                                  
+                                                  sprintf(drawCell, "void drawCell(vector<vector<Cell>> &cells){ \n for (int i = 0; i < N; i++){ \n for (int j = 0; j < N; j++){ \n switch (cells[i][j].state){ \n case NO_CHANGE: \n glColor3f(1.000000, 1.000000, 1.000000); \n break; \n case %s:\n glColor3f%s; \n break;\n %s } \n glRectd(i, j, i+1, j+1); \n }\n }\n  }\n ", toUpper(buffer), $3, $4); 
+                                                  free(buffer);
                                                 }
                                                 else { yyerror("ERROR: Duplicate state"); exit(0);}
                                               }
                 ;
 
-state:          /*lambda*/                              { //sprintf(define, "\n"); 
-                                                          sprintf(temp, " "); 
-                                                          $$ = generateString(temp); }
+state:          /*lambda*/                              { 
+                                                          char  *buffer = malloc(2);
+                                                          sprintf(buffer, " "); 
+                                                          $$ = generateString(buffer); 
+                                                          free(buffer);
+                                                        }
 
                 | IDENTIF IDENTIF color  state          { if(strcmp($1, "state") != 0) {
                                                               yyerror();
                                                           }
                                                           if(Get($2) == NULL) { 
                                                             Add($2, "int", section, "0", "0"); 
-                                                            sprintf(temp, "%s", $2);
-                                                            char aux[1024];
-                                                            sprintf(aux, "#define %s %d\n", toUpper(temp), counter);
-                                                            strcat(define, aux);
+
+                                                            size_t needed = snprintf(NULL, 0, "%s", $2) + 1;
+                                                            char  *aux1 = malloc(needed);
+                                                            sprintf(aux1, "%s", $2);
+                                                            
+                                                            needed = snprintf(NULL, 0, "#define %s %d\n", toUpper(aux1), counter) + 1;
+                                                            char  *aux2 = malloc(needed);
+                                                            sprintf(aux2, "#define %s %d\n", toUpper(aux1), counter);
+                                                            strcat(define, aux2);
                                                             counter++;
-                                                            sprintf (temp, "case %s:\n glColor3f%s; \n break;\n %s",toUpper(temp), $3, $4);
-                                                            $$ = generateString(temp); 
+
+                                                            needed = snprintf(NULL, 0, "case %s:\n glColor3f%s; \n break;\n %s",toUpper(aux1), $3, $4) + 1;
+                                                            char  *buffer = malloc(needed);
+                                                            sprintf(buffer, "case %s:\n glColor3f%s; \n break;\n %s",toUpper(aux1), $3, $4);
+                                                            $$ = generateString(buffer);
+                                                            free(buffer);
+                                                            free(aux1);
+                                                            free(aux2);
                                                           }
                                                           else { yyerror("ERROR: duplicate variable"); exit(0);}
                                                        }
                 ;
 
-color:           '(' code ',' code ',' code ')'         { sprintf(temp, "(%s,%s,%s)", $2, $4, $6);
-                                                          $$ = generateString(temp); }
+color:           '(' code ',' code ',' code ')'         { size_t needed = snprintf(NULL, 0, "(%s,%s,%s)", $2, $4, $6) + 1;
+                                                          char  *buffer = malloc(needed);
+                                                          sprintf(buffer, "(%s,%s,%s)", $2, $4, $6);
+                                                          $$ = generateString(buffer);
+                                                          free(buffer);
+                                                        }
                 ;
 
 code:        NUMBER '.' NUMBER                          { char *eptr;
-                                                          sprintf(temp, " %d.%d", $1, $3);
-                                                          double number = strtod(temp, &eptr);
-                                                          if (number > 1.0) { sprintf(temp, "1.0");}
-                                                          else if (number < 0.0) { sprintf(temp, "0.0");}
-                                                          else { sprintf(temp, "%f", number); }
-                                                          $$ = generateString(temp); }
+                                                          size_t needed = snprintf(NULL, 0, " %d.%d", $1, $3) + 1;
+                                                          char  *aux = malloc(needed);
+                                                          sprintf(aux, " %d.%d", $1, $3);
+                                                          double number = strtod(aux, &eptr);
+                                                          free(aux);
+                                                          needed = snprintf(NULL, 0, "%f", number) + 1;
+                                                          char  *buffer = malloc(needed);
+                                                          sprintf(buffer, "%f", number); 
+                                                          if (number > 1.0) { 
+                                                            sprintf(buffer, "1.0");
+                                                            $$ = generateString(buffer); 
+                                                          }
+                                                          else if (number < 0.0) { 
+                                                            sprintf(buffer, "0.0");
+                                                            $$ = generateString(buffer); 
+                                                          }
+                                                          else { 
+                                                            $$ = generateString(buffer); 
+                                                          }
+                                                          free(buffer);
+                                                        }
 
-            | NUMBER                                    { if($1 > 1) { sprintf(temp, "1"); } 
-                                                          else if ($1 < 0) { sprintf(temp, "0");}
-                                                          else { sprintf(temp, "%d", $1); }
-                                                          $$ = generateString(temp); }
+            | NUMBER                                    { size_t needed = snprintf(NULL, 0,  "%d", $1) + 1;
+                                                          char  *buffer = malloc(needed);
+                                                          sprintf(buffer,  "%d", $1);
+                                                          if($1 > 1) { 
+                                                            sprintf(buffer, "1"); 
+                                                          } 
+                                                          else if ($1 < 0) { 
+                                                            sprintf(buffer, "0");
+                                                          }
+                                                          $$ = generateString(buffer); 
+                                                          free(buffer);
+                                                        }
 
 /*----------------- Declaration of variables --------------*/
 
 declaration:      BOOL IDENTIF '=' boolValue        { if(Get($2) == NULL) { 
                                                         Add($2, "bool", section, $4, $4); 
-                                                        sprintf (temp, "%s %s = %s;\n", $1, $2, $4);
-                                                        $$ = generateString(temp);
+                                                        size_t needed = snprintf(NULL, 0,  "%s %s = %s;\n", $1, $2, $4) + 1;
+                                                        char  *buffer = malloc(needed);
+                                                        sprintf (buffer, "%s %s = %s;\n", $1, $2, $4);
+                                                        $$ = generateString(buffer);
+                                                        free(buffer);
                                                         clean();
                                                       }
                                                       else { 
@@ -341,8 +446,11 @@ declaration:      BOOL IDENTIF '=' boolValue        { if(Get($2) == NULL) {
 
                 | INT IDENTIF '=' intValue          { if(Get($2) == NULL) { 
                                                         Add($2, "int", section, $4, $4); 
-                                                        sprintf (temp, "%s %s = %s;\n", $1, $2, $4);
-                                                        $$ = generateString(temp);
+                                                        size_t needed = snprintf(NULL, 0,   "%s %s = %s;\n", $1, $2, $4) + 1;
+                                                        char  *buffer = malloc(needed);
+                                                        sprintf (buffer,  "%s %s = %s;\n", $1, $2, $4);
+                                                        $$ = generateString(buffer);
+                                                        free(buffer);
                                                         clean();
                                                       }
                                                       else { 
@@ -356,8 +464,11 @@ declaration:      BOOL IDENTIF '=' boolValue        { if(Get($2) == NULL) {
 
                 | DOUBLE IDENTIF '=' doubleValue    { if(Get($2) == NULL) { 
                                                         Add($2, "double", section, $4, $4); 
-                                                        sprintf (temp, "%s %s = %s;\n", $1, $2, $4);
-                                                        $$ = generateString(temp);
+                                                        size_t needed = snprintf(NULL, 0,   "%s %s = %s;\n", $1, $2, $4) + 1;
+                                                        char  *buffer = malloc(needed);
+                                                        sprintf (buffer,  "%s %s = %s;\n", $1, $2, $4);
+                                                        $$ = generateString(buffer);
+                                                        free(buffer);
                                                         clean();
                                                       }
                                                       else { 
@@ -371,43 +482,91 @@ declaration:      BOOL IDENTIF '=' boolValue        { if(Get($2) == NULL) {
                 ;
 
 /*-------- Rules  --------*/ 
-strains:            STRAIN IDENTIF '(' NUMBER ')' '{' rules '}'            { sprintf(temp, " if(currentTick >= %d) {\n %s %s \n } \n } \n ", $4, beginStrain, $7);
-                                                                                     $$ = generateString(temp); }
-                  | STRAIN IDENTIF '(' NUMBER ')' '{' rules '}'  strains   { sprintf(temp, " if(currentTick >= %d) {\n %s %s \n } \n } \n %s ", $4, beginStrain, $7, $9);
-                                                                                     $$ = generateString(temp); }
-                  | STRAIN IDENTIF '('  ')' '{' rules '}'                  { sprintf(temp, " if(currentTick >= 0) {\n %s %s \n } \n } \n ", beginStrain, $6);
-                                                                                     $$ = generateString(temp); }
-                  | STRAIN IDENTIF '('  ')' '{' rules '}'  strains         { sprintf(temp, " if(currentTick >= 0) {\n %s %s \n } \n } \n %s ", beginStrain, $6, $8);
-                                                                                     $$ = generateString(temp); }
+strains:            STRAIN IDENTIF '(' NUMBER ')' '{' rules '}'            {  size_t needed = snprintf(NULL, 0, "if(currentTick >= %d) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \";\" << results[i];\n}\n%s << \"\\n\";\n } \n ", $4, beginStrain, $7, $2, $2, $2) + 1;
+                                                                              char  *buffer = malloc(needed);
+                                                                              sprintf (buffer,  "if(currentTick >= %d) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \";\" << results[i];\n}\n%s << \"\\n\";\n } \n ", $4, beginStrain, $7, $2, $2, $2);
+                                                                              $$ = generateString(buffer);
+                                                                              free(buffer);
+                                                                              if(Get($2) == NULL) { 
+                                                                                Add($2, "null", STRAIN_T, " ", " "); 
+                                                                              }
+                                                                            }
+                  | STRAIN IDENTIF '(' NUMBER ')' '{' rules '}'  strains   {  size_t needed = snprintf(NULL, 0, "if(currentTick >= %d) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \";\" << results[i];\n}\n%s << \"\\n\";\n } \n %s ", $4, beginStrain, $7, $2, $2, $2, $9) + 1;
+                                                                              char  *buffer = malloc(needed);
+                                                                              sprintf (buffer,  "if(currentTick >= %d) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \";\" << results[i];\n}\n%s << \"\\n\";\n  } \n %s ", $4, beginStrain, $7, $2, $2, $2, $9);
+                                                                              $$ = generateString(buffer);
+                                                                              free(buffer);
+                                                                              if(Get($2) == NULL) { 
+                                                                                Add($2, "null", STRAIN_T, " ", " "); 
+                                                                              }
+                                                                            }
+                  | STRAIN IDENTIF '('  ')' '{' rules '}'                  {  size_t needed = snprintf(NULL, 0, "if(currentTick >= 0) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \";\" << results[i];\n}\n%s << \"\\n\";\n } \n ", beginStrain, $6, $2, $2, $2) + 1;
+                                                                              char  *buffer = malloc(needed);
+                                                                              sprintf (buffer,  "if(currentTick >= 0) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \";\" << results[i];\n}\n%s << \"\\n\";\n } \n ", beginStrain, $6, $2, $2, $2);
+                                                                              $$ = generateString(buffer);
+                                                                              free(buffer);
+                                                                              if(Get($2) == NULL) { 
+                                                                                Add($2, "null", STRAIN_T, " ", " "); 
+                                                                              } 
+                                                                            }
+                  | STRAIN IDENTIF '('  ')' '{' rules '}'  strains         {  size_t needed = snprintf(NULL, 0, "if(currentTick >= 0) {\n %s %s \n } for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \";\" << results[i];\n}\n%s << \"\\n\";\n \n } \n %s ", beginStrain, $6, $2, $2, $2, $8) + 1;
+                                                                              char  *buffer = malloc(needed);
+                                                                              sprintf (buffer,  "if(currentTick >= 0) {\n %s %s \n } for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \";\" << results[i];\n}\n%s << \"\\n\";\n \n } \n %s ", beginStrain, $6, $2, $2, $2, $8);
+                                                                              $$ = generateString(buffer);
+                                                                              free(buffer);
+                                                                              if(Get($2) == NULL) { 
+                                                                                Add($2, "null", STRAIN_T, " ", " "); 
+                                                                              }
+                                                                            }
                   ;
 
 
-rules:            beginIf                       { sprintf(temp, "%s \n }", $1);
-                                                  $$ = generateString(temp); }
+rules:            beginIf                       { size_t needed = snprintf(NULL, 0, "%s \n }", $1) + 1;
+                                                  char  *buffer = malloc(needed);
+                                                  sprintf (buffer,  "%s \n }", $1);
+                                                  $$ = generateString(buffer);
+                                                  free(buffer);
+                                                }
                                                 
-                | beginIf rules                 { sprintf(temp, "%s \n %s", $1, $2);
-                                                  $$ = generateString(temp); }
+                | beginIf rules                 { size_t needed = snprintf(NULL, 0, "%s \n %s", $1, $2) + 1;
+                                                  char  *buffer = malloc(needed);
+                                                  sprintf (buffer,  "%s \n %s", $1, $2);
+                                                  $$ = generateString(buffer);
+                                                  free(buffer);
+                                                  }
                 ;
 
 
-beginIf:     IF '(' expression ')' '{' bodyIf                     { sprintf (temp, "if( %s ) {\n %s ", $3, $6);
-                                                                    $$ = generateString(temp);
+beginIf:     IF '(' expression ')' '{' bodyIf                     { size_t needed = snprintf(NULL, 0, "if( %s ) {\n %s ", $3, $6) + 1;
+                                                                    char  *buffer = malloc(needed);
+                                                                    sprintf (buffer,  "if( %s ) {\n %s ", $3, $6);
+                                                                    $$ = generateString(buffer);
+                                                                    free(buffer);
                                                                     clean();
                                                                   } 
             ;
 
-bodyIf:       codeIf '}'                                            { sprintf(temp, "%s \n}\n",$1);
-                                                                      $$ = generateString(temp);
+bodyIf:       codeIf '}'                                            { size_t needed = snprintf(NULL, 0, "%s \n}\n",$1) + 1;
+                                                                      char  *buffer = malloc(needed);
+                                                                      sprintf (buffer,  "%s \n}\n",$1);
+                                                                      $$ = generateString(buffer);
+                                                                      free(buffer);
                                                                       clean();
                                                                     }  
 
-            | codeIf '}'  ELSE IF '(' expression ')' '{'  bodyIf     { sprintf(temp, "%s \n} else if ( %s ) {\n %s", $1, $6, $9);
-                                                                        $$ = generateString(temp);
+            | codeIf '}'  ELSE IF '(' expression ')' '{'  bodyIf     {  size_t needed = snprintf(NULL, 0, "%s \n} else if ( %s ) {\n %s", $1, $6, $9) + 1;
+                                                                        char  *buffer = malloc(needed);
+                                                                        sprintf (buffer,  "%s \n} else if ( %s ) {\n %s", $1, $6, $9);
+                                                                        $$ = generateString(buffer);
+                                                                        free(buffer);
                                                                         clean();
                                                                       } 
             
-            | codeIf '}'  ELSE '{'  codeIf  '}'                       { sprintf(temp, "%s \n} else {\n %s \n}", $1, $5);
-                                                                        $$ = generateString(temp);
+            | codeIf '}'  ELSE '{'  codeIf  '}'                       { size_t needed = snprintf(NULL, 0, "%s \n} else {\n %s \n}", $1, $5) + 1;
+                                                                        char  *buffer = malloc(needed);
+                                                                        sprintf (buffer,  "%s \n} else {\n %s \n}", $1, $5);
+                                                                        $$ = generateString(buffer);
+                                                                        free(buffer);
                                                                         clean();
                                                                       } 
             ;
@@ -415,19 +574,22 @@ bodyIf:       codeIf '}'                                            { sprintf(te
 
             
 
-codeIf:        /* lambda */                           {  sprintf(temp, " ");
-                                                         $$ = generateString(temp);
-                                                      }
-            | assignment codeIf                       {  sprintf(temp, "%s \n %s", $1, $2);
-                                                         $$ = generateString(temp);
+codeIf:        /* lambda */                           {  $$ = generateString(" "); }
+
+            | assignment codeIf                       { size_t needed = snprintf(NULL, 0, "%s \n %s", $1, $2) + 1;
+                                                        char  *buffer = malloc(needed);
+                                                        sprintf (buffer, "%s \n %s", $1, $2);
+                                                        $$ = generateString(buffer);
+                                                        free(buffer);
                                                       } 
 
-            | beginIf codeIf                          {  sprintf(temp, "%s \n %s", $1, $2);
-                                                         $$ = generateString(temp);
+            | beginIf codeIf                          { size_t needed = snprintf(NULL, 0, "%s \n %s", $1, $2) + 1;
+                                                        char  *buffer = malloc(needed);
+                                                        sprintf (buffer, "%s \n %s", $1, $2);
+                                                        $$ = generateString(buffer);
+                                                        free(buffer);
                                                       } 
-            | CONTINUE ';'                            { sprintf(temp, "continue;");
-                                                        $$ = generateString(temp);
-                                                      }
+            | CONTINUE ';'                            { $$ = generateString("continue;"); }
             ;
 
 /*-------- Initial state -------*/
@@ -436,106 +598,158 @@ init:                                                 { section = INIT_T;
                                                         clean();
                                                      }
             INIT '(' ')' '{' initialAssigments '}'    { if (hasState == 0) {
-                                                          sprintf(temp, "ERROR: Init funcion doesn't have an assigment to the variable \"state\""); 
-                                                          yyerror(temp);
+                                                          yyerror("ERROR: Init funcion doesn't have an assigment to the variable \"state\"");
                                                           exit(0);
                                                         } else {
-                                                          sprintf(temp, "%s }", $6); 
-                                                          strcat(infectFunction, temp);
+                                                          size_t needed = snprintf(NULL, 0, "%s }", $6) + 1;
+                                                          char  *buffer = malloc(needed);
+                                                          sprintf (buffer, "%s }", $6);
+                                                          strcat(infectFunction, buffer);
+                                                          free(buffer);
                                                         }
                                                       }
             ;
-initialAssigments:    /*lambda*/                      { sprintf(temp, " ");
-                                                        $$ = generateString(temp);
-                                                      }
-                    | assignment initialAssigments    { sprintf(temp, "%s \n %s \n", $1, $2);
+
+
+initialAssigments:    /*lambda*/                      { $$ = generateString(" "); }
+
+                    | assignment initialAssigments    { size_t needed = snprintf(NULL, 0, "%s \n %s \n", $1, $2) + 1;
+                                                        char  *buffer = malloc(needed);
+                                                        sprintf (buffer, "%s \n %s \n", $1, $2);
+                                                        $$ = generateString(buffer);
+                                                        free(buffer);
                                                       }
                     ;
 /*-------- Assigning values ​​to variables --------*/
 assignment:                                                  { clean(); }
                   IDENTIF '=' expression ';'                 { nodeList *p = Get($2);
                                                               if(p == NULL) { 
-                                                                sprintf(temp, "ERROR: Variable \"%s\" doesn't exist", $2);          
-                                                                yyerror(temp);
+                                                                yyerror("ERROR: Variable \"%s\" doesn't exist", $2);
                                                                 exit(0);
                                                               } else {
                                                                 if(strcmp($2, "state")==0) { 
                                                                   hasState = 1; 
                                                                 }
                                                                 if (strcmp(p->type,"int") == 0 && foundType(INTEGER_T) == 1){
-                                                                  sprintf(temp, "WARNING: Maybe you're assigning a wrong type to variable \"%s\"", $2);          
-                                                                  yywarning(temp);
+                                                                  yywarning("WARNING: Maybe you're assigning a wrong type to variable \"%s\"", $2);
                                                                 } else if (strcmp(p->type,"bool") == 0 && foundType(BOOLEAN_T == 1)){
-                                                                  sprintf(temp, "WARNING: Maybe you're assigning a wrong type to variable \"%s\"", $2);  
-                                                                  yywarning(temp);
+                                                                  yywarning("WARNING: Maybe you're assigning a wrong type to variable \"%s\"", $2);
                                                                 } else if (strcmp(p->type,"double") && foundType(DOUBLE_T == 1)) {
-                                                                  sprintf(temp, "WARNING: Maybe you're assigning a wrong type to variable \"%s\"", $2);          
-                                                                  yywarning(temp);
+                                                                  yywarning("WARNING: Maybe you're assigning a wrong type to variable \"%s\"", $2);
                                                                 } 
                                                                 clean();
+                                                                size_t needed = snprintf(NULL, 0, "cells[i][j].%s = %s; ", $2, $4) + 1;
+                                                                char  *buffer = malloc(needed);
                                                                 if(p->type2 == CELL_T){
-                                                                  // strcpy(p->actualValue, $4);
                                                                   if (section != INIT_T ) {
-                                                                    sprintf(temp, "cells[i][j].%s = %s; ", $2, $4);
+                                                                    sprintf(buffer, "cells[i][j].%s = %s; ", $2, $4);
                                                                   } else {
-                                                                    sprintf(temp, "%s = %s; ", $2, $4);
+                                                                    sprintf(buffer, "%s = %s; ", $2, $4);
                                                                   }
-                                                                  $$ = generateString(temp); 
+                                                                  $$ = generateString(buffer); 
                                                                 } else if(p->type2 == GLOBAL_T) {
                                                                   // strcpy(p->actualValue, $4);
-                                                                  sprintf(temp, "%s = %s; ", $2, $4);
-                                                                  $$ = generateString(temp); 
-                                                                } 
+                                                                  sprintf(buffer, "%s = %s; ", $2, $4);
+                                                                  $$ = generateString(buffer); 
+                                                                }
+                                                                free(buffer);
                                                               }
                                                             }
                 ;
 
 /*-------- Math expressions --------*/
 expression:        termino                        {  } 
-                | expression '+' expression       { sprintf(temp, "%s + %s", $1, $3);
-                                                    $$ = generateString(temp); }
+                | expression '+' expression       { size_t needed = snprintf(NULL, 0, "%s + %s", $1, $3) + 1;
+                                                    char  *buffer = malloc(needed);
+                                                    sprintf (buffer, "%s + %s", $1, $3);
+                                                    $$ = generateString(buffer);
+                                                    free(buffer);
+                                                  }
 
-                | expression '-' expression       { sprintf(temp, "%s - %s", $1, $3);
-                                                    $$ = generateString(temp); }
+                | expression '-' expression       { size_t needed = snprintf(NULL, 0, "%s - %s", $1, $3) + 1;
+                                                    char  *buffer = malloc(needed);
+                                                    sprintf (buffer, "%s - %s", $1, $3);
+                                                    $$ = generateString(buffer);
+                                                    free(buffer);
+                                                  }
 
-                | expression '*' expression       { sprintf(temp, "%s * %s", $1, $3);
-                                                    $$ = generateString(temp); }
+                | expression '*' expression       { size_t needed = snprintf(NULL, 0, "%s * %s", $1, $3) + 1;
+                                                    char  *buffer = malloc(needed);
+                                                    sprintf (buffer, "%s * %s", $1, $3);
+                                                    $$ = generateString(buffer);
+                                                    free(buffer); }
 
-                | expression '/' expression       { sprintf(temp, "%s / %s", $1, $3);
-                                                    $$ = generateString(temp); }
+                | expression '/' expression       { size_t needed = snprintf(NULL, 0, "%s / %s", $1, $3) + 1;
+                                                    char  *buffer = malloc(needed);
+                                                    sprintf (buffer, "%s / %s", $1, $3);
+                                                    $$ = generateString(buffer);
+                                                    free(buffer); }
 
-                | expression '%' expression       { sprintf(temp, "%s %% %s", $1, $3);
-                                                    $$ = generateString(temp); }
+                | expression '%' expression       { size_t needed = snprintf(NULL, 0, "%s %% %s", $1, $3) + 1;
+                                                    char  *buffer = malloc(needed);
+                                                    sprintf (buffer, "%s %% %s", $1, $3);
+                                                    $$ = generateString(buffer);
+                                                    free(buffer); }
 
-                | expression AND expression       { sprintf(temp, "%s && %s", $1, $3);
-                                                    $$ = generateString(temp); }
+                | expression AND expression       { size_t needed = snprintf(NULL, 0, "%s && %s", $1, $3) + 1;
+                                                    char  *buffer = malloc(needed);
+                                                    sprintf (buffer, "%s && %s", $1, $3);
+                                                    $$ = generateString(buffer);
+                                                    free(buffer); }
 
-                | expression OR  expression       { sprintf(temp, "%s || %s", $1, $3);
-                                                    $$ = generateString(temp); }
+                | expression OR  expression       { size_t needed = snprintf(NULL, 0, "%s || %s", $1, $3) + 1;
+                                                    char  *buffer = malloc(needed);
+                                                    sprintf (buffer, "%s || %s", $1, $3);
+                                                    $$ = generateString(buffer);
+                                                    free(buffer); }
 
-                | expression NEQ expression       { sprintf(temp, "%s != %s", $1, $3);
-                                                    $$ = generateString(temp); }
+                | expression NEQ expression       { size_t needed = snprintf(NULL, 0, "%s != %s", $1, $3) + 1;
+                                                    char  *buffer = malloc(needed);
+                                                    sprintf (buffer, "%s != %s", $1, $3);
+                                                    $$ = generateString(buffer);
+                                                    free(buffer); }
 
-                | expression EQ expression        { sprintf(temp, "%s == %s", $1, $3);
-                                                    $$ = generateString(temp); }
+                | expression EQ expression        { size_t needed = snprintf(NULL, 0, "%s == %s", $1, $3) + 1;
+                                                    char  *buffer = malloc(needed);
+                                                    sprintf (buffer, "%s == %s", $1, $3);
+                                                    $$ = generateString(buffer);
+                                                    free(buffer); }
 
-                | expression '<' expression       { sprintf(temp, "%s < %s", $1, $3);
-                                                    $$ = generateString(temp); }
+                | expression '<' expression       { size_t needed = snprintf(NULL, 0, "%s < %s", $1, $3) + 1;
+                                                    char  *buffer = malloc(needed);
+                                                    sprintf (buffer, "%s < %s", $1, $3);
+                                                    $$ = generateString(buffer);
+                                                    free(buffer); }
 
-                | expression LE expression        { sprintf(temp, "%s <= %s", $1, $3);
-                                                  $$ = generateString(temp); }
+                | expression LE expression        { size_t needed = snprintf(NULL, 0, "%s <= %s", $1, $3) + 1;
+                                                    char  *buffer = malloc(needed);
+                                                    sprintf (buffer, "%s <= %s", $1, $3);
+                                                    $$ = generateString(buffer);
+                                                    free(buffer); }
 
-                | expression '>' expression       { sprintf(temp, "%s > %s", $1, $3);
-                                                    $$ = generateString(temp); }
+                | expression '>' expression       { size_t needed = snprintf(NULL, 0, "%s > %s", $1, $3) + 1;
+                                                    char  *buffer = malloc(needed);
+                                                    sprintf (buffer, "%s > %s", $1, $3);
+                                                    $$ = generateString(buffer);
+                                                    free(buffer); }
 
-                | expression GE expression        { sprintf(temp, "%s >= %s", $1, $3);
-                                                    $$ = generateString(temp); }
+                | expression GE expression        { size_t needed = snprintf(NULL, 0, "%s >= %s", $1, $3) + 1;
+                                                    char  *buffer = malloc(needed);
+                                                    sprintf (buffer, "%s >= %s", $1, $3);
+                                                    $$ = generateString(buffer);
+                                                    free(buffer); }
 
-                | '-' expression                  { sprintf(temp, "- %s", $2);
-                                                    $$ = generateString(temp); }
+                | '-' expression                  { size_t needed = snprintf(NULL, 0, "- %s", $2) + 1;
+                                                    char  *buffer = malloc(needed);
+                                                    sprintf (buffer, "- %s",$2);
+                                                    $$ = generateString(buffer);
+                                                    free(buffer); }
 
-                | '+' expression                  { sprintf(temp, " %s", $2);
-                                                    $$ = generateString(temp); }
+                | '+' expression                  { size_t needed = snprintf(NULL, 0, "%s",$2) + 1;
+                                                    char  *buffer = malloc(needed);
+                                                    sprintf (buffer, "%s",$2);
+                                                    $$ = generateString(buffer);
+                                                    free(buffer); }
 
                 ; 
 
@@ -558,13 +772,11 @@ termino:          operand                           {  }
 operand:        IDENTIF                             { nodeList *p = Get($1);
                                                       if(p == NULL) { 
                                                         if (strcmp($1, "currenttick") == 0) {
-                                                          sprintf(temp, "currentTick");
                                                           typeExpression[i] = INTEGER_T;
                                                           i++;
-                                                          $$ = generateString(temp);
+                                                          $$ = generateString("currentTick");
                                                         } else {
-                                                          sprintf(temp, "ERROR: Variable \"%s\" doesn't exist", $1);          
-                                                          yyerror(temp);
+                                                          yyerror("ERROR: Variable \"%s\" doesn't exist", $1);
                                                           exit(0);
                                                         }
                                                       } else {
@@ -580,61 +792,65 @@ operand:        IDENTIF                             { nodeList *p = Get($1);
                                                           typeExpression[i] = DOUBLE_T;
                                                           i++;
                                                         }
+                                                        size_t needed = snprintf(NULL, 0, "cells[i][j].%s", $1) + 1;
+                                                        char  *buffer = malloc(needed);
                                                         if(p->type2 == CELL_T){
-                                                          sprintf(temp, "cells[i][j].%s", $1);
-                                                          $$ = generateString(temp); 
+                                                          sprintf(buffer, "cells[i][j].%s", $1);
                                                         } else if (p->type2 == GLOBAL_T){
-                                                          sprintf(temp, "%s", $1);
-                                                          $$ = generateString(temp); 
+                                                          sprintf(buffer, "%s", $1);
                                                         } else if (p->type2 == STATE_T){
-                                                          sprintf(temp, "%s", toUpper($1));
-                                                          $$ = generateString(temp);
+                                                          sprintf(buffer, "%s", toUpper($1));
                                                         }
+                                                        $$ = generateString(buffer);
+                                                        free(buffer); 
                                                       }
                                                     }
-                | CURRENTTICK                       { sprintf(temp, "currentTick");
-                                                      typeExpression[i] = INTEGER_T;
-                                                      i++;
-                                                      $$ = generateString(temp);
-                                                    }
 
-                | RANDOM                            { sprintf(temp, "((rand() %% (1001))/1000.0)");
-                                                      typeExpression[i] = DOUBLE_T;
+                | RANDOM                            { typeExpression[i] = DOUBLE_T;
                                                       i++;
-                                                      $$ = generateString(temp); }
+                                                      $$ = generateString("((rand() % (1001))/1000.0)"); }
                                                     
-                | intValue                          { sprintf(temp, "%s", $1);
-                                                      typeExpression[i] = INTEGER_T;
+                | intValue                          { typeExpression[i] = INTEGER_T;
                                                       i++;
-                                                      $$ = generateString(temp); }
+                                                      size_t needed = snprintf(NULL, 0, "%s", $1) + 1;
+                                                      char  *buffer = malloc(needed);
+                                                      sprintf (buffer, "%s", $1);
+                                                      $$ = generateString(buffer);
+                                                      free(buffer); }
 
-                | doubleValue                       { sprintf(temp, "%s", $1);
-                                                      typeExpression[i] = DOUBLE_T;
+                | doubleValue                       { typeExpression[i] = DOUBLE_T;
                                                       i++;
-                                                      $$ = generateString(temp); }
+                                                      size_t needed = snprintf(NULL, 0, "%s", $1) + 1;
+                                                      char  *buffer = malloc(needed);
+                                                      sprintf (buffer, "%s", $1);
+                                                      $$ = generateString(buffer);
+                                                      free(buffer);  }
 
-                | boolValue                         { sprintf(temp, "%s", $1);
-                                                      typeExpression[i] = BOOLEAN_T;
+                | boolValue                         { typeExpression[i] = BOOLEAN_T;
                                                       i++;
-                                                      $$ = generateString(temp); }
+                                                      size_t needed = snprintf(NULL, 0, "%s", $1) + 1;
+                                                      char  *buffer = malloc(needed);
+                                                      sprintf (buffer, "%s", $1);
+                                                      $$ = generateString(buffer);
+                                                      free(buffer);  }
                                                       
                 // | NGH '.' IDENTIF                   { }
 
                 | COUNT '(' IDENTIF ',' termino ')'     { if( Get($3)->type2 == CELL_T ) {
-                                                            sprintf(temp, "count(c_neighbours, string(\"%s\"), std::to_string(%s), cells)", $3, $5); 
-                                                            
-                                                            $$ = generateString(temp);
+                                                            size_t needed = snprintf(NULL, 0, "count(c_neighbours, string(\"%s\"), std::to_string(%s), cells)", $3, $5) + 1;
+                                                            char  *buffer = malloc(needed);
+                                                            sprintf (buffer, "count(c_neighbours, string(\"%s\"), std::to_string(%s), cells)", $3, $5);
+                                                            $$ = generateString(buffer);
+                                                            free(buffer);  
                                                           } else {
-                                                            sprintf(temp, "ERROR: Variable \"%s\" isn't an atribute of a cell type", $3);          
-                                                            yyerror(temp);
+                                                            yyerror("ERROR: Variable \"%s\" isn't an atribute of a cell type", $3);
                                                             exit(0);
                                                           }
                                                         }
 
                 | NGH '(' position ')' '.' IDENTIF  { nodeList *p = Get($6);
                                                       if(p == NULL) { 
-                                                        sprintf(temp, "ERROR: Variable \"%s\" doesn't exist", $6);          
-                                                        yyerror(temp);
+                                                        yyerror( "ERROR: Variable \"%s\" doesn't exist", $6);
                                                         exit(0);
                                                       } else {
                                                         if(p->type2 == CELL_T){
@@ -648,135 +864,129 @@ operand:        IDENTIF                             { nodeList *p = Get($1);
                                                             typeExpression[i] = DOUBLE_T;
                                                             i++;
                                                           }
-                                                          sprintf(temp, "cells%s.%s", $3, $6);
-                                                          $$ = generateString(temp); 
+                                                          size_t needed = snprintf(NULL, 0, "cells%s.%s", $3, $6) + 1;
+                                                          char  *buffer = malloc(needed);
+                                                          sprintf (buffer, "cells%s.%s", $3, $6);
+                                                          $$ = generateString(buffer);
+                                                          free(buffer);  
                                                         } else {
-                                                          sprintf(temp, "ERROR: \"%s\" not a cell variable", $6);          
-                                                          yyerror(temp);
+                                                          yyerror("ERROR: \"%s\" not a cell variable", $6);
                                                           exit(0);
                                                         }
                                                       } 
                                                     } // Añadir tambien lo de que al menos uno haga algo????
     
-                | '(' expression ')'                 { sprintf(temp, "( %s )", $2);
-                                                      $$ = generateString(temp); }
+                | '(' expression ')'                 {  size_t needed = snprintf(NULL, 0, "( %s )", $2) + 1;
+                                                        char  *buffer = malloc(needed);
+                                                        sprintf (buffer, "( %s )", $2);
+                                                        $$ = generateString(buffer);
+                                                        free(buffer); }
                 ;
 
 /*-------- Values depend on the type of variable --------*/
-boolValue:       /*lambda*/                     {  sprintf (temp, "false");
-                                                   $$ = generateString(temp); 
-                                                } 
+boolValue:       /*lambda*/                     { $$ = generateString("false"); } 
                                                   
-                | TRUE                          {  sprintf (temp, "%s", $1);
-                                                   $$ = generateString(temp); 
+                | TRUE                          { size_t needed = snprintf(NULL, 0, "%s", $1) + 1;
+                                                  char  *buffer = malloc(needed);
+                                                  sprintf (buffer, "%s", $1);
+                                                  $$ = generateString(buffer);
+                                                  free(buffer); 
                                                 }
 
-                | FALSE                         {  sprintf (temp, "%s", $1);
-                                                   $$ = generateString(temp); 
+                | FALSE                         { size_t needed = snprintf(NULL, 0, "%s", $1) + 1;
+                                                  char  *buffer = malloc(needed);
+                                                  sprintf (buffer, "%s", $1);
+                                                  $$ = generateString(buffer);
+                                                  free(buffer); 
                                                 }
                 ;
 
-intValue:        /*lambda*/                     {  sprintf (temp, "-1");
-                                                   $$ = generateString(temp); 
-                                                } // -1 default 
+intValue:        /*lambda*/                     { $$ = generateString("-1"); } // -1 default 
 
-                | NUMBER                        {  sprintf (temp, "%d", $1);
-                                                   $$ = generateString(temp); 
+                | NUMBER                        { size_t needed = snprintf(NULL, 0, "%d", $1) + 1;
+                                                  char  *buffer = malloc(needed);
+                                                  sprintf (buffer, "%d", $1);
+                                                  $$ = generateString(buffer);
+                                                  free(buffer); 
                                                 } 
                 ;
 
-doubleValue:     /*lambda*/                     {  sprintf (temp, "0.0");
-                                                   $$ = generateString(temp); 
-                                                } // 0.0 default
+doubleValue:     /*lambda*/                     { $$ = generateString("0.0");} // 0.0 default
 
-                | NUMBER '.' NUMBER             {  sprintf (temp, "%d.%d", $1, $3);
-                                                   $$ = generateString(temp); 
+                | NUMBER '.' NUMBER             { size_t needed = snprintf(NULL, 0, "%d.%d", $1, $3) + 1;
+                                                  char  *buffer = malloc(needed);
+                                                  sprintf (buffer, "%d.%d", $1, $3);
+                                                  $$ = generateString(buffer);
+                                                  free(buffer);  
                                                 }
 
-                | NUMBER                        {  sprintf (temp, "%d.0", $1);
-                                                   $$ = generateString(temp); 
+                | NUMBER                        { size_t needed = snprintf(NULL, 0, "%d.0", $1) + 1;
+                                                  char  *buffer = malloc(needed);
+                                                  sprintf (buffer, "%d.0", $1);
+                                                  $$ = generateString(buffer);
+                                                  free(buffer);
                                                 }
                 ;
 
 
 /*-------- Positions of neighborhood --------*/
-position:         NORTH                             { sprintf(temp,"[c_neighbours[1][0]][c_neighbours[1][1]]");
-                                                      $$ = generateString(temp);}
-                | SOUTH                             { sprintf(temp,"[c_neighbours[5][0]][c_neighbours[5][1]]");
-                                                      $$ = generateString(temp);}
-                | WEST                              { sprintf(temp,"[c_neighbours[7][0]][c_neighbours[7][1]]");
-                                                      $$ = generateString(temp);}
-                | EAST                              { sprintf(temp,"[c_neighbours[3][0]][c_neighbours[3][1]]");
-                                                      $$ = generateString(temp);}
+position:         NORTH                             { $$ = generateString("[c_neighbours[1][0]][c_neighbours[1][1]]");}
+                | SOUTH                             { $$ = generateString("[c_neighbours[5][0]][c_neighbours[5][1]]");}
+                | WEST                              { $$ = generateString("[c_neighbours[7][0]][c_neighbours[7][1]]");}
+                | EAST                              { $$ = generateString("[c_neighbours[3][0]][c_neighbours[3][1]]");}
                 | NORTHEAST                         { if(neighborhoodType != NEUMANN_T) {
-                                                        sprintf(temp,"[c_neighbours[2][0]][c_neighbours[2][1]]");
-                                                        $$ = generateString(temp);
+                                                        $$ = generateString("[c_neighbours[2][0]][c_neighbours[2][1]]");
                                                       } else {
-                                                          sprintf(temp, "ERROR: \"%s\" not allow in this type of neighborhood", $1);          
-                                                          yyerror(temp);
+                                                          yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
                                                           exit(0);
                                                       }
                                                     }
                 | NORTHWEST                         { if(neighborhoodType != NEUMANN_T) {
-                                                        sprintf(temp,"[c_neighbours[0][0]][c_neighbours[0][1]]");
-                                                        $$ = generateString(temp);
+                                                        $$ = generateString("[c_neighbours[0][0]][c_neighbours[0][1]]");
                                                       } else {
-                                                          sprintf(temp, "ERROR: \"%s\" not allow in this type of neighborhood", $1);          
-                                                          yyerror(temp);
+                                                          yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
                                                           exit(0);
                                                       }
                                                     }
                 | SOUTHEAST                         { if(neighborhoodType != NEUMANN_T) {
-                                                        sprintf(temp,"[c_neighbours[4][0]][c_neighbours[4][1]]");
-                                                        $$ = generateString(temp);
+                                                        $$ = generateString("[c_neighbours[4][0]][c_neighbours[4][1]]");
                                                       } else {
-                                                          sprintf(temp, "ERROR: \"%s\" not allow in this type of neighborhood", $1);          
-                                                          yyerror(temp);
+                                                          yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
                                                           exit(0);
                                                       }
                                                     }
                 | SOUTHWEST                         { if(neighborhoodType != NEUMANN_T) {
-                                                        sprintf(temp,"[c_neighbours[6][0]][c_neighbours[6][1]]");
-                                                        $$ = generateString(temp);
+                                                        $$ = generateString("[c_neighbours[6][0]][c_neighbours[6][1]]");
                                                       } else {
-                                                          sprintf(temp, "ERROR: \"%s\" not allow in this type of neighborhood", $1);          
-                                                          yyerror(temp);
+                                                          yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
                                                           exit(0);
                                                       }
                                                     }
                 | NORTHP                            { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
-                                                        sprintf(temp,"[c_neighbours[8][0]][c_neighbours[8][1]]");
-                                                        $$ = generateString(temp);
+                                                        $$ = generateString("[c_neighbours[8][0]][c_neighbours[8][1]]");
                                                       } else {
-                                                          sprintf(temp, "ERROR: \"%s\" not allow in this type of neighborhood", $1);          
-                                                          yyerror(temp);
+                                                          yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
                                                           exit(0);
                                                       }
                                                     }
                 | SOUTHP                            { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
-                                                        sprintf(temp,"[c_neighbours[10][0]][c_neighbours[10][1]]");
-                                                        $$ = generateString(temp);
+                                                        $$ = generateString("[c_neighbours[10][0]][c_neighbours[10][1]]");
                                                       } else {
-                                                          sprintf(temp, "ERROR: \"%s\" not allow in this type of neighborhood", $1);          
-                                                          yyerror(temp);
+                                                          yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
                                                           exit(0);
                                                       }
                                                     }
                 | WESTP                             { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
-                                                        sprintf(temp,"[c_neighbours[11][0]][c_neighbours[11][1]]");
-                                                        $$ = generateString(temp);
+                                                        $$ = generateString("[c_neighbours[11][0]][c_neighbours[11][1]]");
                                                       } else {
-                                                          sprintf(temp, "ERROR: \"%s\" not allow in this type of neighborhood", $1);          
-                                                          yyerror(temp);
+                                                          yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
                                                           exit(0);
                                                       }
                                                     }
                 | EASTP                             { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
-                                                        sprintf(temp,"[c_neighbours[9][0]][c_neighbours[9][1]]");
-                                                        $$ = generateString(temp);
+                                                        $$ = generateString("[c_neighbours[9][0]][c_neighbours[9][1]]");
                                                       } else {
-                                                          sprintf(temp, "ERROR: \"%s\" not allow in this type of neighborhood", $1);          
-                                                          yyerror(temp);
+                                                          yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
                                                           exit(0);
                                                       }
                                                     }
@@ -1110,6 +1320,50 @@ void clean(){
     typeExpression[j] = 0;
   }
   i = 0;
+}
+
+
+// To write the first line of the output files
+char * generateFirstLine(){
+  char  *line = malloc(2048);
+  sprintf (line, " ");
+
+  char  *aux = malloc(2048);
+  sprintf (aux, " ");
+
+  // char line[2048];
+  sprintf(aux, " ");
+  sprintf(line, " ");
+  nodeList *p = List; //Pointer
+  while(p->next != NULL){
+        if( STATE_T == p->type2){
+          sprintf(aux, "%s", line);
+          sprintf(line, ";%s", toUpper(p->name));
+          strcat(line, aux);
+        }
+        p = p->next;
+  }
+  sprintf(aux, "%s", line);
+  sprintf(line, "currentTick");
+  strcat(line, aux);
+
+  size_t needed = snprintf(NULL, 0, "if (currentTick == 0){ \n MyFile << \"%s\";\n}\n", line) + 1;
+  char  *writeFirstLine = malloc(needed*numStrains);
+  sprintf(writeFirstLine, "if (currentTick == 0){ \n");
+  p = List; //Pointer
+  while(p->next != NULL){
+        if( STRAIN_T == p->type2){
+          strcat(writeFirstLine, p->name);
+          strcat(writeFirstLine, " << \"");
+          strcat(writeFirstLine, line);
+          strcat(writeFirstLine, "\";\n");
+        }
+        p = p->next;
+  }
+  strcat(writeFirstLine, "}\n");
+
+
+  return writeFirstLine;
 }
 
 /*-----------Fuctions for the Linked List----------*/

@@ -20,4 +20,4 @@ compilar:
 
 clean:
 	@echo "Cleaning..."
-	@rm -rf a.out compiler.tab.c *Result.cpp
+	@rm -rf a.out compiler.tab.c *Result.cpp DataStrain*
