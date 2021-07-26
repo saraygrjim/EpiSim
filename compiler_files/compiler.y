@@ -169,17 +169,12 @@ program:                                    { Add("state", "int", CELL_T, "0", "
                                               generateFoundFunction();
                                               char aux[2048];
                                               sprintf(aux, "\n");
-                                              // for(int j=0; j<numStrains; j++){
-                                              //   char file[100];
-                                              //   sprintf(file, "ofstream MyFile(\"DataStrain%d.csv\");\n", j); //cambiar para poner nombre de la cepa
-                                              //   strcat(aux, file);
-                                              // }
 
                                               nodeList *p = List; //Pointer
                                               while(p->next != NULL){
                                                   if(STRAIN_T == p->type2){
                                                       char file[100];
-                                                      sprintf(file, "ofstream %s(\"DataStrain%s.csv\");\n", p->name, p->name); 
+                                                      sprintf(file, "ofstream %s(\"DataStrain_%s.csv\");\n", p->name, p->name); 
                                                       strcat(aux, file);
                                                   }
                                                   p = p->next;
@@ -482,36 +477,36 @@ declaration:      BOOL IDENTIF '=' boolValue        { if(Get($2) == NULL) {
                 ;
 
 /*-------- Rules  --------*/ 
-strains:            STRAIN IDENTIF '(' NUMBER ')' '{' rules '}'            {  size_t needed = snprintf(NULL, 0, "if(currentTick >= %d) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \";\" << results[i];\n}\n%s << \"\\n\";\n } \n ", $4, beginStrain, $7, $2, $2, $2) + 1;
+strains:            STRAIN IDENTIF '(' NUMBER ')' '{' rules '}'            {  size_t needed = snprintf(NULL, 0, "if(currentTick >= %d) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \",\" << results[i];\n}\n%s << \"\\n\";\n } \n ", $4, beginStrain, $7, $2, $2, $2) + 1;
                                                                               char  *buffer = malloc(needed);
-                                                                              sprintf (buffer,  "if(currentTick >= %d) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \";\" << results[i];\n}\n%s << \"\\n\";\n } \n ", $4, beginStrain, $7, $2, $2, $2);
+                                                                              sprintf (buffer,  "if(currentTick >= %d) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \",\" << results[i];\n}\n%s << \"\\n\";\n } \n ", $4, beginStrain, $7, $2, $2, $2);
                                                                               $$ = generateString(buffer);
                                                                               free(buffer);
                                                                               if(Get($2) == NULL) { 
                                                                                 Add($2, "null", STRAIN_T, " ", " "); 
                                                                               }
                                                                             }
-                  | STRAIN IDENTIF '(' NUMBER ')' '{' rules '}'  strains   {  size_t needed = snprintf(NULL, 0, "if(currentTick >= %d) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \";\" << results[i];\n}\n%s << \"\\n\";\n } \n %s ", $4, beginStrain, $7, $2, $2, $2, $9) + 1;
+                  | STRAIN IDENTIF '(' NUMBER ')' '{' rules '}'  strains   {  size_t needed = snprintf(NULL, 0, "if(currentTick >= %d) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \",\" << results[i];\n}\n%s << \"\\n\";\n } \n %s ", $4, beginStrain, $7, $2, $2, $2, $9) + 1;
                                                                               char  *buffer = malloc(needed);
-                                                                              sprintf (buffer,  "if(currentTick >= %d) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \";\" << results[i];\n}\n%s << \"\\n\";\n  } \n %s ", $4, beginStrain, $7, $2, $2, $2, $9);
+                                                                              sprintf (buffer,  "if(currentTick >= %d) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \",\" << results[i];\n}\n%s << \"\\n\";\n  } \n %s ", $4, beginStrain, $7, $2, $2, $2, $9);
                                                                               $$ = generateString(buffer);
                                                                               free(buffer);
                                                                               if(Get($2) == NULL) { 
                                                                                 Add($2, "null", STRAIN_T, " ", " "); 
                                                                               }
                                                                             }
-                  | STRAIN IDENTIF '('  ')' '{' rules '}'                  {  size_t needed = snprintf(NULL, 0, "if(currentTick >= 0) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \";\" << results[i];\n}\n%s << \"\\n\";\n } \n ", beginStrain, $6, $2, $2, $2) + 1;
+                  | STRAIN IDENTIF '('  ')' '{' rules '}'                  {  size_t needed = snprintf(NULL, 0, "if(currentTick >= 0) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \",\" << results[i];\n}\n%s << \"\\n\";\n } \n ", beginStrain, $6, $2, $2, $2) + 1;
                                                                               char  *buffer = malloc(needed);
-                                                                              sprintf (buffer,  "if(currentTick >= 0) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \";\" << results[i];\n}\n%s << \"\\n\";\n } \n ", beginStrain, $6, $2, $2, $2);
+                                                                              sprintf (buffer,  "if(currentTick >= 0) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \",\" << results[i];\n}\n%s << \"\\n\";\n } \n ", beginStrain, $6, $2, $2, $2);
                                                                               $$ = generateString(buffer);
                                                                               free(buffer);
                                                                               if(Get($2) == NULL) { 
                                                                                 Add($2, "null", STRAIN_T, " ", " "); 
                                                                               } 
                                                                             }
-                  | STRAIN IDENTIF '('  ')' '{' rules '}'  strains         {  size_t needed = snprintf(NULL, 0, "if(currentTick >= 0) {\n %s %s \n } for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \";\" << results[i];\n}\n%s << \"\\n\";\n \n } \n %s ", beginStrain, $6, $2, $2, $2, $8) + 1;
+                  | STRAIN IDENTIF '('  ')' '{' rules '}'  strains         {  size_t needed = snprintf(NULL, 0, "if(currentTick >= 0) {\n %s %s \n } for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \",\" << results[i];\n}\n%s << \"\\n\";\n \n } \n %s ", beginStrain, $6, $2, $2, $2, $8) + 1;
                                                                               char  *buffer = malloc(needed);
-                                                                              sprintf (buffer,  "if(currentTick >= 0) {\n %s %s \n } for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \";\" << results[i];\n}\n%s << \"\\n\";\n \n } \n %s ", beginStrain, $6, $2, $2, $2, $8);
+                                                                              sprintf (buffer,  "if(currentTick >= 0) {\n %s %s \n } for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \",\" << results[i];\n}\n%s << \"\\n\";\n \n } \n %s ", beginStrain, $6, $2, $2, $2, $8);
                                                                               $$ = generateString(buffer);
                                                                               free(buffer);
                                                                               if(Get($2) == NULL) { 
@@ -1338,12 +1333,12 @@ char * generateFirstLine(){
   while(p->next != NULL){
         if( STATE_T == p->type2){
           sprintf(aux, "%s", line);
-          sprintf(line, ";%s", toUpper(p->name));
+          sprintf(line, ",%s", toUpper(p->name));
           strcat(line, aux);
         }
         p = p->next;
   }
-  sprintf(aux, "%s", line);
+  sprintf(aux, "%s\\n", line);
   sprintf(line, "currentTick");
   strcat(line, aux);
 

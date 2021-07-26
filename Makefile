@@ -15,8 +15,9 @@ compilar:
 	# ./run.sh
 	@echo "Executing..."
 	# g++ main.cpp -lglut -lGLU -lGL
-	g++ main.cpp grid.cpp sim.cpp -lglut -lGLU -lGL
-	./a.out
+	@g++ main.cpp grid.cpp sim.cpp -lglut -lGLU -lGL
+	@./a.out
+	@./plot.sh
 
 clean:
 	@echo "Cleaning..."
