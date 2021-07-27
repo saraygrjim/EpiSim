@@ -4,20 +4,20 @@ init:
 	@echo ""
 	@echo "Epidemic simulation"
 	@echo "Uso de make:"
-	@echo "make       -> compilar"
+	@echo "make       -> Ejecutar"
 	@echo "make clean -> borrar archivos intermedios"
 	@echo ""
 
 compilar: 
-	# @echo "Compiling..."
-	# bison compiler.y
-	# gcc compiler.tab.c -o compiler
-	# ./run.sh
-	@echo "Executing..."
-	# g++ main.cpp -lglut -lGLU -lGL
-	@g++ main.cpp grid.cpp sim.cpp -lglut -lGLU -lGL
-	@./a.out
-	@./plot.sh
+	@echo "Compiling..."
+	@bison compiler_files/compiler.y
+	@gcc compiler.tab.c -o compiler_files/compiler
+	@./compiler_files/run.sh $(FILE)
+	# @echo "Executing..."
+	# @g++ main.cpp grid.cpp sim.cpp -lglut -lGLU -lGL
+	# @./a.out
+	# @echo "Generating results..."
+	# @./plot.sh
 
 clean:
 	@echo "Cleaning..."

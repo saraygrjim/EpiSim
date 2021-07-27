@@ -10,7 +10,7 @@ init:
 
 compilar: 
 	@echo "Compiling..."
-	@bison compiler.y
+	@bison compiler.y 
 	@gcc compiler.tab.c -o compiler
 	@./run.sh
 
