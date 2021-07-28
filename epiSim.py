@@ -11,20 +11,21 @@ if(sys.argv[1] == "clean"):
     subprocess.Popen('rm -rf a.out compiler.tab.c DataStrain* compiler_files/compiler', shell=True, stdout=subprocess.PIPE).stdout.read()
 
 else:
-    subprocess.Popen("cp " + sys.argv[1] + " compiler_files/Test.txt", shell=True, stdout=subprocess.PIPE).stdout.read()
-    subprocess.Popen('echo "Compiling..."', shell=True, stdout=subprocess.PIPE).stdout.read()
-    subprocess.Popen("bison compiler_files/compiler.y", shell=True, stdout=subprocess.PIPE).stdout.read()
-    subprocess.Popen("gcc compiler.tab.c -o compiler_files/compiler", shell=True, stdout=subprocess.PIPE).stdout.read()
-    subprocess.Popen("compiler_files/compiler < compiler_files/Test.txt > todojunto.cpp", shell=True, stdout=subprocess.PIPE).stdout.read()
-    subprocess.Popen('echo "Executing..."', shell=True, stdout=subprocess.PIPE).stdout.read()
-    subprocess.Popen("g++ main.cpp grid.cpp sim.cpp -lglut -lGLU -lGL", shell=True, stdout=subprocess.PIPE).stdout.read()
+    subprocess.Popen("cp " + sys.argv[1] + " src/compiler_files/file.grj", shell=True, stdout=subprocess.PIPE).stdout.read()
+    print("Compiling...")
+    subprocess.Popen("bison src/compiler_files/compiler.y", shell=True, stdout=subprocess.PIPE).stdout.read()
+    subprocess.Popen("gcc compiler.tab.c -o src/compiler_files/compiler", shell=True, stdout=subprocess.PIPE).stdout.read()
+    subprocess.Popen("src/compiler_files/compiler < src/compiler_files/file.grj > epiSim.cpp", shell=True, stdout=subprocess.PIPE).stdout.read()
+    print("Executing...")
+    subprocess.Popen("g++ src/simulation/main.cpp src/simulation/grid.cpp src/simulation/sim.cpp -lglut -lGLU -lGL", shell=True, stdout=subprocess.PIPE).stdout.read()
     subprocess.Popen("./a.out", shell=True, stdout=subprocess.PIPE).stdout.read()
-    subprocess.Popen('echo "Generating results..."', shell=True, stdout=subprocess.PIPE).stdout.read()
+    print("Generating results...")
+    subprocess.Popen('rm -rf a.out compiler.tab.c src/compiler_files/compiler', shell=True, stdout=subprocess.PIPE).stdout.read()
 
-    for file in os.listdir("./"):
+    for file in os.listdir("./Data/"):
         if file.endswith(".csv"):
             fileName = file.replace('.csv','')
-            with open(file) as f: 
+            with open("./Data/" + file) as f: 
                 reader=csv.reader(f) 
                 header_row=next(reader) 
 
@@ -48,4 +49,4 @@ else:
                 plt.tick_params(axis='both',which='major',labelsize=8) 
                 plt.legend(header_row[1:len(header_row)])
                 
-                plt.savefig(fileName + ".png")
+                plt.savefig("./Data/" + fileName + ".png")

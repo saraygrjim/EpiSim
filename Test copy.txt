@@ -1,0 +1,118 @@
+ngh MOORE
+ticks 200
+
+global double rate 
+global int incubation 
+global int duration 
+global double density 
+global double fatality 
+global double immunity 
+global int medIntroduced 
+global double medEffectiveness 
+global int qIntroduced 
+global double qEffectiveness 
+
+
+cell() {
+    int R
+    int cincubation
+    int cduration
+    double cimmunity
+    bool cmedicated
+    bool cquarantined
+
+    state NO_CHANGE     (1.0, 1.0, 1.0)
+    state SINFECTED     (1.0, 0.0, 0.0)
+    state NO_INFECTIOUS (1.0, 0.8, 0.6)
+    state RECOVER       (1.0, 0.0, 1.0)
+    state QUARANTINE    (0.6, 0.8, 1.0)
+    state DIE           (0.0, 0.0, 0.0)
+}
+
+
+strain NAME1(){
+    // if cell is empty or not infected, go to the next cell
+    if ( state = NO_CHANGE || infected == false ) {
+        //añadir paralabra reservada continue
+    }
+
+    if (infected == true ) {
+        if (cincubation > 0){
+            cincubation = cincubation - 1;
+        } else {
+            state = SINFECTED;
+            if ( cduration > 0 ) {
+                cduration = cduration - 1;
+            } else {
+                if (random > fatality) {
+                    state = RECOVER;
+                    cinfected = false;
+                    cincubation = 0;
+                    cduration = 0;
+                    cimmunity = immunity;
+                } else {
+                    state = DIE;
+                    cinfected = false;
+                    cduration = 0;
+                }
+            }
+
+        }
+    }
+
+    // if cell has recovered or still incubating, go to next cell
+    if ( cinfected = false || cincubation > 0) {
+       //añadir paralabra reservada continue
+    }
+
+    // apply medicine if it's time
+    if (cmedicated == false && (currentTick > medIntroduced)) {
+        if (random < medEffectiveness) {
+		    state = RECOVER;
+            cinfected = false;
+            cincubation = 0;
+            cduration = 0;
+            cimmunity = immunity;
+        } else {
+            // the cell has been medicated but it didn't work
+            cmedicated = true
+        }
+    }
+
+    // if medicine is successful, cell is recovered so go to next cell
+    if (cinfected == false) {
+        //añadir paralabra reservada continue
+    }
+
+    // quarantine has been started
+    if (cquarantined == false && (currentTick > qIntroduced) && (random < qEffectiveness)) {
+        state = QUARANTINE;
+	    cquarantined = true;
+    }
+
+
+    if (cquarantined == false && count(cinfected, true) >= 1) {
+        if (state == RECOVER){
+            if (random > cimmunity){
+                // if probability less than infection rate then cell gets infected
+                if (random < rate) {
+                    state = NO_INFECTIOUS;
+                    cinfected = true;
+                    cincubation = incubation;
+                    cduration = duration;
+                }
+            }
+        } else if (state == NO_CHANGE){
+            state = NO_INFECTIOUS;
+            cinfected = true;
+            cincubation = incubation;
+            cduration = duration;
+        }
+    }
+
+}
+
+
+init() {
+    cduration   = duration;
+}

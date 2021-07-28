@@ -9,12 +9,12 @@
 #include <vector>
 #include "sim.h"
 #include "grid.h"
-#include "todojunto.cpp"
+#include "epiSim.cpp"
 
 using namespace std;
 using std::vector;
 
-#define FPS        100000
+#define FPS        10
 
 void timerCallback(int);
 void displayCallback();
@@ -72,7 +72,7 @@ void reshapeCallback(int w, int h){
 }
 
 void timerCallback(int){
-    cerr << currentDay << endl;
+    cerr << "Tick " << currentDay << endl;
     simulation();
     glutPostRedisplay();
     glutTimerFunc(1000/FPS, timerCallback, 0);
