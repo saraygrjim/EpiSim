@@ -30,7 +30,7 @@ ofstream name2("Data/DataStrain_name2.csv");
 
 int nStates = 6;
 int neighType = NEUMANN;
- int days = 2;
+ int days = 200;
  int nStrain  = 2;
  
  double probability = 0.6;
