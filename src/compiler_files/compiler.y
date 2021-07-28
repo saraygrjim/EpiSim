@@ -5,7 +5,7 @@
 #include <string.h>           // declaraciones para cadenas
 #include <stdlib.h>           // declaraciones para exit ()
 #include <pthread.h>
-#include "compiler_files/lista.h"            // linked list
+#include "src/compiler_files/lista.h"            // linked list
 
 // Types of neighborhood
 #define MOORE_T         0
@@ -173,7 +173,7 @@ program:                                    { Add("state", "int", CELL_T, "0", "
                                               while(p->next != NULL){
                                                   if(STRAIN_T == p->type2){
                                                       char file[100];
-                                                      sprintf(file, "ofstream %s(\"DataStrain_%s.csv\");\n", p->name, p->name); 
+                                                      sprintf(file, "ofstream %s(\"Data/DataStrain_%s.csv\");\n", p->name, p->name); 
                                                       strcat(aux, file);
                                                   }
                                                   p = p->next;

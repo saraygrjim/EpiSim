@@ -15,7 +15,7 @@ else:
     print("Compiling...")
     subprocess.Popen("bison src/compiler_files/compiler.y", shell=True, stdout=subprocess.PIPE).stdout.read()
     subprocess.Popen("gcc compiler.tab.c -o src/compiler_files/compiler", shell=True, stdout=subprocess.PIPE).stdout.read()
-    subprocess.Popen("src/compiler_files/compiler < src/compiler_files/file.grj > epiSim.cpp", shell=True, stdout=subprocess.PIPE).stdout.read()
+    subprocess.Popen("src/compiler_files/compiler < src/compiler_files/file.grj > src/simulation/epiSim.cpp", shell=True, stdout=subprocess.PIPE).stdout.read()
     print("Executing...")
     subprocess.Popen("g++ src/simulation/main.cpp src/simulation/grid.cpp src/simulation/sim.cpp -lglut -lGLU -lGL", shell=True, stdout=subprocess.PIPE).stdout.read()
     subprocess.Popen("./a.out", shell=True, stdout=subprocess.PIPE).stdout.read()

@@ -25,12 +25,12 @@
 #define SINFECTED 5
 
 
-ofstream name1("DataStrain_name1.csv");
-ofstream name2("DataStrain_name2.csv");
+ofstream name1("Data/DataStrain_name1.csv");
+ofstream name2("Data/DataStrain_name2.csv");
 
 int nStates = 6;
 int neighType = NEUMANN;
- int days = 200;
+ int days = 2;
  int nStrain  = 2;
  
  double probability = 0.6;
