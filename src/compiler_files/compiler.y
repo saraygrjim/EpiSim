@@ -334,7 +334,7 @@ states:         IDENTIF IDENTIF color state   { if(strcmp($1, "state") != 0) {
                                                   sprintf(drawCell, "void drawCell(vector<vector<Cell>> &cells){ \n for (int i = 0; i < N; i++){ \n for (int j = 0; j < N; j++){ \n switch (cells[i][j].state){ \n case NO_CHANGE: \n glColor3f(1.000000, 1.000000, 1.000000); \n break; \n case %s:\n glColor3f%s; \n break;\n %s } \n glRectd(i, j, i+1, j+1); \n }\n }\n  }\n ", toUpper(buffer), $3, $4); 
                                                   free(buffer);
                                                 }
-                                                else { yyerror("ERROR: Duplicate state"); exit(0);}
+                                                else { yyerror("ERROR: Duplicate state"); exit(1);}
                                               }
                 ;
 
@@ -369,7 +369,7 @@ state:          /*lambda*/                              {
                                                             free(aux1);
                                                             free(aux2);
                                                           }
-                                                          else { yyerror("ERROR: duplicate variable"); exit(0);}
+                                                          else { yyerror("ERROR: duplicate variable"); exit(1);}
                                                        }
                 ;
 
@@ -430,9 +430,27 @@ declaration:      BOOL IDENTIF '=' boolValue        { if(Get($2) == NULL) {
                                                       }
                                                       else { 
                                                         if(strcmp($1, "state") == 0 || strcmp($1, "alive") == 0 || strcmp($1, "infected") == 0){
-                                                          yyerror("ERROR: %s is a reserved variable", $1); exit(0);
+                                                          yyerror("ERROR: %s is a reserved variable", $1); exit(1);
                                                         } else {
-                                                          yyerror("ERROR: duplicate variable"); exit(0);
+                                                          yyerror("ERROR: duplicate variable"); exit(1);
+                                                        }
+                                                      }
+                                                      
+                                                    }
+                  | BOOL IDENTIF                     { if(Get($2) == NULL) { 
+                                                        Add($2, "bool", section, "false", "false"); 
+                                                        size_t needed = snprintf(NULL, 0,  "%s %s = false;\n", $1, $2) + 1;
+                                                        char  *buffer = malloc(needed);
+                                                        sprintf (buffer, "%s %s = false;\n", $1, $2);
+                                                        $$ = generateString(buffer);
+                                                        free(buffer);
+                                                        clean();
+                                                      }
+                                                      else { 
+                                                        if(strcmp($1, "state") == 0 || strcmp($1, "alive") == 0 || strcmp($1, "infected") == 0){
+                                                          yyerror("ERROR: %s is a reserved variable", $1); exit(1);
+                                                        } else {
+                                                          yyerror("ERROR: duplicate variable"); exit(1);
                                                         }
                                                       }
                                                       
@@ -449,9 +467,27 @@ declaration:      BOOL IDENTIF '=' boolValue        { if(Get($2) == NULL) {
                                                       }
                                                       else { 
                                                         if(strcmp($1, "state") == 0 || strcmp($1, "alive") == 0 || strcmp($1, "infected") == 0){
-                                                          yyerror("ERROR: %s is a reserved variable", $1); exit(0);
+                                                          yyerror("ERROR: %s is a reserved variable", $1); exit(1);
                                                         } else {
-                                                          yyerror("ERROR:%s is a duplicate variable", $1); exit(0);
+                                                          yyerror("ERROR:%s is a duplicate variable", $1); exit(1);
+                                                        }
+                                                      }
+                                                    }
+                
+                | INT IDENTIF                       { if(Get($2) == NULL) { 
+                                                        Add($2, "int", section, "0", "0"); 
+                                                        size_t needed = snprintf(NULL, 0,   "%s %s = 0;\n", $1, $2) + 1;
+                                                        char  *buffer = malloc(needed);
+                                                        sprintf (buffer,  "%s %s = 0;\n", $1, $2);
+                                                        $$ = generateString(buffer);
+                                                        free(buffer);
+                                                        clean();
+                                                      }
+                                                      else { 
+                                                        if(strcmp($1, "state") == 0 || strcmp($1, "alive") == 0 || strcmp($1, "infected") == 0){
+                                                          yyerror("ERROR: %s is a reserved variable", $1); exit(1);
+                                                        } else {
+                                                          yyerror("ERROR:%s is a duplicate variable", $1); exit(1);
                                                         }
                                                       }
                                                     }
@@ -467,12 +503,30 @@ declaration:      BOOL IDENTIF '=' boolValue        { if(Get($2) == NULL) {
                                                       }
                                                       else { 
                                                         if(strcmp($1, "state") == 0 || strcmp($1, "alive") == 0 || strcmp($1, "infected") == 0){
-                                                          yyerror("ERROR: %s is a reserved variable", $1); exit(0);
+                                                          yyerror("ERROR: %s is a reserved variable", $1); exit(1);
                                                         } else {
-                                                          yyerror("ERROR:%s is a duplicate variable", $1); exit(0);
+                                                          yyerror("ERROR:%s is a duplicate variable", $1); exit(1);
                                                         }
                                                       }
                                                     }
+
+                | DOUBLE IDENTIF                    { if(Get($2) == NULL) { 
+                                                        Add($2, "double", section, "0.0", "0.0"); 
+                                                        size_t needed = snprintf(NULL, 0,   "%s %s = 0.0;\n", $1, $2) + 1;
+                                                        char  *buffer = malloc(needed);
+                                                        sprintf (buffer,  "%s %s = 0.0;\n", $1, $2);
+                                                        $$ = generateString(buffer);
+                                                        free(buffer);
+                                                        clean();
+                                                      }
+                                                      else { 
+                                                        if(strcmp($1, "state") == 0 || strcmp($1, "alive") == 0 || strcmp($1, "infected") == 0){
+                                                          yyerror("ERROR: %s is a reserved variable", $1); exit(1);
+                                                        } else {
+                                                          yyerror("ERROR:%s is a duplicate variable", $1); exit(1);
+                                                        }
+                                                      }
+                                                    }                      
                 ;
 
 /*-------- Rules  --------*/ 
@@ -593,7 +647,7 @@ init:                                                 { section = INIT_T;
                                                      }
             INIT '(' ')' '{' initialAssigments '}'    { if (hasState == 0) {
                                                           yyerror("ERROR: Init funcion doesn't have an assigment to the variable \"state\"");
-                                                          exit(0);
+                                                          exit(1);
                                                         } else {
                                                           size_t needed = snprintf(NULL, 0, "%s }", $6) + 1;
                                                           char  *buffer = malloc(needed);
@@ -619,7 +673,7 @@ assignment:                                                  { clean(); }
                   IDENTIF '=' expression ';'                 { nodeList *p = Get($2);
                                                               if(p == NULL) { 
                                                                 yyerror("ERROR: Variable \"%s\" doesn't exist", $2);
-                                                                exit(0);
+                                                                exit(1);
                                                               } else {
                                                                 if(strcmp($2, "state")==0) { 
                                                                   hasState = 1; 
@@ -771,7 +825,7 @@ operand:        IDENTIF                             { nodeList *p = Get($1);
                                                           $$ = generateString("currentTick");
                                                         } else {
                                                           yyerror("ERROR: Variable \"%s\" doesn't exist", $1);
-                                                          exit(0);
+                                                          exit(1);
                                                         }
                                                       } else {
                                                         
@@ -838,14 +892,14 @@ operand:        IDENTIF                             { nodeList *p = Get($1);
                                                             free(buffer);  
                                                           } else {
                                                             yyerror("ERROR: Variable \"%s\" isn't an atribute of a cell type", $3);
-                                                            exit(0);
+                                                            exit(1);
                                                           }
                                                         }
 
                 | NGH '(' position ')' '.' IDENTIF  { nodeList *p = Get($6);
                                                       if(p == NULL) { 
                                                         yyerror( "ERROR: Variable \"%s\" doesn't exist", $6);
-                                                        exit(0);
+                                                        exit(1);
                                                       } else {
                                                         if(p->type2 == CELL_T){
                                                           if (strcmp(p->type, "int") == 0) {
@@ -865,7 +919,7 @@ operand:        IDENTIF                             { nodeList *p = Get($1);
                                                           free(buffer);  
                                                         } else {
                                                           yyerror("ERROR: \"%s\" not a cell variable", $6);
-                                                          exit(0);
+                                                          exit(1);
                                                         }
                                                       } 
                                                     } // Añadir tambien lo de que al menos uno haga algo????
@@ -878,9 +932,7 @@ operand:        IDENTIF                             { nodeList *p = Get($1);
                 ;
 
 /*-------- Values depend on the type of variable --------*/
-boolValue:       /*lambda*/                     { $$ = generateString("false"); } 
-                                                  
-                | TRUE                          { size_t needed = snprintf(NULL, 0, "%s", $1) + 1;
+boolValue:        TRUE                          { size_t needed = snprintf(NULL, 0, "%s", $1) + 1;
                                                   char  *buffer = malloc(needed);
                                                   sprintf (buffer, "%s", $1);
                                                   $$ = generateString(buffer);
@@ -895,9 +947,7 @@ boolValue:       /*lambda*/                     { $$ = generateString("false"); 
                                                 }
                 ;
 
-intValue:        /*lambda*/                     { $$ = generateString("-1"); } // -1 default 
-
-                | NUMBER                        { size_t needed = snprintf(NULL, 0, "%d", $1) + 1;
+intValue:         NUMBER                        { size_t needed = snprintf(NULL, 0, "%d", $1) + 1;
                                                   char  *buffer = malloc(needed);
                                                   sprintf (buffer, "%d", $1);
                                                   $$ = generateString(buffer);
@@ -905,9 +955,7 @@ intValue:        /*lambda*/                     { $$ = generateString("-1"); } /
                                                 } 
                 ;
 
-doubleValue:     /*lambda*/                     { $$ = generateString("0.0");} // 0.0 default
-
-                | NUMBER '.' NUMBER             { size_t needed = snprintf(NULL, 0, "%d.%d", $1, $3) + 1;
+doubleValue:    NUMBER '.' NUMBER             { size_t needed = snprintf(NULL, 0, "%d.%d", $1, $3) + 1;
                                                   char  *buffer = malloc(needed);
                                                   sprintf (buffer, "%d.%d", $1, $3);
                                                   $$ = generateString(buffer);
@@ -932,56 +980,56 @@ position:         NORTH                             { $$ = generateString("[c_ne
                                                         $$ = generateString("[c_neighbours[2][0]][c_neighbours[2][1]]");
                                                       } else {
                                                           yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
-                                                          exit(0);
+                                                          exit(1);
                                                       }
                                                     }
                 | NORTHWEST                         { if(neighborhoodType != NEUMANN_T) {
                                                         $$ = generateString("[c_neighbours[0][0]][c_neighbours[0][1]]");
                                                       } else {
                                                           yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
-                                                          exit(0);
+                                                          exit(1);
                                                       }
                                                     }
                 | SOUTHEAST                         { if(neighborhoodType != NEUMANN_T) {
                                                         $$ = generateString("[c_neighbours[4][0]][c_neighbours[4][1]]");
                                                       } else {
                                                           yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
-                                                          exit(0);
+                                                          exit(1);
                                                       }
                                                     }
                 | SOUTHWEST                         { if(neighborhoodType != NEUMANN_T) {
                                                         $$ = generateString("[c_neighbours[6][0]][c_neighbours[6][1]]");
                                                       } else {
                                                           yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
-                                                          exit(0);
+                                                          exit(1);
                                                       }
                                                     }
                 | NORTHP                            { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
                                                         $$ = generateString("[c_neighbours[8][0]][c_neighbours[8][1]]");
                                                       } else {
                                                           yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
-                                                          exit(0);
+                                                          exit(1);
                                                       }
                                                     }
                 | SOUTHP                            { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
                                                         $$ = generateString("[c_neighbours[10][0]][c_neighbours[10][1]]");
                                                       } else {
                                                           yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
-                                                          exit(0);
+                                                          exit(1);
                                                       }
                                                     }
                 | WESTP                             { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
                                                         $$ = generateString("[c_neighbours[11][0]][c_neighbours[11][1]]");
                                                       } else {
                                                           yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
-                                                          exit(0);
+                                                          exit(1);
                                                       }
                                                     }
                 | EASTP                             { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
                                                         $$ = generateString("[c_neighbours[9][0]][c_neighbours[9][1]]");
                                                       } else {
                                                           yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
-                                                          exit(0);
+                                                          exit(1);
                                                       }
                                                     }
 
@@ -994,16 +1042,18 @@ int yyerror (message)
 char *message ;
 { 
  
-    fprintf (stderr, "\033[1;31m %s in line %d\n", message, n_line) ;
+    fprintf (stderr, "\033[1;31m %s in line %d\033[0m\n", message, n_line) ;
     printf ( "\n") ;	// bye
+    exit(1);
 }
 
 int yywarning (message)
 char *message ;
 { 
  
-    fprintf (stderr, "\033[1;33m %s in line %d\n", message, n_line) ;
+    fprintf (stderr, "\033[1;33m %s in line %d\n\033[0m\n", message, n_line) ;
     printf ( "\n") ;	// bye
+    
 }
 
 char *miMalloc (int nbytes)       // n bytes reserved in dynamic memory
