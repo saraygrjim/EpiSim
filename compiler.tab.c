@@ -66,7 +66,7 @@
 
 
 /* First part of user prologue.  */
-#line 1 "compiler.y"
+#line 1 "src/compiler_files/compiler.y"
                           // SECCION 1 Declaraciones de C-Yacc
 
 #include <stdio.h>
@@ -178,51 +178,49 @@ extern int yydebug;
   {
     BOOL = 258,
     CELLS = 259,
-    CONDITION = 260,
-    COUNT = 261,
-    CURRENTTICK = 262,
-    CONTINUE = 263,
-    DOUBLE = 264,
-    EXTENDED = 265,
-    EFFECT = 266,
-    FALSE = 267,
-    GLOB = 268,
-    IDENTIF = 269,
-    INT = 270,
-    MOORE = 271,
-    NEUMANN = 272,
-    NGH = 273,
-    NUMBER = 274,
-    PROP = 275,
-    RANDOM = 276,
-    IF = 277,
-    INIT = 278,
-    ELSE = 279,
-    CELL = 280,
-    STRING = 281,
-    TICKS = 282,
-    TRUE = 283,
-    AND = 284,
-    OR = 285,
-    EQ = 286,
-    NEQ = 287,
-    LE = 288,
-    GE = 289,
-    NORTH = 290,
-    SOUTH = 291,
-    WEST = 292,
-    EAST = 293,
-    NORTHEAST = 294,
-    NORTHWEST = 295,
-    SOUTHEAST = 296,
-    SOUTHWEST = 297,
-    NORTHP = 298,
-    SOUTHP = 299,
-    WESTP = 300,
-    EASTP = 301,
-    STRAIN = 302,
-    NUM_STRAINS = 303,
-    SIGNO_UNARIO = 304
+    COUNT = 260,
+    CURRENTTICK = 261,
+    CONTINUE = 262,
+    DOUBLE = 263,
+    EXTENDED = 264,
+    FALSE = 265,
+    GLOB = 266,
+    IDENTIF = 267,
+    INT = 268,
+    MOORE = 269,
+    NEUMANN = 270,
+    NGH = 271,
+    NUMBER = 272,
+    PROP = 273,
+    RANDOM = 274,
+    IF = 275,
+    INIT = 276,
+    ELSE = 277,
+    CELL = 278,
+    STRING = 279,
+    TICKS = 280,
+    TRUE = 281,
+    AND = 282,
+    OR = 283,
+    EQ = 284,
+    NEQ = 285,
+    LE = 286,
+    GE = 287,
+    NORTH = 288,
+    SOUTH = 289,
+    WEST = 290,
+    EAST = 291,
+    NORTHEAST = 292,
+    NORTHWEST = 293,
+    SOUTHEAST = 294,
+    SOUTHWEST = 295,
+    NORTHP = 296,
+    SOUTHP = 297,
+    WESTP = 298,
+    EASTP = 299,
+    STRAIN = 300,
+    NUM_STRAINS = 301,
+    SIGNO_UNARIO = 302
   };
 #endif
 
@@ -230,12 +228,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 66 "compiler.y"
+#line 66 "src/compiler_files/compiler.y"
                       // El tipo de la pila tiene caracter dual
       int valor ;             // - valor numerico de un NUMBER
       char *cadena ;          // - para pasar los nombres de IDENTIFES
 
-#line 239 "compiler.tab.c"
+#line 237 "compiler.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -554,19 +552,19 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  3
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   246
+#define YYLAST   266
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  65
+#define YYNTOKENS  63
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  36
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  96
+#define YYNRULES  98
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  195
+#define YYNSTATES  204
 
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   304
+#define YYMAXUTOK   302
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -581,16 +579,16 @@ static const yytype_int8 yytranslate[] =
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,    62,     2,     2,
-      56,    57,    52,    50,    60,    51,    61,    53,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,    55,
-      63,    49,    64,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,    59,     2,     2,
+      54,    55,    50,    48,    58,    49,    62,    51,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,    53,
+      60,    47,    61,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,    58,     2,    59,     2,     2,     2,     2,
+       2,     2,     2,    56,     2,    57,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -608,23 +606,23 @@ static const yytype_int8 yytranslate[] =
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
       35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
-      45,    46,    47,    48,    54
+      45,    46,    52
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   159,   159,   159,   192,   201,   209,   217,   225,   233,
-     242,   249,   257,   264,   273,   280,   290,   296,   306,   307,
-     306,   313,   314,   322,   341,   348,   376,   384,   407,   422,
-     440,   459,   477,   495,   513,   533,   542,   551,   560,   572,
-     579,   588,   597,   605,   613,   625,   627,   634,   640,   644,
-     644,   662,   664,   672,   672,   709,   710,   717,   724,   730,
-     736,   742,   748,   754,   760,   766,   772,   778,   784,   790,
-     796,   805,   820,   857,   861,   869,   877,   887,   899,   927,
-     935,   942,   950,   958,   965,   975,   976,   977,   978,   979,
-     986,   993,  1000,  1007,  1014,  1021,  1028
+       0,   157,   157,   157,   190,   199,   207,   215,   223,   231,
+     240,   247,   255,   262,   271,   278,   288,   294,   304,   305,
+     304,   311,   312,   320,   339,   346,   374,   382,   407,   426,
+     445,   462,   480,   497,   517,   526,   535,   544,   556,   563,
+     572,   581,   589,   597,   609,   611,   618,   624,   628,   628,
+     646,   648,   656,   656,   693,   694,   701,   708,   714,   720,
+     726,   732,   738,   744,   750,   756,   762,   768,   774,   780,
+     789,   804,   841,   845,   853,   861,   871,   883,   911,   919,
+     926,   934,   940,   948,   955,   961,   967,   977,   978,   979,
+     980,   981,   988,   995,  1002,  1009,  1016,  1023,  1030
 };
 #endif
 
@@ -633,19 +631,19 @@ static const yytype_int16 yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "BOOL", "CELLS", "CONDITION", "COUNT",
-  "CURRENTTICK", "CONTINUE", "DOUBLE", "EXTENDED", "EFFECT", "FALSE",
-  "GLOB", "IDENTIF", "INT", "MOORE", "NEUMANN", "NGH", "NUMBER", "PROP",
-  "RANDOM", "IF", "INIT", "ELSE", "CELL", "STRING", "TICKS", "TRUE", "AND",
-  "OR", "EQ", "NEQ", "LE", "GE", "NORTH", "SOUTH", "WEST", "EAST",
-  "NORTHEAST", "NORTHWEST", "SOUTHEAST", "SOUTHWEST", "NORTHP", "SOUTHP",
-  "WESTP", "EASTP", "STRAIN", "NUM_STRAINS", "'='", "'+'", "'-'", "'*'",
-  "'/'", "SIGNO_UNARIO", "';'", "'('", "')'", "'{'", "'}'", "','", "'.'",
-  "'%'", "'<'", "'>'", "$accept", "program", "$@1", "general", "header",
-  "neighbourhood", "nCells", "nStrains", "time", "properties", "cell",
-  "$@2", "$@3", "cellProperties", "states", "state", "color", "code",
-  "declaration", "strains", "rules", "beginIf", "bodyIf", "codeIf", "init",
-  "$@4", "initialAssigments", "assignment", "$@5", "expression", "termino",
+  "$end", "error", "$undefined", "BOOL", "CELLS", "COUNT", "CURRENTTICK",
+  "CONTINUE", "DOUBLE", "EXTENDED", "FALSE", "GLOB", "IDENTIF", "INT",
+  "MOORE", "NEUMANN", "NGH", "NUMBER", "PROP", "RANDOM", "IF", "INIT",
+  "ELSE", "CELL", "STRING", "TICKS", "TRUE", "AND", "OR", "EQ", "NEQ",
+  "LE", "GE", "NORTH", "SOUTH", "WEST", "EAST", "NORTHEAST", "NORTHWEST",
+  "SOUTHEAST", "SOUTHWEST", "NORTHP", "SOUTHP", "WESTP", "EASTP", "STRAIN",
+  "NUM_STRAINS", "'='", "'+'", "'-'", "'*'", "'/'", "SIGNO_UNARIO", "';'",
+  "'('", "')'", "'{'", "'}'", "','", "'%'", "'<'", "'>'", "'.'", "$accept",
+  "program", "$@1", "general", "header", "neighbourhood", "nCells",
+  "nStrains", "time", "properties", "cell", "$@2", "$@3", "cellProperties",
+  "states", "state", "color", "codeColor", "declaration", "strains",
+  "rules", "beginIf", "bodyIf", "codeIf", "init", "$@4",
+  "initialAssigments", "assignment", "$@5", "expression", "termino",
   "operand", "boolValue", "intValue", "doubleValue", "position", YY_NULLPTR
 };
 #endif
@@ -659,18 +657,18 @@ static const yytype_int16 yytoknum[] =
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
      275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
      285,   286,   287,   288,   289,   290,   291,   292,   293,   294,
-     295,   296,   297,   298,   299,   300,   301,   302,   303,    61,
-      43,    45,    42,    47,   304,    59,    40,    41,   123,   125,
-      44,    46,    37,    60,    62
+     295,   296,   297,   298,   299,   300,   301,    61,    43,    45,
+      42,    47,   302,    59,    40,    41,   123,   125,    44,    37,
+      60,    62,    46
 };
 # endif
 
-#define YYPACT_NINF (-151)
+#define YYPACT_NINF (-118)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
 
-#define YYTABLE_NINF (-54)
+#define YYTABLE_NINF (-53)
 
 #define yytable_value_is_error(Yyn) \
   0
@@ -679,26 +677,27 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-    -151,    10,     5,  -151,    28,    26,    39,    40,  -151,     4,
-      18,     2,  -151,    46,    51,    16,    52,  -151,    65,    66,
-      79,    41,  -151,  -151,  -151,    75,    49,    50,    42,  -151,
-      84,    60,    62,    63,    39,  -151,    94,  -151,  -151,   -16,
-      58,    33,   105,   106,  -151,  -151,     2,    76,    74,    77,
-    -151,  -151,  -151,    82,  -151,  -151,  -151,  -151,    80,    78,
-     115,    87,   119,   132,     2,   115,    99,    98,   115,   142,
-    -151,   144,   121,  -151,   122,    25,    18,  -151,   123,   142,
-     173,   134,  -151,    18,   137,  -151,   138,    82,  -151,    25,
-      25,    25,    38,  -151,  -151,  -151,  -151,  -151,  -151,  -151,
-    -151,   140,   169,   184,  -151,   185,   175,   139,   139,    53,
-      25,    25,    25,    25,    25,    25,    25,    25,    25,    25,
-     146,    25,    25,    25,    25,   161,   163,   186,  -151,   164,
-    -151,  -151,  -151,  -151,  -151,  -151,  -151,  -151,  -151,  -151,
-    -151,  -151,   148,  -151,   133,   133,   133,   133,   133,   133,
-     139,   139,   145,   145,    -2,   133,   133,   133,    89,   187,
-     169,   134,    36,   165,   170,    -2,  -151,   168,    -2,  -151,
-    -151,   171,   184,   172,   214,  -151,  -151,   206,  -151,   169,
-    -151,  -151,  -151,   -18,   176,   178,    -2,  -151,    25,   177,
-      97,  -151,   174,    -2,  -151
+    -118,    12,    14,  -118,    50,    -4,    64,    65,  -118,    26,
+      38,     7,  -118,    59,    61,    32,    76,  -118,    77,    79,
+      80,    40,  -118,  -118,  -118,    83,    55,    48,    51,  -118,
+      85,    72,    73,    74,    64,  -118,    97,  -118,  -118,   -13,
+      69,    -5,   -10,    -6,  -118,  -118,     7,    78,    68,    82,
+    -118,  -118,  -118,    90,   117,  -118,  -118,   118,  -118,  -118,
+      86,    87,   124,   103,   121,    98,  -118,   149,     7,   124,
+     108,   106,   124,   152,  -118,   148,   154,   114,  -118,   116,
+      28,    38,  -118,   125,   152,   171,  -118,   130,  -118,    38,
+     153,  -118,   159,    90,  -118,    28,    36,    28,    67,  -118,
+    -118,  -118,  -118,  -118,  -118,  -118,  -118,   168,   -10,   194,
+    -118,   196,   202,   167,   157,   167,    81,    28,    28,    28,
+      28,    28,    28,    28,    28,    28,    28,   158,    28,    28,
+      28,    28,   165,  -118,   204,  -118,   166,  -118,  -118,  -118,
+    -118,  -118,  -118,  -118,  -118,  -118,  -118,  -118,  -118,   170,
+     212,  -118,   161,   161,   161,   161,   161,   161,   167,   167,
+     173,   173,     2,   161,   161,   161,   119,   -10,   130,    53,
+     169,  -118,   177,     2,  -118,   190,     2,  -118,   191,   194,
+     231,   195,   239,  -118,  -118,   230,  -118,   -10,  -118,    98,
+    -118,  -118,    -7,   198,   200,     2,  -118,    28,   199,   126,
+    -118,   201,     2,  -118
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -707,43 +706,44 @@ static const yytype_int16 yypact[] =
 static const yytype_int8 yydefact[] =
 {
        2,     0,    10,     1,     0,     0,     0,     6,    11,     0,
-       0,     0,     4,     0,    14,     0,     0,    49,     0,     0,
+       0,     0,     4,     0,    14,     0,     0,    48,     0,     0,
        0,     0,     9,     8,     7,     0,    12,     0,     0,     3,
-       0,    30,    34,    32,    16,    15,     0,     5,    18,     0,
+       0,    29,    33,    31,    16,    15,     0,     5,    18,     0,
        0,     0,     0,     0,    17,    13,     0,     0,     0,     0,
-      81,    80,    29,    84,    33,    82,    31,    19,     0,     0,
-       0,     0,     0,     0,    21,     0,     0,     0,    39,    51,
-      83,     0,     0,    22,     0,     0,    37,    40,     0,    51,
-       0,     0,    20,    35,     0,    72,     0,    82,    73,     0,
-       0,     0,     0,    55,    71,    76,    74,    75,    38,    50,
-      52,     0,     0,    24,    36,     0,     0,    70,    69,     0,
+      80,    79,    28,    84,     0,    32,    81,     0,    30,    19,
+       0,     0,     0,     0,     0,    85,    82,     0,    21,     0,
+       0,     0,    38,    50,    83,     0,     0,     0,    22,     0,
+       0,    36,    39,     0,    50,     0,    86,     0,    20,    34,
+       0,    71,     0,    81,    72,     0,     0,     0,     0,    54,
+      70,    75,    73,    74,    37,    49,    51,     0,     0,    24,
+      35,     0,     0,    69,    81,    68,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,    28,     0,     0,    23,     0,
-      85,    86,    87,    88,    89,    90,    91,    92,    93,    94,
-      95,    96,     0,    79,    61,    62,    64,    63,    66,    68,
-      56,    57,    58,    59,    45,    60,    65,    67,     0,     0,
-       0,     0,     0,     0,     0,    45,    41,     0,    45,    54,
-      27,     0,    24,     0,     0,    48,    47,    42,    46,     0,
-      25,    77,    78,     0,     0,     0,    45,    26,     0,     0,
-       0,    44,     0,    45,    43
+       0,     0,     0,    27,     0,    23,     0,    87,    88,    89,
+      90,    91,    92,    93,    94,    95,    96,    97,    98,     0,
+       0,    78,    60,    61,    63,    62,    65,    67,    55,    56,
+      57,    58,    44,    59,    64,    66,     0,     0,     0,     0,
+       0,    83,     0,    44,    40,     0,    44,    53,     0,    24,
+       0,     0,     0,    47,    46,    41,    45,     0,    25,    82,
+      76,    77,     0,     0,     0,    44,    26,     0,     0,     0,
+      43,     0,    44,    42
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-    -151,  -151,  -151,  -151,  -151,  -151,  -151,  -151,  -151,   201,
-    -151,  -151,  -151,   179,  -151,    67,    81,  -141,   226,   -69,
-       9,   -52,    45,  -150,  -151,  -151,   162,   -20,  -151,   -89,
-      83,  -151,   199,   203,   202,  -151
+    -118,  -118,  -118,  -118,  -118,  -118,  -118,  -118,  -118,   221,
+    -118,  -118,  -118,   192,  -118,    84,    91,  -116,   247,   -73,
+      -8,   -12,    60,  -117,  -118,  -118,   180,   -67,  -118,   -94,
+      92,  -118,   224,   223,   -42,  -118
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int16 yydefgoto[] =
 {
       -1,     1,     2,     5,     6,    14,     7,    37,    26,    12,
-      10,    46,    63,    57,    72,   128,   103,   126,    58,    17,
-      67,   165,   166,   167,    29,    30,    78,   168,    80,    92,
-      93,    94,    95,    96,    97,   142
+      10,    46,    67,    59,    77,   135,   109,   132,    60,    17,
+      71,   173,   174,   175,    29,    30,    83,   176,    85,    98,
+      99,   100,   101,   102,   103,   149
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -751,101 +751,106 @@ static const yytype_int16 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int16 yytable[] =
 {
-     107,   108,   109,    47,   185,    18,   164,    98,    68,     4,
-       3,    19,   -53,    68,   104,   176,    68,    20,   178,   171,
-      66,   144,   145,   146,   147,   148,   149,   150,   151,   152,
-     153,    84,   155,   156,   157,   158,   189,    50,   184,    85,
-     186,    48,    84,    86,    87,    50,    88,     8,    50,    79,
-      85,     9,    11,    51,    86,    87,    22,    88,    13,    79,
-      15,    51,    23,    24,    51,    16,    28,   110,   111,   112,
-     113,   114,   115,    27,    74,    89,    90,    77,    25,    31,
-      32,    91,   110,   111,   112,   113,   114,   115,   116,   117,
-     118,   119,    91,    33,    35,   120,    34,    36,    39,   190,
-     121,   122,   123,   116,   117,   118,   119,    40,    38,    41,
-     143,    42,    43,    45,    49,   121,   122,   123,   110,   111,
-     112,   113,   114,   115,    53,    55,   110,   111,   112,   113,
-     114,   115,    60,    59,    61,    64,    65,    66,    70,   116,
-     117,   118,   119,    62,   169,    69,    71,   116,   117,   118,
-     119,   121,   122,   123,   192,    75,   -53,    76,    81,   121,
-     122,   123,   110,   111,   112,   113,   114,   115,   110,   111,
-     112,   113,   114,   115,   110,   111,   112,   113,   114,   115,
-      82,    83,    99,   116,   117,   118,   119,   101,   125,   124,
-     102,   118,   119,   105,   106,   121,   122,   123,   127,   129,
-     161,   121,   122,   123,   154,   163,   170,   121,   122,   123,
-     130,   131,   132,   133,   134,   135,   136,   137,   138,   139,
-     140,   141,   159,   160,   162,   175,   174,   177,   182,   181,
-     183,   179,   193,   187,   188,    44,   191,    21,   194,   180,
-      52,   100,   172,    73,    54,   173,    56
+      55,   113,   115,   116,    47,    50,    84,    53,   104,   172,
+      18,    56,     3,   194,   -52,    19,   110,    84,     4,     9,
+      20,    51,    70,   152,   153,   154,   155,   156,   157,   158,
+     159,   160,   161,    90,   163,   164,   165,   166,    50,    54,
+      91,    90,    48,    57,    92,    93,    50,    94,    91,   195,
+      72,   178,    92,   114,    51,    94,   184,    72,    90,   186,
+      72,    79,    51,    50,    82,    91,   133,     8,    22,    92,
+      93,   193,    94,    23,    24,    11,    95,    96,   198,    51,
+      15,    13,    97,    16,    95,    96,    25,    27,    28,    31,
+      97,    32,    33,    34,   117,   118,   119,   120,   121,   122,
+      35,    36,   180,   199,    38,    39,    40,    97,   117,   118,
+     119,   120,   121,   122,    45,   123,   124,   125,   126,    41,
+      42,    43,   127,    49,    62,   133,   128,   129,   130,   123,
+     124,   125,   126,    61,    65,    66,   151,    63,    74,    68,
+     128,   129,   130,    69,    70,   133,   117,   118,   119,   120,
+     121,   122,    64,   117,   118,   119,   120,   121,   122,    73,
+      75,    76,    80,    81,   -52,    86,    87,   123,   124,   125,
+     126,    88,   177,    89,   123,   124,   125,   126,   128,   129,
+     130,   201,   105,   107,   108,   128,   129,   130,   117,   118,
+     119,   120,   121,   122,   117,   118,   119,   120,   121,   122,
+     117,   118,   119,   120,   121,   122,   134,   111,   136,   123,
+     124,   125,   126,   112,   162,   131,   168,   125,   126,   150,
+     128,   129,   130,   167,   169,   170,   128,   129,   130,   171,
+     183,   182,   128,   129,   130,   137,   138,   139,   140,   141,
+     142,   143,   144,   145,   146,   147,   148,   185,   189,   187,
+     190,   191,   192,   196,   197,    44,   200,   202,    21,   179,
+      78,   181,   203,   188,   106,    52,    58
 };
 
 static const yytype_uint8 yycheck[] =
 {
-      89,    90,    91,    19,    22,     3,     8,    76,    60,     4,
-       0,     9,    14,    65,    83,   165,    68,    15,   168,   160,
-      22,   110,   111,   112,   113,   114,   115,   116,   117,   118,
-     119,     6,   121,   122,   123,   124,   186,    12,   179,    14,
-      58,    57,     6,    18,    19,    12,    21,    19,    12,    69,
-      14,    25,    13,    28,    18,    19,    10,    21,    18,    79,
-      56,    28,    16,    17,    28,    47,    14,    29,    30,    31,
-      32,    33,    34,    57,    65,    50,    51,    68,    27,    14,
-      14,    56,    29,    30,    31,    32,    33,    34,    50,    51,
-      52,    53,    56,    14,    19,    57,    55,    48,    56,   188,
-      62,    63,    64,    50,    51,    52,    53,    23,    58,    49,
-      57,    49,    49,    19,    56,    62,    63,    64,    29,    30,
-      31,    32,    33,    34,    19,    19,    29,    30,    31,    32,
-      33,    34,    58,    57,    57,    55,    58,    22,    19,    50,
-      51,    52,    53,    61,    55,    58,    14,    50,    51,    52,
-      53,    62,    63,    64,    57,    56,    14,    59,    14,    62,
-      63,    64,    29,    30,    31,    32,    33,    34,    29,    30,
-      31,    32,    33,    34,    29,    30,    31,    32,    33,    34,
-      59,    59,    59,    50,    51,    52,    53,    14,    19,    49,
-      56,    52,    53,    56,    56,    62,    63,    64,    14,    14,
-      14,    62,    63,    64,    58,    57,    19,    62,    63,    64,
-      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
-      45,    46,    61,    60,    60,    55,    61,    59,    14,    57,
-      24,    60,    58,    57,    56,    34,    59,    11,   193,   172,
-      41,    79,   161,    64,    42,   162,    43
+      42,    95,    96,    97,    17,    10,    73,    17,    81,     7,
+       3,    17,     0,    20,    12,     8,    89,    84,     4,    23,
+      13,    26,    20,   117,   118,   119,   120,   121,   122,   123,
+     124,   125,   126,     5,   128,   129,   130,   131,    10,    49,
+      12,     5,    55,    49,    16,    17,    10,    19,    12,    56,
+      62,   167,    16,    17,    26,    19,   173,    69,     5,   176,
+      72,    69,    26,    10,    72,    12,   108,    17,     9,    16,
+      17,   187,    19,    14,    15,    11,    48,    49,   195,    26,
+      54,    16,    54,    45,    48,    49,    25,    55,    12,    12,
+      54,    12,    12,    53,    27,    28,    29,    30,    31,    32,
+      17,    46,    49,   197,    56,    54,    21,    54,    27,    28,
+      29,    30,    31,    32,    17,    48,    49,    50,    51,    47,
+      47,    47,    55,    54,    56,   167,    59,    60,    61,    48,
+      49,    50,    51,    55,    17,    17,    55,    55,    17,    53,
+      59,    60,    61,    56,    20,   187,    27,    28,    29,    30,
+      31,    32,    62,    27,    28,    29,    30,    31,    32,    56,
+      62,    12,    54,    57,    12,    17,    12,    48,    49,    50,
+      51,    57,    53,    57,    48,    49,    50,    51,    59,    60,
+      61,    55,    57,    12,    54,    59,    60,    61,    27,    28,
+      29,    30,    31,    32,    27,    28,    29,    30,    31,    32,
+      27,    28,    29,    30,    31,    32,    12,    54,    12,    48,
+      49,    50,    51,    54,    56,    47,    12,    50,    51,    62,
+      59,    60,    61,    58,    58,    55,    59,    60,    61,    17,
+      53,    62,    59,    60,    61,    33,    34,    35,    36,    37,
+      38,    39,    40,    41,    42,    43,    44,    57,    17,    58,
+      55,    12,    22,    55,    54,    34,    57,    56,    11,   168,
+      68,   169,   202,   179,    84,    41,    43
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,    66,    67,     0,     4,    68,    69,    71,    19,    25,
-      75,    13,    74,    18,    70,    56,    47,    84,     3,     9,
-      15,    83,    10,    16,    17,    27,    73,    57,    14,    89,
-      90,    14,    14,    14,    55,    19,    48,    72,    58,    56,
-      23,    49,    49,    49,    74,    19,    76,    19,    57,    56,
-      12,    28,    97,    19,    99,    19,    98,    78,    83,    57,
-      58,    57,    61,    77,    55,    58,    22,    85,    86,    58,
-      19,    14,    79,    78,    85,    56,    59,    85,    91,    92,
-      93,    14,    59,    59,     6,    14,    18,    19,    21,    50,
-      51,    56,    94,    95,    96,    97,    98,    99,    84,    59,
-      91,    14,    56,    81,    84,    56,    56,    94,    94,    94,
-      29,    30,    31,    32,    33,    34,    50,    51,    52,    53,
-      57,    62,    63,    64,    49,    19,    82,    14,    80,    14,
-      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
-      45,    46,   100,    57,    94,    94,    94,    94,    94,    94,
-      94,    94,    94,    94,    58,    94,    94,    94,    94,    61,
-      60,    14,    60,    57,     8,    86,    87,    88,    92,    55,
-      19,    82,    81,    95,    61,    55,    88,    59,    88,    60,
-      80,    57,    14,    24,    82,    22,    58,    57,    56,    88,
-      94,    59,    57,    58,    87
+       0,    64,    65,     0,     4,    66,    67,    69,    17,    23,
+      73,    11,    72,    16,    68,    54,    45,    82,     3,     8,
+      13,    81,     9,    14,    15,    25,    71,    55,    12,    87,
+      88,    12,    12,    12,    53,    17,    46,    70,    56,    54,
+      21,    47,    47,    47,    72,    17,    74,    17,    55,    54,
+      10,    26,    95,    17,    49,    97,    17,    49,    96,    76,
+      81,    55,    56,    55,    62,    17,    17,    75,    53,    56,
+      20,    83,    84,    56,    17,    62,    12,    77,    76,    83,
+      54,    57,    83,    89,    90,    91,    17,    12,    57,    57,
+       5,    12,    16,    17,    19,    48,    49,    54,    92,    93,
+      94,    95,    96,    97,    82,    57,    89,    12,    54,    79,
+      82,    54,    54,    92,    17,    92,    92,    27,    28,    29,
+      30,    31,    32,    48,    49,    50,    51,    55,    59,    60,
+      61,    47,    80,    97,    12,    78,    12,    33,    34,    35,
+      36,    37,    38,    39,    40,    41,    42,    43,    44,    98,
+      62,    55,    92,    92,    92,    92,    92,    92,    92,    92,
+      92,    92,    56,    92,    92,    92,    92,    58,    12,    58,
+      55,    17,     7,    84,    85,    86,    90,    53,    80,    79,
+      49,    93,    62,    53,    86,    57,    86,    58,    78,    17,
+      55,    12,    22,    80,    20,    56,    55,    54,    86,    92,
+      57,    55,    56,    85
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    65,    67,    66,    68,    69,    70,    70,    70,    70,
-      71,    71,    72,    72,    73,    73,    74,    74,    76,    77,
-      75,    78,    78,    79,    80,    80,    81,    82,    82,    83,
-      83,    83,    83,    83,    83,    84,    84,    84,    84,    85,
-      85,    86,    87,    87,    87,    88,    88,    88,    88,    90,
-      89,    91,    91,    93,    92,    94,    94,    94,    94,    94,
-      94,    94,    94,    94,    94,    94,    94,    94,    94,    94,
-      94,    95,    96,    96,    96,    96,    96,    96,    96,    96,
-      97,    97,    98,    99,    99,   100,   100,   100,   100,   100,
-     100,   100,   100,   100,   100,   100,   100
+       0,    63,    65,    64,    66,    67,    68,    68,    68,    68,
+      69,    69,    70,    70,    71,    71,    72,    72,    74,    75,
+      73,    76,    76,    77,    78,    78,    79,    80,    81,    81,
+      81,    81,    81,    81,    82,    82,    82,    82,    83,    83,
+      84,    85,    85,    85,    86,    86,    86,    86,    88,    87,
+      89,    89,    91,    90,    92,    92,    92,    92,    92,    92,
+      92,    92,    92,    92,    92,    92,    92,    92,    92,    92,
+      93,    94,    94,    94,    94,    94,    94,    94,    94,    95,
+      95,    96,    96,    97,    97,    97,    97,    98,    98,    98,
+      98,    98,    98,    98,    98,    98,    98,    98,    98
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
@@ -853,14 +858,14 @@ static const yytype_int8 yyr2[] =
 {
        0,     2,     0,     5,     2,     4,     0,     2,     2,     2,
        0,     2,     0,     2,     0,     2,     3,     4,     0,     0,
-       9,     2,     3,     4,     0,     4,     7,     3,     1,     4,
-       2,     4,     2,     4,     2,     8,     9,     7,     8,     1,
-       2,     6,     2,     9,     6,     0,     2,     2,     2,     0,
-       7,     0,     2,     0,     5,     1,     3,     3,     3,     3,
-       3,     3,     3,     3,     3,     3,     3,     3,     3,     2,
-       2,     1,     1,     1,     1,     1,     1,     6,     6,     3,
-       1,     1,     1,     3,     1,     1,     1,     1,     1,     1,
-       1,     1,     1,     1,     1,     1,     1
+       9,     2,     3,     4,     0,     4,     7,     1,     4,     2,
+       4,     2,     4,     2,     8,     9,     7,     8,     1,     2,
+       6,     2,     9,     6,     0,     2,     2,     2,     0,     7,
+       0,     2,     0,     5,     1,     3,     3,     3,     3,     3,
+       3,     3,     3,     3,     3,     3,     3,     3,     2,     2,
+       1,     1,     1,     1,     1,     1,     6,     6,     3,     1,
+       1,     1,     2,     3,     1,     2,     4,     1,     1,     1,
+       1,     1,     1,     1,     1,     1,     1,     1,     1
 };
 
 
@@ -1556,17 +1561,17 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 159 "compiler.y"
+#line 157 "src/compiler_files/compiler.y"
                                             { Add("state", "int", CELL_T, "0", "0");
                                               Add("alive", "bool", CELL_T, "true", "true");
                                               Add("infected", "bool", CELL_T, "false", "false");
                                               Add("no_change", "none", STATE_T, " ", " "); 
                                             }
-#line 1566 "compiler.tab.c"
+#line 1571 "compiler.tab.c"
     break;
 
   case 3:
-#line 164 "compiler.y"
+#line 162 "src/compiler_files/compiler.y"
                                             { size_t needed = snprintf(NULL, 0, "%s", (yyvsp[-3].cadena)) + 1;
                                               char  *buffer = malloc(needed);
                                               sprintf(buffer, "%s", (yyvsp[-3].cadena));
@@ -1577,7 +1582,7 @@ yyreduce:
 
                                               nodeList *p = List; //Pointer
                                               while(p->next != NULL){
-                                                  if(STRAIN_T == p->type2){
+                                                  if(STRAIN_T == p->section){
                                                       char file[100];
                                                       sprintf(file, "ofstream %s(\"Data/DataStrain_%s.csv\");\n", p->name, p->name); 
                                                       strcat(aux, file);
@@ -1591,33 +1596,33 @@ yyreduce:
                                               
                                               free(buffer);
                                             }
-#line 1595 "compiler.tab.c"
+#line 1600 "compiler.tab.c"
     break;
 
   case 4:
-#line 192 "compiler.y"
+#line 190 "src/compiler_files/compiler.y"
                                             { size_t needed = snprintf(NULL, 0, "%s \n %s \n", (yyvsp[-1].cadena), (yyvsp[0].cadena)) + 1;
                                               char  *buffer = malloc(needed);
                                               sprintf(buffer, "%s \n %s \n", (yyvsp[-1].cadena), (yyvsp[0].cadena));
                                               (yyval.cadena) = generateString(buffer);
                                               free(buffer);
                                             }
-#line 1606 "compiler.tab.c"
+#line 1611 "compiler.tab.c"
     break;
 
   case 5:
-#line 201 "compiler.y"
+#line 199 "src/compiler_files/compiler.y"
                                                     {  size_t needed = snprintf(NULL, 0, "%s %s %s", (yyvsp[-2].cadena), (yyvsp[-1].cadena), (yyvsp[0].cadena)) + 1;
                                                         char  *buffer = malloc(needed);
                                                         sprintf(buffer, "%s %s %s", (yyvsp[-2].cadena), (yyvsp[-1].cadena), (yyvsp[0].cadena));
                                                         (yyval.cadena) = generateString(buffer); 
                                                         free(buffer);
                                                     }
-#line 1617 "compiler.tab.c"
+#line 1622 "compiler.tab.c"
     break;
 
   case 6:
-#line 209 "compiler.y"
+#line 207 "src/compiler_files/compiler.y"
                                             {   size_t needed = snprintf(NULL, 0, "int neighType  = NEUMANN;\n") + 1;
                                                 char  *buffer = malloc(needed);
                                                 sprintf(buffer, "int neighType  = NEUMANN;\n");
@@ -1625,11 +1630,11 @@ yyreduce:
                                                 free(buffer);
 
                                             }
-#line 1629 "compiler.tab.c"
+#line 1634 "compiler.tab.c"
     break;
 
   case 7:
-#line 217 "compiler.y"
+#line 215 "src/compiler_files/compiler.y"
                                             { neighborhoodType = NEUMANN_T; 
                                               size_t needed = snprintf(NULL, 0, "int neighType = %s;\n", toUpper((yyvsp[0].cadena))) + 1;
                                               char  *buffer = malloc(needed);
@@ -1637,11 +1642,11 @@ yyreduce:
                                               (yyval.cadena) = generateString(buffer);
                                               free(buffer);
                                             }
-#line 1641 "compiler.tab.c"
+#line 1646 "compiler.tab.c"
     break;
 
   case 8:
-#line 225 "compiler.y"
+#line 223 "src/compiler_files/compiler.y"
                                             { neighborhoodType = MOORE_T; 
                                               size_t needed = snprintf(NULL, 0, "int neighType = %s;\n", toUpper((yyvsp[0].cadena))) + 1;
                                               char  *buffer = malloc(needed);
@@ -1649,11 +1654,11 @@ yyreduce:
                                               (yyval.cadena) = generateString(buffer);
                                               free(buffer);
                                             }
-#line 1653 "compiler.tab.c"
+#line 1658 "compiler.tab.c"
     break;
 
   case 9:
-#line 233 "compiler.y"
+#line 231 "src/compiler_files/compiler.y"
                                             { neighborhoodType = EXTENDED_T; 
                                               size_t needed = snprintf(NULL, 0, "int neighType = %s;\n", toUpper((yyvsp[0].cadena))) + 1;
                                               char  *buffer = malloc(needed);
@@ -1661,44 +1666,44 @@ yyreduce:
                                               (yyval.cadena) = generateString(buffer);
                                               free(buffer);
                                             }
-#line 1665 "compiler.tab.c"
+#line 1670 "compiler.tab.c"
     break;
 
   case 10:
-#line 242 "compiler.y"
+#line 240 "src/compiler_files/compiler.y"
                                             { size_t needed = snprintf(NULL, 0,  "#define N 100\n") + 1;
                                               char  *buffer = malloc(needed);
                                               sprintf(buffer,  "#define N 100\n");
                                               strcat ( define, buffer); 
                                               free(buffer);
                                             }
-#line 1676 "compiler.tab.c"
+#line 1681 "compiler.tab.c"
     break;
 
   case 11:
-#line 249 "compiler.y"
+#line 247 "src/compiler_files/compiler.y"
                                             { size_t needed = snprintf(NULL, 0,  "#define N %d\n", (yyvsp[0].valor)) + 1;
                                               char  *buffer = malloc(needed);
                                               sprintf(buffer,  "#define N %d\n", (yyvsp[0].valor));
                                               strcat ( define, buffer); 
                                               free(buffer);
                                             }
-#line 1687 "compiler.tab.c"
+#line 1692 "compiler.tab.c"
     break;
 
   case 12:
-#line 257 "compiler.y"
+#line 255 "src/compiler_files/compiler.y"
                                             { size_t needed = snprintf(NULL, 0, "int nStrain  = 1;\n") + 1;
                                               char  *buffer = malloc(needed);
                                               sprintf(buffer, "int nStrain  = 1;\n");
                                               (yyval.cadena) = generateString(buffer);
                                               free(buffer);
                                             }
-#line 1698 "compiler.tab.c"
+#line 1703 "compiler.tab.c"
     break;
 
   case 13:
-#line 264 "compiler.y"
+#line 262 "src/compiler_files/compiler.y"
                                             { numStrains = (yyvsp[0].valor);
                                               size_t needed = snprintf(NULL, 0, "int nStrain  = %d;\n", (yyvsp[0].valor)) + 1;
                                               char  *buffer = malloc(needed);
@@ -1706,85 +1711,85 @@ yyreduce:
                                               (yyval.cadena) = generateString(buffer);
                                               free(buffer);
                                             }
-#line 1710 "compiler.tab.c"
+#line 1715 "compiler.tab.c"
     break;
 
   case 14:
-#line 273 "compiler.y"
+#line 271 "src/compiler_files/compiler.y"
                                             { size_t needed = snprintf(NULL, 0, "int days = 500;\n") + 1;
                                               char  *buffer = malloc(needed);
                                               sprintf(buffer, "int days = 500;\n");
                                               (yyval.cadena) = generateString(buffer);
                                               free(buffer);
                                             }
-#line 1721 "compiler.tab.c"
+#line 1726 "compiler.tab.c"
     break;
 
   case 15:
-#line 280 "compiler.y"
+#line 278 "src/compiler_files/compiler.y"
                                             { size_t needed = snprintf(NULL, 0, "int days = %d;\n", (yyvsp[0].valor)) + 1;
                                               char  *buffer = malloc(needed);
                                               sprintf(buffer, "int days = %d;\n", (yyvsp[0].valor));
                                               (yyval.cadena) = generateString(buffer);
                                               free(buffer);
                                             }
-#line 1732 "compiler.tab.c"
+#line 1737 "compiler.tab.c"
     break;
 
   case 16:
-#line 290 "compiler.y"
+#line 288 "src/compiler_files/compiler.y"
                                                      {  size_t needed = snprintf(NULL, 0, "%s", (yyvsp[-1].cadena)) + 1;
                                                         char  *buffer = malloc(needed);
                                                         sprintf(buffer, "%s", (yyvsp[-1].cadena));
                                                         (yyval.cadena) = generateString(buffer);
                                                         free(buffer);
                                                       }
-#line 1743 "compiler.tab.c"
+#line 1748 "compiler.tab.c"
     break;
 
   case 17:
-#line 296 "compiler.y"
+#line 294 "src/compiler_files/compiler.y"
                                                         { size_t needed = snprintf(NULL, 0, "%s %s", (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
                                                           char  *buffer = malloc(needed);
                                                           sprintf(buffer, "%s %s", (yyvsp[-2].cadena), (yyvsp[0].cadena));
                                                           (yyval.cadena) = generateString(buffer);
                                                           free(buffer);
                                                         }
-#line 1754 "compiler.tab.c"
+#line 1759 "compiler.tab.c"
     break;
 
   case 18:
-#line 306 "compiler.y"
+#line 304 "src/compiler_files/compiler.y"
                                          { section = CELL_T; }
-#line 1760 "compiler.tab.c"
+#line 1765 "compiler.tab.c"
     break;
 
   case 19:
-#line 307 "compiler.y"
+#line 305 "src/compiler_files/compiler.y"
                                         { section = STATE_T; }
-#line 1766 "compiler.tab.c"
+#line 1771 "compiler.tab.c"
     break;
 
   case 20:
-#line 308 "compiler.y"
+#line 306 "src/compiler_files/compiler.y"
                                         {  }
-#line 1772 "compiler.tab.c"
+#line 1777 "compiler.tab.c"
     break;
 
   case 21:
-#line 313 "compiler.y"
+#line 311 "src/compiler_files/compiler.y"
                                                            { }
-#line 1778 "compiler.tab.c"
+#line 1783 "compiler.tab.c"
     break;
 
   case 22:
-#line 314 "compiler.y"
+#line 312 "src/compiler_files/compiler.y"
                                                            { }
-#line 1784 "compiler.tab.c"
+#line 1789 "compiler.tab.c"
     break;
 
   case 23:
-#line 322 "compiler.y"
+#line 320 "src/compiler_files/compiler.y"
                                               { if(strcmp((yyvsp[-3].cadena), "state") != 0) {
                                                   yyerror();
                                                 }
@@ -1802,22 +1807,22 @@ yyreduce:
                                                 }
                                                 else { yyerror("ERROR: Duplicate state"); exit(1);}
                                               }
-#line 1806 "compiler.tab.c"
+#line 1811 "compiler.tab.c"
     break;
 
   case 24:
-#line 341 "compiler.y"
+#line 339 "src/compiler_files/compiler.y"
                                                         { 
                                                           char  *buffer = malloc(2);
                                                           sprintf(buffer, " "); 
                                                           (yyval.cadena) = generateString(buffer); 
                                                           free(buffer);
                                                         }
-#line 1817 "compiler.tab.c"
+#line 1822 "compiler.tab.c"
     break;
 
   case 25:
-#line 348 "compiler.y"
+#line 346 "src/compiler_files/compiler.y"
                                                         { if(strcmp((yyvsp[-3].cadena), "state") != 0) {
                                                               yyerror();
                                                           }
@@ -1844,89 +1849,73 @@ yyreduce:
                                                           }
                                                           else { yyerror("ERROR: duplicate variable"); exit(1);}
                                                        }
-#line 1848 "compiler.tab.c"
+#line 1853 "compiler.tab.c"
     break;
 
   case 26:
-#line 376 "compiler.y"
-                                                        { size_t needed = snprintf(NULL, 0, "(%s,%s,%s)", (yyvsp[-5].cadena), (yyvsp[-3].cadena), (yyvsp[-1].cadena)) + 1;
-                                                          char  *buffer = malloc(needed);
-                                                          sprintf(buffer, "(%s,%s,%s)", (yyvsp[-5].cadena), (yyvsp[-3].cadena), (yyvsp[-1].cadena));
-                                                          (yyval.cadena) = generateString(buffer);
-                                                          free(buffer);
-                                                        }
-#line 1859 "compiler.tab.c"
+#line 374 "src/compiler_files/compiler.y"
+                                                                       { size_t needed = snprintf(NULL, 0, "(%s,%s,%s)", (yyvsp[-5].cadena), (yyvsp[-3].cadena), (yyvsp[-1].cadena)) + 1;
+                                                                          char  *buffer = malloc(needed);
+                                                                          sprintf(buffer, "(%s,%s,%s)", (yyvsp[-5].cadena), (yyvsp[-3].cadena), (yyvsp[-1].cadena));
+                                                                          (yyval.cadena) = generateString(buffer);
+                                                                          free(buffer);
+                                                                        }
+#line 1864 "compiler.tab.c"
     break;
 
   case 27:
-#line 384 "compiler.y"
-                                                        { char *eptr;
-                                                          size_t needed = snprintf(NULL, 0, " %d.%d", (yyvsp[-2].valor), (yyvsp[0].valor)) + 1;
+#line 382 "src/compiler_files/compiler.y"
+                                                      { char *eptr;
+                                                          size_t needed = snprintf(NULL, 0, "%s", (yyvsp[0].cadena)) + 1;
                                                           char  *aux = malloc(needed);
-                                                          sprintf(aux, " %d.%d", (yyvsp[-2].valor), (yyvsp[0].valor));
+                                                          sprintf(aux, " %s", (yyvsp[0].cadena));
                                                           double number = strtod(aux, &eptr);
                                                           free(aux);
                                                           needed = snprintf(NULL, 0, "%f", number) + 1;
                                                           char  *buffer = malloc(needed);
                                                           sprintf(buffer, "%f", number); 
                                                           if (number > 1.0) { 
+                                                            yywarning("WARNING: rgb color component must be between 0 and 1. By default the value will be 1.0");
                                                             sprintf(buffer, "1.0");
                                                             (yyval.cadena) = generateString(buffer); 
                                                           }
                                                           else if (number < 0.0) { 
+                                                            yywarning("WARNING: rgb color component must be between 0 and 1. By default the value will be 0.0");
                                                             sprintf(buffer, "0.0");
                                                             (yyval.cadena) = generateString(buffer); 
-                                                          }
-                                                          else { 
-                                                            (yyval.cadena) = generateString(buffer); 
-                                                          }
-                                                          free(buffer);
-                                                        }
-#line 1886 "compiler.tab.c"
-    break;
-
-  case 28:
-#line 407 "compiler.y"
-                                                        { size_t needed = snprintf(NULL, 0,  "%d", (yyvsp[0].valor)) + 1;
-                                                          char  *buffer = malloc(needed);
-                                                          sprintf(buffer,  "%d", (yyvsp[0].valor));
-                                                          if((yyvsp[0].valor) > 1) { 
-                                                            sprintf(buffer, "1"); 
-                                                          } 
-                                                          else if ((yyvsp[0].valor) < 0) { 
-                                                            sprintf(buffer, "0");
                                                           }
                                                           (yyval.cadena) = generateString(buffer); 
                                                           free(buffer);
                                                         }
-#line 1903 "compiler.tab.c"
+#line 1891 "compiler.tab.c"
+    break;
+
+  case 28:
+#line 407 "src/compiler_files/compiler.y"
+                                                      { if(Get((yyvsp[-2].cadena)) == NULL) { //No existe una variable llamda con el valo que lleva IDENTIF
+                                                          //Se añade la variable a la lista de variables identificando si es global o atributo de célula
+                                                          Add((yyvsp[-2].cadena), "bool", section, (yyvsp[0].cadena), (yyvsp[0].cadena));
+                                                          size_t needed = snprintf(NULL, 0,  "%s %s = %s;\n", (yyvsp[-3].cadena), (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
+                                                          char  *buffer = malloc(needed);
+                                                          sprintf (buffer, "%s %s = %s;\n", (yyvsp[-3].cadena), (yyvsp[-2].cadena), (yyvsp[0].cadena)); //Traducción a C: bool identif = valor;
+                                                          (yyval.cadena) = generateString(buffer);
+                                                          free(buffer);
+                                                          clean();
+                                                        }
+                                                        else { //Existe una variable on ese nombre
+                                                          if(strcmp((yyvsp[-3].cadena), "state") == 0 || strcmp((yyvsp[-3].cadena), "alive") == 0 || strcmp((yyvsp[-3].cadena), "infected") == 0){
+                                                            yyerror("ERROR: %s is a reserved variable", (yyvsp[-3].cadena)); exit(1);
+                                                          } else {
+                                                            yyerror("ERROR: duplicate variable"); exit(1);
+                                                          }
+                                                        }
+                                                        
+                                                      }
+#line 1915 "compiler.tab.c"
     break;
 
   case 29:
-#line 422 "compiler.y"
-                                                    { if(Get((yyvsp[-2].cadena)) == NULL) { 
-                                                        Add((yyvsp[-2].cadena), "bool", section, (yyvsp[0].cadena), (yyvsp[0].cadena)); 
-                                                        size_t needed = snprintf(NULL, 0,  "%s %s = %s;\n", (yyvsp[-3].cadena), (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
-                                                        char  *buffer = malloc(needed);
-                                                        sprintf (buffer, "%s %s = %s;\n", (yyvsp[-3].cadena), (yyvsp[-2].cadena), (yyvsp[0].cadena));
-                                                        (yyval.cadena) = generateString(buffer);
-                                                        free(buffer);
-                                                        clean();
-                                                      }
-                                                      else { 
-                                                        if(strcmp((yyvsp[-3].cadena), "state") == 0 || strcmp((yyvsp[-3].cadena), "alive") == 0 || strcmp((yyvsp[-3].cadena), "infected") == 0){
-                                                          yyerror("ERROR: %s is a reserved variable", (yyvsp[-3].cadena)); exit(1);
-                                                        } else {
-                                                          yyerror("ERROR: duplicate variable"); exit(1);
-                                                        }
-                                                      }
-                                                      
-                                                    }
-#line 1926 "compiler.tab.c"
-    break;
-
-  case 30:
-#line 440 "compiler.y"
+#line 426 "src/compiler_files/compiler.y"
                                                      { if(Get((yyvsp[0].cadena)) == NULL) { 
                                                         Add((yyvsp[0].cadena), "bool", section, "false", "false"); 
                                                         size_t needed = snprintf(NULL, 0,  "%s %s = false;\n", (yyvsp[-1].cadena), (yyvsp[0].cadena)) + 1;
@@ -1945,11 +1934,11 @@ yyreduce:
                                                       }
                                                       
                                                     }
-#line 1949 "compiler.tab.c"
+#line 1938 "compiler.tab.c"
     break;
 
-  case 31:
-#line 459 "compiler.y"
+  case 30:
+#line 445 "src/compiler_files/compiler.y"
                                                     { if(Get((yyvsp[-2].cadena)) == NULL) { 
                                                         Add((yyvsp[-2].cadena), "int", section, (yyvsp[0].cadena), (yyvsp[0].cadena)); 
                                                         size_t needed = snprintf(NULL, 0,   "%s %s = %s;\n", (yyvsp[-3].cadena), (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
@@ -1967,11 +1956,11 @@ yyreduce:
                                                         }
                                                       }
                                                     }
-#line 1971 "compiler.tab.c"
+#line 1960 "compiler.tab.c"
     break;
 
-  case 32:
-#line 477 "compiler.y"
+  case 31:
+#line 462 "src/compiler_files/compiler.y"
                                                     { if(Get((yyvsp[0].cadena)) == NULL) { 
                                                         Add((yyvsp[0].cadena), "int", section, "0", "0"); 
                                                         size_t needed = snprintf(NULL, 0,   "%s %s = 0;\n", (yyvsp[-1].cadena), (yyvsp[0].cadena)) + 1;
@@ -1989,11 +1978,11 @@ yyreduce:
                                                         }
                                                       }
                                                     }
-#line 1993 "compiler.tab.c"
+#line 1982 "compiler.tab.c"
     break;
 
-  case 33:
-#line 495 "compiler.y"
+  case 32:
+#line 480 "src/compiler_files/compiler.y"
                                                     { if(Get((yyvsp[-2].cadena)) == NULL) { 
                                                         Add((yyvsp[-2].cadena), "double", section, (yyvsp[0].cadena), (yyvsp[0].cadena)); 
                                                         size_t needed = snprintf(NULL, 0,   "%s %s = %s;\n", (yyvsp[-3].cadena), (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
@@ -2011,11 +2000,11 @@ yyreduce:
                                                         }
                                                       }
                                                     }
-#line 2015 "compiler.tab.c"
+#line 2004 "compiler.tab.c"
     break;
 
-  case 34:
-#line 513 "compiler.y"
+  case 33:
+#line 497 "src/compiler_files/compiler.y"
                                                     { if(Get((yyvsp[0].cadena)) == NULL) { 
                                                         Add((yyvsp[0].cadena), "double", section, "0.0", "0.0"); 
                                                         size_t needed = snprintf(NULL, 0,   "%s %s = 0.0;\n", (yyvsp[-1].cadena), (yyvsp[0].cadena)) + 1;
@@ -2033,11 +2022,11 @@ yyreduce:
                                                         }
                                                       }
                                                     }
-#line 2037 "compiler.tab.c"
+#line 2026 "compiler.tab.c"
     break;
 
-  case 35:
-#line 533 "compiler.y"
+  case 34:
+#line 517 "src/compiler_files/compiler.y"
                                                                            {  size_t needed = snprintf(NULL, 0, "if(currentTick >= %d) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \",\" << results[i];\n}\n%s << \"\\n\";\n } \n ", (yyvsp[-4].valor), beginStrain, (yyvsp[-1].cadena), (yyvsp[-6].cadena), (yyvsp[-6].cadena), (yyvsp[-6].cadena)) + 1;
                                                                               char  *buffer = malloc(needed);
                                                                               sprintf (buffer,  "if(currentTick >= %d) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \",\" << results[i];\n}\n%s << \"\\n\";\n } \n ", (yyvsp[-4].valor), beginStrain, (yyvsp[-1].cadena), (yyvsp[-6].cadena), (yyvsp[-6].cadena), (yyvsp[-6].cadena));
@@ -2047,11 +2036,11 @@ yyreduce:
                                                                                 Add((yyvsp[-6].cadena), "null", STRAIN_T, " ", " "); 
                                                                               }
                                                                             }
-#line 2051 "compiler.tab.c"
+#line 2040 "compiler.tab.c"
     break;
 
-  case 36:
-#line 542 "compiler.y"
+  case 35:
+#line 526 "src/compiler_files/compiler.y"
                                                                            {  size_t needed = snprintf(NULL, 0, "if(currentTick >= %d) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \",\" << results[i];\n}\n%s << \"\\n\";\n } \n %s ", (yyvsp[-5].valor), beginStrain, (yyvsp[-2].cadena), (yyvsp[-7].cadena), (yyvsp[-7].cadena), (yyvsp[-7].cadena), (yyvsp[0].cadena)) + 1;
                                                                               char  *buffer = malloc(needed);
                                                                               sprintf (buffer,  "if(currentTick >= %d) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \",\" << results[i];\n}\n%s << \"\\n\";\n  } \n %s ", (yyvsp[-5].valor), beginStrain, (yyvsp[-2].cadena), (yyvsp[-7].cadena), (yyvsp[-7].cadena), (yyvsp[-7].cadena), (yyvsp[0].cadena));
@@ -2061,11 +2050,11 @@ yyreduce:
                                                                                 Add((yyvsp[-7].cadena), "null", STRAIN_T, " ", " "); 
                                                                               }
                                                                             }
-#line 2065 "compiler.tab.c"
+#line 2054 "compiler.tab.c"
     break;
 
-  case 37:
-#line 551 "compiler.y"
+  case 36:
+#line 535 "src/compiler_files/compiler.y"
                                                                            {  size_t needed = snprintf(NULL, 0, "if(currentTick >= 0) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \",\" << results[i];\n}\n%s << \"\\n\";\n } \n ", beginStrain, (yyvsp[-1].cadena), (yyvsp[-5].cadena), (yyvsp[-5].cadena), (yyvsp[-5].cadena)) + 1;
                                                                               char  *buffer = malloc(needed);
                                                                               sprintf (buffer,  "if(currentTick >= 0) {\n %s %s \n } \n for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \",\" << results[i];\n}\n%s << \"\\n\";\n } \n ", beginStrain, (yyvsp[-1].cadena), (yyvsp[-5].cadena), (yyvsp[-5].cadena), (yyvsp[-5].cadena));
@@ -2075,11 +2064,11 @@ yyreduce:
                                                                                 Add((yyvsp[-5].cadena), "null", STRAIN_T, " ", " "); 
                                                                               } 
                                                                             }
-#line 2079 "compiler.tab.c"
+#line 2068 "compiler.tab.c"
     break;
 
-  case 38:
-#line 560 "compiler.y"
+  case 37:
+#line 544 "src/compiler_files/compiler.y"
                                                                            {  size_t needed = snprintf(NULL, 0, "if(currentTick >= 0) {\n %s %s \n } for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \",\" << results[i];\n}\n%s << \"\\n\";\n \n } \n %s ", beginStrain, (yyvsp[-2].cadena), (yyvsp[-6].cadena), (yyvsp[-6].cadena), (yyvsp[-6].cadena), (yyvsp[0].cadena)) + 1;
                                                                               char  *buffer = malloc(needed);
                                                                               sprintf (buffer,  "if(currentTick >= 0) {\n %s %s \n } for(int i=0; i<N; i++){\n    for(int j=0; j<N; j++){\n        results[cells[i][j].state]++;\n    }\n}\n%s << currentTick ;\nfor(int i=0; i<nStates;i++){\n    %s <<  \",\" << results[i];\n}\n%s << \"\\n\";\n \n } \n %s ", beginStrain, (yyvsp[-2].cadena), (yyvsp[-6].cadena), (yyvsp[-6].cadena), (yyvsp[-6].cadena), (yyvsp[0].cadena));
@@ -2089,33 +2078,33 @@ yyreduce:
                                                                                 Add((yyvsp[-6].cadena), "null", STRAIN_T, " ", " "); 
                                                                               }
                                                                             }
-#line 2093 "compiler.tab.c"
+#line 2082 "compiler.tab.c"
     break;
 
-  case 39:
-#line 572 "compiler.y"
+  case 38:
+#line 556 "src/compiler_files/compiler.y"
                                                 { size_t needed = snprintf(NULL, 0, "%s \n }", (yyvsp[0].cadena)) + 1;
                                                   char  *buffer = malloc(needed);
                                                   sprintf (buffer,  "%s \n }", (yyvsp[0].cadena));
                                                   (yyval.cadena) = generateString(buffer);
                                                   free(buffer);
                                                 }
-#line 2104 "compiler.tab.c"
+#line 2093 "compiler.tab.c"
     break;
 
-  case 40:
-#line 579 "compiler.y"
+  case 39:
+#line 563 "src/compiler_files/compiler.y"
                                                 { size_t needed = snprintf(NULL, 0, "%s \n %s", (yyvsp[-1].cadena), (yyvsp[0].cadena)) + 1;
                                                   char  *buffer = malloc(needed);
                                                   sprintf (buffer,  "%s \n %s", (yyvsp[-1].cadena), (yyvsp[0].cadena));
                                                   (yyval.cadena) = generateString(buffer);
                                                   free(buffer);
                                                   }
-#line 2115 "compiler.tab.c"
+#line 2104 "compiler.tab.c"
     break;
 
-  case 41:
-#line 588 "compiler.y"
+  case 40:
+#line 572 "src/compiler_files/compiler.y"
                                                                   { size_t needed = snprintf(NULL, 0, "if( %s ) {\n %s ", (yyvsp[-3].cadena), (yyvsp[0].cadena)) + 1;
                                                                     char  *buffer = malloc(needed);
                                                                     sprintf (buffer,  "if( %s ) {\n %s ", (yyvsp[-3].cadena), (yyvsp[0].cadena));
@@ -2123,11 +2112,11 @@ yyreduce:
                                                                     free(buffer);
                                                                     clean();
                                                                   }
-#line 2127 "compiler.tab.c"
+#line 2116 "compiler.tab.c"
     break;
 
-  case 42:
-#line 597 "compiler.y"
+  case 41:
+#line 581 "src/compiler_files/compiler.y"
                                                                     { size_t needed = snprintf(NULL, 0, "%s \n}\n",(yyvsp[-1].cadena)) + 1;
                                                                       char  *buffer = malloc(needed);
                                                                       sprintf (buffer,  "%s \n}\n",(yyvsp[-1].cadena));
@@ -2135,11 +2124,11 @@ yyreduce:
                                                                       free(buffer);
                                                                       clean();
                                                                     }
-#line 2139 "compiler.tab.c"
+#line 2128 "compiler.tab.c"
     break;
 
-  case 43:
-#line 605 "compiler.y"
+  case 42:
+#line 589 "src/compiler_files/compiler.y"
                                                                      {  size_t needed = snprintf(NULL, 0, "%s \n} else if ( %s ) {\n %s", (yyvsp[-8].cadena), (yyvsp[-3].cadena), (yyvsp[0].cadena)) + 1;
                                                                         char  *buffer = malloc(needed);
                                                                         sprintf (buffer,  "%s \n} else if ( %s ) {\n %s", (yyvsp[-8].cadena), (yyvsp[-3].cadena), (yyvsp[0].cadena));
@@ -2147,11 +2136,11 @@ yyreduce:
                                                                         free(buffer);
                                                                         clean();
                                                                       }
-#line 2151 "compiler.tab.c"
+#line 2140 "compiler.tab.c"
     break;
 
-  case 44:
-#line 613 "compiler.y"
+  case 43:
+#line 597 "src/compiler_files/compiler.y"
                                                                       { size_t needed = snprintf(NULL, 0, "%s \n} else {\n %s \n}", (yyvsp[-5].cadena), (yyvsp[-1].cadena)) + 1;
                                                                         char  *buffer = malloc(needed);
                                                                         sprintf (buffer,  "%s \n} else {\n %s \n}", (yyvsp[-5].cadena), (yyvsp[-1].cadena));
@@ -2159,17 +2148,28 @@ yyreduce:
                                                                         free(buffer);
                                                                         clean();
                                                                       }
-#line 2163 "compiler.tab.c"
+#line 2152 "compiler.tab.c"
+    break;
+
+  case 44:
+#line 609 "src/compiler_files/compiler.y"
+                                                      {  (yyval.cadena) = generateString(" "); }
+#line 2158 "compiler.tab.c"
     break;
 
   case 45:
-#line 625 "compiler.y"
-                                                      {  (yyval.cadena) = generateString(" "); }
+#line 611 "src/compiler_files/compiler.y"
+                                                      { size_t needed = snprintf(NULL, 0, "%s \n %s", (yyvsp[-1].cadena), (yyvsp[0].cadena)) + 1;
+                                                        char  *buffer = malloc(needed);
+                                                        sprintf (buffer, "%s \n %s", (yyvsp[-1].cadena), (yyvsp[0].cadena));
+                                                        (yyval.cadena) = generateString(buffer);
+                                                        free(buffer);
+                                                      }
 #line 2169 "compiler.tab.c"
     break;
 
   case 46:
-#line 627 "compiler.y"
+#line 618 "src/compiler_files/compiler.y"
                                                       { size_t needed = snprintf(NULL, 0, "%s \n %s", (yyvsp[-1].cadena), (yyvsp[0].cadena)) + 1;
                                                         char  *buffer = malloc(needed);
                                                         sprintf (buffer, "%s \n %s", (yyvsp[-1].cadena), (yyvsp[0].cadena));
@@ -2180,33 +2180,22 @@ yyreduce:
     break;
 
   case 47:
-#line 634 "compiler.y"
-                                                      { size_t needed = snprintf(NULL, 0, "%s \n %s", (yyvsp[-1].cadena), (yyvsp[0].cadena)) + 1;
-                                                        char  *buffer = malloc(needed);
-                                                        sprintf (buffer, "%s \n %s", (yyvsp[-1].cadena), (yyvsp[0].cadena));
-                                                        (yyval.cadena) = generateString(buffer);
-                                                        free(buffer);
-                                                      }
-#line 2191 "compiler.tab.c"
+#line 624 "src/compiler_files/compiler.y"
+                                                      { (yyval.cadena) = generateString("continue;"); }
+#line 2186 "compiler.tab.c"
     break;
 
   case 48:
-#line 640 "compiler.y"
-                                                      { (yyval.cadena) = generateString("continue;"); }
-#line 2197 "compiler.tab.c"
-    break;
-
-  case 49:
-#line 644 "compiler.y"
+#line 628 "src/compiler_files/compiler.y"
                                                       { section = INIT_T; 
                                                         hasState = 0;
                                                         clean();
                                                      }
-#line 2206 "compiler.tab.c"
+#line 2195 "compiler.tab.c"
     break;
 
-  case 50:
-#line 648 "compiler.y"
+  case 49:
+#line 632 "src/compiler_files/compiler.y"
                                                       { if (hasState == 0) {
                                                           yyerror("ERROR: Init funcion doesn't have an assigment to the variable \"state\"");
                                                           exit(1);
@@ -2218,34 +2207,34 @@ yyreduce:
                                                           free(buffer);
                                                         }
                                                       }
-#line 2222 "compiler.tab.c"
+#line 2211 "compiler.tab.c"
+    break;
+
+  case 50:
+#line 646 "src/compiler_files/compiler.y"
+                                                      { (yyval.cadena) = generateString(" "); }
+#line 2217 "compiler.tab.c"
     break;
 
   case 51:
-#line 662 "compiler.y"
-                                                      { (yyval.cadena) = generateString(" "); }
-#line 2228 "compiler.tab.c"
-    break;
-
-  case 52:
-#line 664 "compiler.y"
+#line 648 "src/compiler_files/compiler.y"
                                                       { size_t needed = snprintf(NULL, 0, "%s \n %s \n", (yyvsp[-1].cadena), (yyvsp[0].cadena)) + 1;
                                                         char  *buffer = malloc(needed);
                                                         sprintf (buffer, "%s \n %s \n", (yyvsp[-1].cadena), (yyvsp[0].cadena));
                                                         (yyval.cadena) = generateString(buffer);
                                                         free(buffer);
                                                       }
-#line 2239 "compiler.tab.c"
+#line 2228 "compiler.tab.c"
+    break;
+
+  case 52:
+#line 656 "src/compiler_files/compiler.y"
+                                                             { clean(); }
+#line 2234 "compiler.tab.c"
     break;
 
   case 53:
-#line 672 "compiler.y"
-                                                             { clean(); }
-#line 2245 "compiler.tab.c"
-    break;
-
-  case 54:
-#line 673 "compiler.y"
+#line 657 "src/compiler_files/compiler.y"
                                                              { nodeList *p = Get((yyvsp[-3].cadena));
                                                               if(p == NULL) { 
                                                                 yyerror("ERROR: Variable \"%s\" doesn't exist", (yyvsp[-3].cadena));
@@ -2264,14 +2253,14 @@ yyreduce:
                                                                 clean();
                                                                 size_t needed = snprintf(NULL, 0, "cells[i][j].%s = %s; ", (yyvsp[-3].cadena), (yyvsp[-1].cadena)) + 1;
                                                                 char  *buffer = malloc(needed);
-                                                                if(p->type2 == CELL_T){
+                                                                if(p->section == CELL_T){
                                                                   if (section != INIT_T ) {
                                                                     sprintf(buffer, "cells[i][j].%s = %s; ", (yyvsp[-3].cadena), (yyvsp[-1].cadena));
                                                                   } else {
                                                                     sprintf(buffer, "%s = %s; ", (yyvsp[-3].cadena), (yyvsp[-1].cadena));
                                                                   }
                                                                   (yyval.cadena) = generateString(buffer); 
-                                                                } else if(p->type2 == GLOBAL_T) {
+                                                                } else if(p->section == GLOBAL_T) {
                                                                   // strcpy(p->actualValue, $4);
                                                                   sprintf(buffer, "%s = %s; ", (yyvsp[-3].cadena), (yyvsp[-1].cadena));
                                                                   (yyval.cadena) = generateString(buffer); 
@@ -2279,20 +2268,31 @@ yyreduce:
                                                                 free(buffer);
                                                               }
                                                             }
-#line 2283 "compiler.tab.c"
+#line 2272 "compiler.tab.c"
+    break;
+
+  case 54:
+#line 693 "src/compiler_files/compiler.y"
+                                                  {  }
+#line 2278 "compiler.tab.c"
     break;
 
   case 55:
-#line 709 "compiler.y"
-                                                  {  }
+#line 694 "src/compiler_files/compiler.y"
+                                                  { size_t needed = snprintf(NULL, 0, "%s + %s", (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
+                                                    char  *buffer = malloc(needed);
+                                                    sprintf (buffer, "%s + %s", (yyvsp[-2].cadena), (yyvsp[0].cadena));
+                                                    (yyval.cadena) = generateString(buffer);
+                                                    free(buffer);
+                                                  }
 #line 2289 "compiler.tab.c"
     break;
 
   case 56:
-#line 710 "compiler.y"
-                                                  { size_t needed = snprintf(NULL, 0, "%s + %s", (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
+#line 701 "src/compiler_files/compiler.y"
+                                                  { size_t needed = snprintf(NULL, 0, "%s - %s", (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
                                                     char  *buffer = malloc(needed);
-                                                    sprintf (buffer, "%s + %s", (yyvsp[-2].cadena), (yyvsp[0].cadena));
+                                                    sprintf (buffer, "%s - %s", (yyvsp[-2].cadena), (yyvsp[0].cadena));
                                                     (yyval.cadena) = generateString(buffer);
                                                     free(buffer);
                                                   }
@@ -2300,154 +2300,143 @@ yyreduce:
     break;
 
   case 57:
-#line 717 "compiler.y"
-                                                  { size_t needed = snprintf(NULL, 0, "%s - %s", (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
-                                                    char  *buffer = malloc(needed);
-                                                    sprintf (buffer, "%s - %s", (yyvsp[-2].cadena), (yyvsp[0].cadena));
-                                                    (yyval.cadena) = generateString(buffer);
-                                                    free(buffer);
-                                                  }
-#line 2311 "compiler.tab.c"
-    break;
-
-  case 58:
-#line 724 "compiler.y"
+#line 708 "src/compiler_files/compiler.y"
                                                   { size_t needed = snprintf(NULL, 0, "%s * %s", (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
                                                     char  *buffer = malloc(needed);
                                                     sprintf (buffer, "%s * %s", (yyvsp[-2].cadena), (yyvsp[0].cadena));
                                                     (yyval.cadena) = generateString(buffer);
                                                     free(buffer); }
-#line 2321 "compiler.tab.c"
+#line 2310 "compiler.tab.c"
     break;
 
-  case 59:
-#line 730 "compiler.y"
+  case 58:
+#line 714 "src/compiler_files/compiler.y"
                                                   { size_t needed = snprintf(NULL, 0, "%s / %s", (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
                                                     char  *buffer = malloc(needed);
                                                     sprintf (buffer, "%s / %s", (yyvsp[-2].cadena), (yyvsp[0].cadena));
                                                     (yyval.cadena) = generateString(buffer);
                                                     free(buffer); }
-#line 2331 "compiler.tab.c"
+#line 2320 "compiler.tab.c"
     break;
 
-  case 60:
-#line 736 "compiler.y"
+  case 59:
+#line 720 "src/compiler_files/compiler.y"
                                                   { size_t needed = snprintf(NULL, 0, "%s %% %s", (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
                                                     char  *buffer = malloc(needed);
                                                     sprintf (buffer, "%s %% %s", (yyvsp[-2].cadena), (yyvsp[0].cadena));
                                                     (yyval.cadena) = generateString(buffer);
                                                     free(buffer); }
-#line 2341 "compiler.tab.c"
+#line 2330 "compiler.tab.c"
     break;
 
-  case 61:
-#line 742 "compiler.y"
+  case 60:
+#line 726 "src/compiler_files/compiler.y"
                                                   { size_t needed = snprintf(NULL, 0, "%s && %s", (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
                                                     char  *buffer = malloc(needed);
                                                     sprintf (buffer, "%s && %s", (yyvsp[-2].cadena), (yyvsp[0].cadena));
                                                     (yyval.cadena) = generateString(buffer);
                                                     free(buffer); }
-#line 2351 "compiler.tab.c"
+#line 2340 "compiler.tab.c"
     break;
 
-  case 62:
-#line 748 "compiler.y"
+  case 61:
+#line 732 "src/compiler_files/compiler.y"
                                                   { size_t needed = snprintf(NULL, 0, "%s || %s", (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
                                                     char  *buffer = malloc(needed);
                                                     sprintf (buffer, "%s || %s", (yyvsp[-2].cadena), (yyvsp[0].cadena));
                                                     (yyval.cadena) = generateString(buffer);
                                                     free(buffer); }
-#line 2361 "compiler.tab.c"
+#line 2350 "compiler.tab.c"
     break;
 
-  case 63:
-#line 754 "compiler.y"
+  case 62:
+#line 738 "src/compiler_files/compiler.y"
                                                   { size_t needed = snprintf(NULL, 0, "%s != %s", (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
                                                     char  *buffer = malloc(needed);
                                                     sprintf (buffer, "%s != %s", (yyvsp[-2].cadena), (yyvsp[0].cadena));
                                                     (yyval.cadena) = generateString(buffer);
                                                     free(buffer); }
-#line 2371 "compiler.tab.c"
+#line 2360 "compiler.tab.c"
     break;
 
-  case 64:
-#line 760 "compiler.y"
+  case 63:
+#line 744 "src/compiler_files/compiler.y"
                                                   { size_t needed = snprintf(NULL, 0, "%s == %s", (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
                                                     char  *buffer = malloc(needed);
                                                     sprintf (buffer, "%s == %s", (yyvsp[-2].cadena), (yyvsp[0].cadena));
                                                     (yyval.cadena) = generateString(buffer);
                                                     free(buffer); }
-#line 2381 "compiler.tab.c"
+#line 2370 "compiler.tab.c"
     break;
 
-  case 65:
-#line 766 "compiler.y"
+  case 64:
+#line 750 "src/compiler_files/compiler.y"
                                                   { size_t needed = snprintf(NULL, 0, "%s < %s", (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
                                                     char  *buffer = malloc(needed);
                                                     sprintf (buffer, "%s < %s", (yyvsp[-2].cadena), (yyvsp[0].cadena));
                                                     (yyval.cadena) = generateString(buffer);
                                                     free(buffer); }
-#line 2391 "compiler.tab.c"
+#line 2380 "compiler.tab.c"
     break;
 
-  case 66:
-#line 772 "compiler.y"
+  case 65:
+#line 756 "src/compiler_files/compiler.y"
                                                   { size_t needed = snprintf(NULL, 0, "%s <= %s", (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
                                                     char  *buffer = malloc(needed);
                                                     sprintf (buffer, "%s <= %s", (yyvsp[-2].cadena), (yyvsp[0].cadena));
                                                     (yyval.cadena) = generateString(buffer);
                                                     free(buffer); }
-#line 2401 "compiler.tab.c"
+#line 2390 "compiler.tab.c"
     break;
 
-  case 67:
-#line 778 "compiler.y"
+  case 66:
+#line 762 "src/compiler_files/compiler.y"
                                                   { size_t needed = snprintf(NULL, 0, "%s > %s", (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
                                                     char  *buffer = malloc(needed);
                                                     sprintf (buffer, "%s > %s", (yyvsp[-2].cadena), (yyvsp[0].cadena));
                                                     (yyval.cadena) = generateString(buffer);
                                                     free(buffer); }
-#line 2411 "compiler.tab.c"
+#line 2400 "compiler.tab.c"
     break;
 
-  case 68:
-#line 784 "compiler.y"
+  case 67:
+#line 768 "src/compiler_files/compiler.y"
                                                   { size_t needed = snprintf(NULL, 0, "%s >= %s", (yyvsp[-2].cadena), (yyvsp[0].cadena)) + 1;
                                                     char  *buffer = malloc(needed);
                                                     sprintf (buffer, "%s >= %s", (yyvsp[-2].cadena), (yyvsp[0].cadena));
                                                     (yyval.cadena) = generateString(buffer);
                                                     free(buffer); }
-#line 2421 "compiler.tab.c"
+#line 2410 "compiler.tab.c"
     break;
 
-  case 69:
-#line 790 "compiler.y"
+  case 68:
+#line 774 "src/compiler_files/compiler.y"
                                                   { size_t needed = snprintf(NULL, 0, "- %s", (yyvsp[0].cadena)) + 1;
                                                     char  *buffer = malloc(needed);
                                                     sprintf (buffer, "- %s",(yyvsp[0].cadena));
                                                     (yyval.cadena) = generateString(buffer);
                                                     free(buffer); }
-#line 2431 "compiler.tab.c"
+#line 2420 "compiler.tab.c"
     break;
 
-  case 70:
-#line 796 "compiler.y"
+  case 69:
+#line 780 "src/compiler_files/compiler.y"
                                                   { size_t needed = snprintf(NULL, 0, "%s",(yyvsp[0].cadena)) + 1;
                                                     char  *buffer = malloc(needed);
                                                     sprintf (buffer, "%s",(yyvsp[0].cadena));
                                                     (yyval.cadena) = generateString(buffer);
                                                     free(buffer); }
-#line 2441 "compiler.tab.c"
+#line 2430 "compiler.tab.c"
+    break;
+
+  case 70:
+#line 789 "src/compiler_files/compiler.y"
+                                                    {  }
+#line 2436 "compiler.tab.c"
     break;
 
   case 71:
-#line 805 "compiler.y"
-                                                    {  }
-#line 2447 "compiler.tab.c"
-    break;
-
-  case 72:
-#line 820 "compiler.y"
+#line 804 "src/compiler_files/compiler.y"
                                                     { nodeList *p = Get((yyvsp[0].cadena));
                                                       if(p == NULL) { 
                                                         if (strcmp((yyvsp[0].cadena), "currenttick") == 0) {
@@ -2473,30 +2462,30 @@ yyreduce:
                                                         }
                                                         size_t needed = snprintf(NULL, 0, "cells[i][j].%s", (yyvsp[0].cadena)) + 1;
                                                         char  *buffer = malloc(needed);
-                                                        if(p->type2 == CELL_T){
+                                                        if(p->section == CELL_T){
                                                           sprintf(buffer, "cells[i][j].%s", (yyvsp[0].cadena));
-                                                        } else if (p->type2 == GLOBAL_T){
+                                                        } else if (p->section == GLOBAL_T){
                                                           sprintf(buffer, "%s", (yyvsp[0].cadena));
-                                                        } else if (p->type2 == STATE_T){
+                                                        } else if (p->section == STATE_T){
                                                           sprintf(buffer, "%s", toUpper((yyvsp[0].cadena)));
                                                         }
                                                         (yyval.cadena) = generateString(buffer);
                                                         free(buffer); 
                                                       }
                                                     }
-#line 2488 "compiler.tab.c"
+#line 2477 "compiler.tab.c"
     break;
 
-  case 73:
-#line 857 "compiler.y"
+  case 72:
+#line 841 "src/compiler_files/compiler.y"
                                                     { typeExpression[i] = DOUBLE_T;
                                                       i++;
                                                       (yyval.cadena) = generateString("((rand() % (1001))/1000.0)"); }
-#line 2496 "compiler.tab.c"
+#line 2485 "compiler.tab.c"
     break;
 
-  case 74:
-#line 861 "compiler.y"
+  case 73:
+#line 845 "src/compiler_files/compiler.y"
                                                     { typeExpression[i] = INTEGER_T;
                                                       i++;
                                                       size_t needed = snprintf(NULL, 0, "%s", (yyvsp[0].cadena)) + 1;
@@ -2504,11 +2493,11 @@ yyreduce:
                                                       sprintf (buffer, "%s", (yyvsp[0].cadena));
                                                       (yyval.cadena) = generateString(buffer);
                                                       free(buffer); }
-#line 2508 "compiler.tab.c"
+#line 2497 "compiler.tab.c"
     break;
 
-  case 75:
-#line 869 "compiler.y"
+  case 74:
+#line 853 "src/compiler_files/compiler.y"
                                                     { typeExpression[i] = DOUBLE_T;
                                                       i++;
                                                       size_t needed = snprintf(NULL, 0, "%s", (yyvsp[0].cadena)) + 1;
@@ -2516,11 +2505,11 @@ yyreduce:
                                                       sprintf (buffer, "%s", (yyvsp[0].cadena));
                                                       (yyval.cadena) = generateString(buffer);
                                                       free(buffer);  }
-#line 2520 "compiler.tab.c"
+#line 2509 "compiler.tab.c"
     break;
 
-  case 76:
-#line 877 "compiler.y"
+  case 75:
+#line 861 "src/compiler_files/compiler.y"
                                                     { typeExpression[i] = BOOLEAN_T;
                                                       i++;
                                                       size_t needed = snprintf(NULL, 0, "%s", (yyvsp[0].cadena)) + 1;
@@ -2528,12 +2517,12 @@ yyreduce:
                                                       sprintf (buffer, "%s", (yyvsp[0].cadena));
                                                       (yyval.cadena) = generateString(buffer);
                                                       free(buffer);  }
-#line 2532 "compiler.tab.c"
+#line 2521 "compiler.tab.c"
     break;
 
-  case 77:
-#line 887 "compiler.y"
-                                                        { if( Get((yyvsp[-3].cadena))->type2 == CELL_T ) {
+  case 76:
+#line 871 "src/compiler_files/compiler.y"
+                                                        { if( Get((yyvsp[-3].cadena))->section == CELL_T ) {
                                                             size_t needed = snprintf(NULL, 0, "count(c_neighbours, string(\"%s\"), std::to_string(%s), cells)", (yyvsp[-3].cadena), (yyvsp[-1].cadena)) + 1;
                                                             char  *buffer = malloc(needed);
                                                             sprintf (buffer, "count(c_neighbours, string(\"%s\"), std::to_string(%s), cells)", (yyvsp[-3].cadena), (yyvsp[-1].cadena));
@@ -2544,17 +2533,17 @@ yyreduce:
                                                             exit(1);
                                                           }
                                                         }
-#line 2548 "compiler.tab.c"
+#line 2537 "compiler.tab.c"
     break;
 
-  case 78:
-#line 899 "compiler.y"
+  case 77:
+#line 883 "src/compiler_files/compiler.y"
                                                     { nodeList *p = Get((yyvsp[0].cadena));
                                                       if(p == NULL) { 
                                                         yyerror( "ERROR: Variable \"%s\" doesn't exist", (yyvsp[0].cadena));
                                                         exit(1);
                                                       } else {
-                                                        if(p->type2 == CELL_T){
+                                                        if(p->section == CELL_T){
                                                           if (strcmp(p->type, "int") == 0) {
                                                             typeExpression[i] = INTEGER_T;
                                                             i++;
@@ -2576,21 +2565,32 @@ yyreduce:
                                                         }
                                                       } 
                                                     }
-#line 2580 "compiler.tab.c"
+#line 2569 "compiler.tab.c"
     break;
 
-  case 79:
-#line 927 "compiler.y"
+  case 78:
+#line 911 "src/compiler_files/compiler.y"
                                                      {  size_t needed = snprintf(NULL, 0, "( %s )", (yyvsp[-1].cadena)) + 1;
                                                         char  *buffer = malloc(needed);
                                                         sprintf (buffer, "( %s )", (yyvsp[-1].cadena));
                                                         (yyval.cadena) = generateString(buffer);
                                                         free(buffer); }
+#line 2579 "compiler.tab.c"
+    break;
+
+  case 79:
+#line 919 "src/compiler_files/compiler.y"
+                                                { size_t needed = snprintf(NULL, 0, "%s", (yyvsp[0].cadena)) + 1;
+                                                  char  *buffer = malloc(needed);
+                                                  sprintf (buffer, "%s", (yyvsp[0].cadena));
+                                                  (yyval.cadena) = generateString(buffer);
+                                                  free(buffer); 
+                                                }
 #line 2590 "compiler.tab.c"
     break;
 
   case 80:
-#line 935 "compiler.y"
+#line 926 "src/compiler_files/compiler.y"
                                                 { size_t needed = snprintf(NULL, 0, "%s", (yyvsp[0].cadena)) + 1;
                                                   char  *buffer = malloc(needed);
                                                   sprintf (buffer, "%s", (yyvsp[0].cadena));
@@ -2601,10 +2601,10 @@ yyreduce:
     break;
 
   case 81:
-#line 942 "compiler.y"
-                                                { size_t needed = snprintf(NULL, 0, "%s", (yyvsp[0].cadena)) + 1;
+#line 934 "src/compiler_files/compiler.y"
+                                                { size_t needed = snprintf(NULL, 0, "%d", (yyvsp[0].valor)) + 1;
                                                   char  *buffer = malloc(needed);
-                                                  sprintf (buffer, "%s", (yyvsp[0].cadena));
+                                                  sprintf (buffer, "%d", (yyvsp[0].valor));
                                                   (yyval.cadena) = generateString(buffer);
                                                   free(buffer); 
                                                 }
@@ -2612,10 +2612,10 @@ yyreduce:
     break;
 
   case 82:
-#line 950 "compiler.y"
-                                                { size_t needed = snprintf(NULL, 0, "%d", (yyvsp[0].valor)) + 1;
+#line 940 "src/compiler_files/compiler.y"
+                                                { size_t needed = snprintf(NULL, 0, "-%d", (yyvsp[0].valor)) + 1;
                                                   char  *buffer = malloc(needed);
-                                                  sprintf (buffer, "%d", (yyvsp[0].valor));
+                                                  sprintf (buffer, "-%d", (yyvsp[0].valor));
                                                   (yyval.cadena) = generateString(buffer);
                                                   free(buffer); 
                                                 }
@@ -2623,7 +2623,7 @@ yyreduce:
     break;
 
   case 83:
-#line 958 "compiler.y"
+#line 948 "src/compiler_files/compiler.y"
                                               { size_t needed = snprintf(NULL, 0, "%d.%d", (yyvsp[-2].valor), (yyvsp[0].valor)) + 1;
                                                   char  *buffer = malloc(needed);
                                                   sprintf (buffer, "%d.%d", (yyvsp[-2].valor), (yyvsp[0].valor));
@@ -2634,7 +2634,7 @@ yyreduce:
     break;
 
   case 84:
-#line 965 "compiler.y"
+#line 955 "src/compiler_files/compiler.y"
                                                 { size_t needed = snprintf(NULL, 0, "%d.0", (yyvsp[0].valor)) + 1;
                                                   char  *buffer = malloc(needed);
                                                   sprintf (buffer, "%d.0", (yyvsp[0].valor));
@@ -2645,31 +2645,53 @@ yyreduce:
     break;
 
   case 85:
-#line 975 "compiler.y"
-                                                    { (yyval.cadena) = generateString("[c_neighbours[1][0]][c_neighbours[1][1]]");}
-#line 2651 "compiler.tab.c"
+#line 961 "src/compiler_files/compiler.y"
+                                              { size_t needed = snprintf(NULL, 0, "-%d.0", (yyvsp[0].valor)) + 1;
+                                                  char  *buffer = malloc(needed);
+                                                  sprintf (buffer, "-%d.0", (yyvsp[0].valor));
+                                                  (yyval.cadena) = generateString(buffer);
+                                                  free(buffer); 
+                                                }
+#line 2656 "compiler.tab.c"
     break;
 
   case 86:
-#line 976 "compiler.y"
-                                                    { (yyval.cadena) = generateString("[c_neighbours[5][0]][c_neighbours[5][1]]");}
-#line 2657 "compiler.tab.c"
+#line 967 "src/compiler_files/compiler.y"
+                                                { size_t needed = snprintf(NULL, 0, "-%d.%d", (yyvsp[-2].valor), (yyvsp[0].valor)) + 1;
+                                                  char  *buffer = malloc(needed);
+                                                  sprintf (buffer, "-%d.%d", (yyvsp[-2].valor), (yyvsp[0].valor));
+                                                  (yyval.cadena) = generateString(buffer);
+                                                  free(buffer);  
+                                                }
+#line 2667 "compiler.tab.c"
     break;
 
   case 87:
-#line 977 "compiler.y"
-                                                    { (yyval.cadena) = generateString("[c_neighbours[7][0]][c_neighbours[7][1]]");}
-#line 2663 "compiler.tab.c"
+#line 977 "src/compiler_files/compiler.y"
+                                                    { (yyval.cadena) = generateString("[c_neighbours[1][0]][c_neighbours[1][1]]");}
+#line 2673 "compiler.tab.c"
     break;
 
   case 88:
-#line 978 "compiler.y"
-                                                    { (yyval.cadena) = generateString("[c_neighbours[3][0]][c_neighbours[3][1]]");}
-#line 2669 "compiler.tab.c"
+#line 978 "src/compiler_files/compiler.y"
+                                                    { (yyval.cadena) = generateString("[c_neighbours[5][0]][c_neighbours[5][1]]");}
+#line 2679 "compiler.tab.c"
     break;
 
   case 89:
-#line 979 "compiler.y"
+#line 979 "src/compiler_files/compiler.y"
+                                                    { (yyval.cadena) = generateString("[c_neighbours[7][0]][c_neighbours[7][1]]");}
+#line 2685 "compiler.tab.c"
+    break;
+
+  case 90:
+#line 980 "src/compiler_files/compiler.y"
+                                                    { (yyval.cadena) = generateString("[c_neighbours[3][0]][c_neighbours[3][1]]");}
+#line 2691 "compiler.tab.c"
+    break;
+
+  case 91:
+#line 981 "src/compiler_files/compiler.y"
                                                     { if(neighborhoodType != NEUMANN_T) {
                                                         (yyval.cadena) = generateString("[c_neighbours[2][0]][c_neighbours[2][1]]");
                                                       } else {
@@ -2677,11 +2699,11 @@ yyreduce:
                                                           exit(1);
                                                       }
                                                     }
-#line 2681 "compiler.tab.c"
+#line 2703 "compiler.tab.c"
     break;
 
-  case 90:
-#line 986 "compiler.y"
+  case 92:
+#line 988 "src/compiler_files/compiler.y"
                                                     { if(neighborhoodType != NEUMANN_T) {
                                                         (yyval.cadena) = generateString("[c_neighbours[0][0]][c_neighbours[0][1]]");
                                                       } else {
@@ -2689,11 +2711,11 @@ yyreduce:
                                                           exit(1);
                                                       }
                                                     }
-#line 2693 "compiler.tab.c"
+#line 2715 "compiler.tab.c"
     break;
 
-  case 91:
-#line 993 "compiler.y"
+  case 93:
+#line 995 "src/compiler_files/compiler.y"
                                                     { if(neighborhoodType != NEUMANN_T) {
                                                         (yyval.cadena) = generateString("[c_neighbours[4][0]][c_neighbours[4][1]]");
                                                       } else {
@@ -2701,11 +2723,11 @@ yyreduce:
                                                           exit(1);
                                                       }
                                                     }
-#line 2705 "compiler.tab.c"
+#line 2727 "compiler.tab.c"
     break;
 
-  case 92:
-#line 1000 "compiler.y"
+  case 94:
+#line 1002 "src/compiler_files/compiler.y"
                                                     { if(neighborhoodType != NEUMANN_T) {
                                                         (yyval.cadena) = generateString("[c_neighbours[6][0]][c_neighbours[6][1]]");
                                                       } else {
@@ -2713,11 +2735,11 @@ yyreduce:
                                                           exit(1);
                                                       }
                                                     }
-#line 2717 "compiler.tab.c"
+#line 2739 "compiler.tab.c"
     break;
 
-  case 93:
-#line 1007 "compiler.y"
+  case 95:
+#line 1009 "src/compiler_files/compiler.y"
                                                     { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
                                                         (yyval.cadena) = generateString("[c_neighbours[8][0]][c_neighbours[8][1]]");
                                                       } else {
@@ -2725,11 +2747,11 @@ yyreduce:
                                                           exit(1);
                                                       }
                                                     }
-#line 2729 "compiler.tab.c"
+#line 2751 "compiler.tab.c"
     break;
 
-  case 94:
-#line 1014 "compiler.y"
+  case 96:
+#line 1016 "src/compiler_files/compiler.y"
                                                     { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
                                                         (yyval.cadena) = generateString("[c_neighbours[10][0]][c_neighbours[10][1]]");
                                                       } else {
@@ -2737,11 +2759,11 @@ yyreduce:
                                                           exit(1);
                                                       }
                                                     }
-#line 2741 "compiler.tab.c"
+#line 2763 "compiler.tab.c"
     break;
 
-  case 95:
-#line 1021 "compiler.y"
+  case 97:
+#line 1023 "src/compiler_files/compiler.y"
                                                     { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
                                                         (yyval.cadena) = generateString("[c_neighbours[11][0]][c_neighbours[11][1]]");
                                                       } else {
@@ -2749,11 +2771,11 @@ yyreduce:
                                                           exit(1);
                                                       }
                                                     }
-#line 2753 "compiler.tab.c"
+#line 2775 "compiler.tab.c"
     break;
 
-  case 96:
-#line 1028 "compiler.y"
+  case 98:
+#line 1030 "src/compiler_files/compiler.y"
                                                     { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
                                                         (yyval.cadena) = generateString("[c_neighbours[9][0]][c_neighbours[9][1]]");
                                                       } else {
@@ -2761,11 +2783,11 @@ yyreduce:
                                                           exit(1);
                                                       }
                                                     }
-#line 2765 "compiler.tab.c"
+#line 2787 "compiler.tab.c"
     break;
 
 
-#line 2769 "compiler.tab.c"
+#line 2791 "compiler.tab.c"
 
       default: break;
     }
@@ -2997,7 +3019,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 1037 "compiler.y"
+#line 1039 "src/compiler_files/compiler.y"
     
                                 // SECCION 4    Codigo en C
 int n_line = 1 ;
@@ -3008,6 +3030,7 @@ char *message ;
  
     fprintf (stderr, "\033[1;31m %s in line %d\033[0m\n", message, n_line) ;
     printf ( "\n") ;	// bye
+    exit(1);
 }
 
 int yywarning (message)
@@ -3016,6 +3039,7 @@ char *message ;
  
     fprintf (stderr, "\033[1;33m %s in line %d\n\033[0m\n", message, n_line) ;
     printf ( "\n") ;	// bye
+    
 }
 
 char *miMalloc (int nbytes)       // n bytes reserved in dynamic memory
@@ -3049,12 +3073,10 @@ typedef struct sStopWords { // for the stop words of C
 tStop stopWords [] = { // Stop words
     "bool",         BOOL,
     "cells",        CELLS,
-    "condition",    CONDITION,
     "count",        COUNT,
     "currentTick",  CURRENTTICK,
     "continue",     CONTINUE,
     "double",       DOUBLE,
-    "effect",       EFFECT,
     "extended",     EXTENDED,
     "false",        FALSE,
     "global",       GLOB,
@@ -3129,106 +3151,78 @@ char *generateString (char *name)     // copy the argument in a string
 }
 
 
-int yylex ()
-{
-    int i ;
-    unsigned char c ;
-    unsigned char cc ;
-    char ops_expandibles [] = "!<=>|%&+-/*" ;
-    char cadena [256] ;
-    tStop *symbol ;
+int yylex (){
+  int i ;
+  unsigned char c ;
+  unsigned char cc ;
+  char ops_expandibles [] = "!<=>|%&+-/*" ;
+  char cadena [256] ;
+  tStop *symbol ;
 
-    do {
-    	c = getchar () ;
-
-		if (c == '#') {	// Ignore the lines begin in #  (#define, #include)
-			do {		//	OJO que puede funcionar mal si una linea contiene #
-			 c = getchar () ;	
-			} while (c != '\n') ;
-		}
-		
-		if (c == '/') {	// If the line contain / could be a comment 
-			cc = getchar () ;
-			if (cc != '/') {   // If the next char is / is a comment 
-				ungetc (cc, stdin) ;
-		 } else {
-		     c = getchar () ;	// ...
-		     if (c == '@') {	// If is the sequence //@  ==> we transcribe the line
-		          do {		// Inline code (Codigo embebido en C)
-		              c = getchar () ;
-		              putchar (c) ;
-		          } while (c != '\n') ;
-		     } else {		// ==> Comment, ignore the line
-		          while (c != '\n') {
-		              c = getchar () ;
-		          }
-		     }
-		 }
-		}
-		
-		if (c == '\n')
-		 n_line++ ;
-		
-    } while (c == ' ' || c == '\n' || c == 10 || c == 13 || c == '\t') ;
-
-    if (c == '\"') {
-         i = 0 ;
-         do {
-             c = getchar () ;
-             cadena [i++] = c ;
-         } while (c != '\"' && i < 255) ;
-         if (i == 256) {
-              printf ("AVISO: string con mas de 255 caracteres en linea %d\n", n_line) ;
-         }		 	
-         cadena [--i] = '\0' ;
-         yylval.cadena = generateString (cadena) ;
-         return (STRING) ;
+  do {
+    c = getchar () ;
+  
+    if (c == '/') {	// If the line contain / could be a comment 
+      cc = getchar () ;
+      if (cc != '/') {   // If the next char is / is a comment 
+        ungetc (cc, stdin) ;
+      } else { // ==> Comment, ignore the line
+        c = getchar () ;	// ...
+        while (c != '\n') {
+            c = getchar () ;
+        }
+      }
     }
+    
+    if (c == '\n')
+    n_line++ ;
+  
+  } while (c == ' ' || c == '\n' || c == 10 || c == 13 || c == '\t') ;
 
-    if ((c >= '0' && c <= '9')) {
-         ungetc (c, stdin) ;
-         scanf ("%d", &yylval.valor) ;
-         return NUMBER ;
+  if ((c >= '0' && c <= '9')) {
+        ungetc (c, stdin) ;
+        scanf ("%d", &yylval.valor) ;
+        return NUMBER ;
+  }
+
+  if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+    i = 0 ;
+    while (((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+            (c >= '0' && c <= '9') || c == '_') && i < 255) {
+      cadena [i++] = tolower (c) ;
+      c = getchar () ;
     }
+    cadena [i] = '\0' ;
+    ungetc (c, stdin) ;
 
-    if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
-         i = 0 ;
-         while (((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
-                 (c >= '0' && c <= '9') || c == '_') && i < 255) {
-             cadena [i++] = tolower (c) ;
-             c = getchar () ;
-         }
-         cadena [i] = '\0' ;
-         ungetc (c, stdin) ;
-
-         yylval.cadena = generateString (cadena) ;
-         symbol = searchStopWord (yylval.cadena) ;
-         if (symbol == NULL) {    // isn't an stop word -> identif 
-               return (IDENTIF) ;
-         } else {
-               return (symbol->token) ;
-         }
+    yylval.cadena = generateString (cadena) ;
+    symbol = searchStopWord (yylval.cadena) ;
+    if (symbol == NULL) {    // isn't an stop word -> identif 
+      return (IDENTIF) ;
+    } else {
+      return (symbol->token) ;
     }
+  }
 
-    if (strchr (ops_expandibles, c) != NULL) { // busca c en ops_expandibles
-         cc = getchar () ;
-         sprintf (cadena, "%c%c", (char) c, (char) cc) ;
-         symbol = searchStopWord (cadena) ;
-         if (symbol == NULL) {
-              ungetc (cc, stdin) ;
-              yylval.cadena = NULL ;
-              return (c) ;
-         } else {
-              yylval.cadena = generateString (cadena) ; // aunque no se use
-              return (symbol->token) ;
-         }
+  if (strchr (ops_expandibles, c) != NULL) { // busca c en ops_expandibles
+    cc = getchar () ;
+    sprintf (cadena, "%c%c", (char) c, (char) cc) ;
+    symbol = searchStopWord (cadena) ;
+    if (symbol == NULL) {
+      ungetc (cc, stdin) ;
+      yylval.cadena = NULL ;
+      return (c) ;
+    } else {
+      yylval.cadena = generateString (cadena) ; // aunque no se use
+      return (symbol->token) ;
     }
+  }
 
-    if (c == EOF || c == 255 || c == 26) {
-         return (0) ;
-    }
+  if (c == EOF || c == 255 || c == 26) {
+    return (0) ;
+  }
 
-    return c ;
+  return c ;
 }
 
 char * toUpper(char aux[]){
@@ -3258,7 +3252,7 @@ void generateCellClass(){
 
   nodeList *p = List; //Pointer
   while(p != NULL){
-    if(p->type2 == CELL_T){
+    if(p->section == CELL_T){
         strcat(construct, p->type);
         strcat(construct, " ");
         strcat(construct, p->name);
@@ -3290,7 +3284,7 @@ void generateFoundFunction() {
     
     nodeList *p = List; //Pointer
     while(p != NULL){ 
-      if(p->type2 == CELL_T){
+      if(p->section == CELL_T){
         if (strcmp(p->type, "int") == 0 || strcmp(p->type, "bool") == 0) {
           sprintf(aux, " if (variable.compare(\"%s\")==0) { \nsprintf(aux, \"%%d\", c.%s);\n}", p->name, p->name );
         } else if (strcmp(p->type, "double") == 0) {
@@ -3342,7 +3336,7 @@ char * generateFirstLine(){
   sprintf(line, " ");
   nodeList *p = List; //Pointer
   while(p->next != NULL){
-        if( STATE_T == p->type2){
+        if( STATE_T == p->section){
           sprintf(aux, "%s", line);
           sprintf(line, ",%s", toUpper(p->name));
           strcat(line, aux);
@@ -3358,7 +3352,7 @@ char * generateFirstLine(){
   sprintf(writeFirstLine, "if (currentTick == 0){ \n");
   p = List; //Pointer
   while(p->next != NULL){
-        if( STRAIN_T == p->type2){
+        if( STRAIN_T == p->section){
           strcat(writeFirstLine, p->name);
           strcat(writeFirstLine, " << \"");
           strcat(writeFirstLine, line);
@@ -3374,13 +3368,13 @@ char * generateFirstLine(){
 
 /*-----------Fuctions for the Linked List----------*/
 // Add new nodes to the list
-int Add(char *name, char *type, int type2, char *defValue, char *actualValue)
+int Add(char *name, char *type, int section, char *defValue, char *actualValue)
 {
     nodeList *p = List;    //Pointer
 
     //We chek if this node exists
     while(p != NULL){
-        if(strcmp(name, p->name)==0 && strcmp(type, p->type)==0 && type2 == p->type2){
+        if(strcmp(name, p->name)==0 && strcmp(type, p->type)==0 && section == p->section){
             return 0; //Node already exists
         }
         p = p->next;
@@ -3392,7 +3386,7 @@ int Add(char *name, char *type, int type2, char *defValue, char *actualValue)
     strcpy(newNode->type, type);
     strcpy(newNode->defValue, defValue);
     strcpy(newNode->actualValue, actualValue);
-    newNode->type2 = type2;
+    newNode->section = section;
     newNode->next = List;    
     List = newNode;
     return 1;  
@@ -3415,11 +3409,11 @@ nodeList* Get(char *name)
 }
 
 // Delete one node with these atributes
-int Destroy(char *name, char *type, int type2) {
+int Destroy(char *name, char *type, int section) {
 
     if(List == NULL) return -1;    //The list is empty
 
-    if(strcmp(List->type, type) == 0 && List->type2 == type2 && strcmp(List->name, name) == 0){   //If the first node is the node we are looking for, deleted
+    if(strcmp(List->type, type) == 0 && List->section == section && strcmp(List->name, name) == 0){   //If the first node is the node we are looking for, deleted
         nodeList *aux = List;
         List = List->next;
         aux->next = NULL;
@@ -3431,7 +3425,7 @@ int Destroy(char *name, char *type, int type2) {
 
     
     while(p->next != NULL){
-        if(strcmp(name, p->name)==0 && strcmp(type, p->type)==0 && type2 == p->type2){
+        if(strcmp(name, p->name)==0 && strcmp(type, p->type)==0 && section == p->section){
             nodeList *aux=p->next;
             p->next=p->next->next;
             aux->next= NULL;

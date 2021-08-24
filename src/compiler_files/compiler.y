@@ -71,13 +71,11 @@ void clean();
 
 %token <cadena> BOOL  //nombres de variables
 %token <cadena> CELLS
-%token <cadena> CONDITION
 %token <cadena> COUNT
 %token <cadena> CURRENTTICK
 %token <cadena> CONTINUE
 %token <cadena> DOUBLE
 %token <cadena> EXTENDED
-%token <cadena> EFFECT
 %token <cadena> FALSE
 %token <cadena> GLOB
 %token <cadena> IDENTIF        // Identificador=variable
@@ -130,7 +128,7 @@ void clean();
 %type  <cadena> states
 %type  <cadena> state
 %type  <cadena> color
-%type  <cadena> code
+%type  <cadena> codeColor
 %type  <cadena> rules
 %type  <cadena> assignment 
 %type  <cadena> initialAssigments 
@@ -171,7 +169,7 @@ program:                                    { Add("state", "int", CELL_T, "0", "
 
                                               nodeList *p = List; //Pointer
                                               while(p->next != NULL){
-                                                  if(STRAIN_T == p->type2){
+                                                  if(STRAIN_T == p->section){
                                                       char file[100];
                                                       sprintf(file, "ofstream %s(\"Data/DataStrain_%s.csv\");\n", p->name, p->name); 
                                                       strcat(aux, file);
@@ -373,45 +371,32 @@ state:          /*lambda*/                              {
                                                        }
                 ;
 
-color:           '(' code ',' code ',' code ')'         { size_t needed = snprintf(NULL, 0, "(%s,%s,%s)", $2, $4, $6) + 1;
-                                                          char  *buffer = malloc(needed);
-                                                          sprintf(buffer, "(%s,%s,%s)", $2, $4, $6);
-                                                          $$ = generateString(buffer);
-                                                          free(buffer);
-                                                        }
+color:           '(' codeColor ',' codeColor ',' codeColor ')'         { size_t needed = snprintf(NULL, 0, "(%s,%s,%s)", $2, $4, $6) + 1;
+                                                                          char  *buffer = malloc(needed);
+                                                                          sprintf(buffer, "(%s,%s,%s)", $2, $4, $6);
+                                                                          $$ = generateString(buffer);
+                                                                          free(buffer);
+                                                                        }
                 ;
 
-code:        NUMBER '.' NUMBER                          { char *eptr;
-                                                          size_t needed = snprintf(NULL, 0, " %d.%d", $1, $3) + 1;
+codeColor:       doubleValue                          { char *eptr;
+                                                          size_t needed = snprintf(NULL, 0, "%s", $1) + 1;
                                                           char  *aux = malloc(needed);
-                                                          sprintf(aux, " %d.%d", $1, $3);
+                                                          sprintf(aux, " %s", $1);
                                                           double number = strtod(aux, &eptr);
                                                           free(aux);
                                                           needed = snprintf(NULL, 0, "%f", number) + 1;
                                                           char  *buffer = malloc(needed);
                                                           sprintf(buffer, "%f", number); 
                                                           if (number > 1.0) { 
+                                                            yywarning("WARNING: rgb color component must be between 0 and 1. By default the value will be 1.0");
                                                             sprintf(buffer, "1.0");
                                                             $$ = generateString(buffer); 
                                                           }
                                                           else if (number < 0.0) { 
+                                                            yywarning("WARNING: rgb color component must be between 0 and 1. By default the value will be 0.0");
                                                             sprintf(buffer, "0.0");
                                                             $$ = generateString(buffer); 
-                                                          }
-                                                          else { 
-                                                            $$ = generateString(buffer); 
-                                                          }
-                                                          free(buffer);
-                                                        }
-
-            | NUMBER                                    { size_t needed = snprintf(NULL, 0,  "%d", $1) + 1;
-                                                          char  *buffer = malloc(needed);
-                                                          sprintf(buffer,  "%d", $1);
-                                                          if($1 > 1) { 
-                                                            sprintf(buffer, "1"); 
-                                                          } 
-                                                          else if ($1 < 0) { 
-                                                            sprintf(buffer, "0");
                                                           }
                                                           $$ = generateString(buffer); 
                                                           free(buffer);
@@ -419,24 +404,25 @@ code:        NUMBER '.' NUMBER                          { char *eptr;
 
 /*----------------- Declaration of variables --------------*/
 
-declaration:      BOOL IDENTIF '=' boolValue        { if(Get($2) == NULL) { 
-                                                        Add($2, "bool", section, $4, $4); 
-                                                        size_t needed = snprintf(NULL, 0,  "%s %s = %s;\n", $1, $2, $4) + 1;
-                                                        char  *buffer = malloc(needed);
-                                                        sprintf (buffer, "%s %s = %s;\n", $1, $2, $4);
-                                                        $$ = generateString(buffer);
-                                                        free(buffer);
-                                                        clean();
-                                                      }
-                                                      else { 
-                                                        if(strcmp($1, "state") == 0 || strcmp($1, "alive") == 0 || strcmp($1, "infected") == 0){
-                                                          yyerror("ERROR: %s is a reserved variable", $1); exit(1);
-                                                        } else {
-                                                          yyerror("ERROR: duplicate variable"); exit(1);
+declaration:      BOOL IDENTIF '=' boolValue          { if(Get($2) == NULL) { //No existe una variable llamda con el valo que lleva IDENTIF
+                                                          //Se añade la variable a la lista de variables identificando si es global o atributo de célula
+                                                          Add($2, "bool", section, $4, $4);
+                                                          size_t needed = snprintf(NULL, 0,  "%s %s = %s;\n", $1, $2, $4) + 1;
+                                                          char  *buffer = malloc(needed);
+                                                          sprintf (buffer, "%s %s = %s;\n", $1, $2, $4); //Traducción a C: bool identif = valor;
+                                                          $$ = generateString(buffer);
+                                                          free(buffer);
+                                                          clean();
                                                         }
+                                                        else { //Existe una variable on ese nombre
+                                                          if(strcmp($1, "state") == 0 || strcmp($1, "alive") == 0 || strcmp($1, "infected") == 0){
+                                                            yyerror("ERROR: %s is a reserved variable", $1); exit(1);
+                                                          } else {
+                                                            yyerror("ERROR: duplicate variable"); exit(1);
+                                                          }
+                                                        }
+                                                        
                                                       }
-                                                      
-                                                    }
                   | BOOL IDENTIF                     { if(Get($2) == NULL) { 
                                                         Add($2, "bool", section, "false", "false"); 
                                                         size_t needed = snprintf(NULL, 0,  "%s %s = false;\n", $1, $2) + 1;
@@ -473,7 +459,6 @@ declaration:      BOOL IDENTIF '=' boolValue        { if(Get($2) == NULL) {
                                                         }
                                                       }
                                                     }
-                
                 | INT IDENTIF                       { if(Get($2) == NULL) { 
                                                         Add($2, "int", section, "0", "0"); 
                                                         size_t needed = snprintf(NULL, 0,   "%s %s = 0;\n", $1, $2) + 1;
@@ -509,7 +494,6 @@ declaration:      BOOL IDENTIF '=' boolValue        { if(Get($2) == NULL) {
                                                         }
                                                       }
                                                     }
-
                 | DOUBLE IDENTIF                    { if(Get($2) == NULL) { 
                                                         Add($2, "double", section, "0.0", "0.0"); 
                                                         size_t needed = snprintf(NULL, 0,   "%s %s = 0.0;\n", $1, $2) + 1;
@@ -688,14 +672,14 @@ assignment:                                                  { clean(); }
                                                                 clean();
                                                                 size_t needed = snprintf(NULL, 0, "cells[i][j].%s = %s; ", $2, $4) + 1;
                                                                 char  *buffer = malloc(needed);
-                                                                if(p->type2 == CELL_T){
+                                                                if(p->section == CELL_T){
                                                                   if (section != INIT_T ) {
                                                                     sprintf(buffer, "cells[i][j].%s = %s; ", $2, $4);
                                                                   } else {
                                                                     sprintf(buffer, "%s = %s; ", $2, $4);
                                                                   }
                                                                   $$ = generateString(buffer); 
-                                                                } else if(p->type2 == GLOBAL_T) {
+                                                                } else if(p->section == GLOBAL_T) {
                                                                   // strcpy(p->actualValue, $4);
                                                                   sprintf(buffer, "%s = %s; ", $2, $4);
                                                                   $$ = generateString(buffer); 
@@ -842,11 +826,11 @@ operand:        IDENTIF                             { nodeList *p = Get($1);
                                                         }
                                                         size_t needed = snprintf(NULL, 0, "cells[i][j].%s", $1) + 1;
                                                         char  *buffer = malloc(needed);
-                                                        if(p->type2 == CELL_T){
+                                                        if(p->section == CELL_T){
                                                           sprintf(buffer, "cells[i][j].%s", $1);
-                                                        } else if (p->type2 == GLOBAL_T){
+                                                        } else if (p->section == GLOBAL_T){
                                                           sprintf(buffer, "%s", $1);
-                                                        } else if (p->type2 == STATE_T){
+                                                        } else if (p->section == STATE_T){
                                                           sprintf(buffer, "%s", toUpper($1));
                                                         }
                                                         $$ = generateString(buffer);
@@ -884,7 +868,7 @@ operand:        IDENTIF                             { nodeList *p = Get($1);
                                                       
                 // | NGH '.' IDENTIF                   { }
 
-                | COUNT '(' IDENTIF ',' termino ')'     { if( Get($3)->type2 == CELL_T ) {
+                | COUNT '(' IDENTIF ',' termino ')'     { if( Get($3)->section == CELL_T ) {
                                                             size_t needed = snprintf(NULL, 0, "count(c_neighbours, string(\"%s\"), std::to_string(%s), cells)", $3, $5) + 1;
                                                             char  *buffer = malloc(needed);
                                                             sprintf (buffer, "count(c_neighbours, string(\"%s\"), std::to_string(%s), cells)", $3, $5);
@@ -901,7 +885,7 @@ operand:        IDENTIF                             { nodeList *p = Get($1);
                                                         yyerror( "ERROR: Variable \"%s\" doesn't exist", $6);
                                                         exit(1);
                                                       } else {
-                                                        if(p->type2 == CELL_T){
+                                                        if(p->section == CELL_T){
                                                           if (strcmp(p->type, "int") == 0) {
                                                             typeExpression[i] = INTEGER_T;
                                                             i++;
@@ -953,6 +937,12 @@ intValue:         NUMBER                        { size_t needed = snprintf(NULL,
                                                   $$ = generateString(buffer);
                                                   free(buffer); 
                                                 } 
+                  | '-' NUMBER                  { size_t needed = snprintf(NULL, 0, "-%d", $2) + 1;
+                                                  char  *buffer = malloc(needed);
+                                                  sprintf (buffer, "-%d", $2);
+                                                  $$ = generateString(buffer);
+                                                  free(buffer); 
+                                                } 
                 ;
 
 doubleValue:    NUMBER '.' NUMBER             { size_t needed = snprintf(NULL, 0, "%d.%d", $1, $3) + 1;
@@ -967,6 +957,18 @@ doubleValue:    NUMBER '.' NUMBER             { size_t needed = snprintf(NULL, 0
                                                   sprintf (buffer, "%d.0", $1);
                                                   $$ = generateString(buffer);
                                                   free(buffer);
+                                                }
+                | '-' NUMBER                  { size_t needed = snprintf(NULL, 0, "-%d.0", $2) + 1;
+                                                  char  *buffer = malloc(needed);
+                                                  sprintf (buffer, "-%d.0", $2);
+                                                  $$ = generateString(buffer);
+                                                  free(buffer); 
+                                                } 
+                | '-' NUMBER '.' NUMBER         { size_t needed = snprintf(NULL, 0, "-%d.%d", $2, $4) + 1;
+                                                  char  *buffer = malloc(needed);
+                                                  sprintf (buffer, "-%d.%d", $2, $4);
+                                                  $$ = generateString(buffer);
+                                                  free(buffer);  
                                                 }
                 ;
 
@@ -1087,12 +1089,10 @@ typedef struct sStopWords { // for the stop words of C
 tStop stopWords [] = { // Stop words
     "bool",         BOOL,
     "cells",        CELLS,
-    "condition",    CONDITION,
     "count",        COUNT,
     "currentTick",  CURRENTTICK,
     "continue",     CONTINUE,
     "double",       DOUBLE,
-    "effect",       EFFECT,
     "extended",     EXTENDED,
     "false",        FALSE,
     "global",       GLOB,
@@ -1167,106 +1167,78 @@ char *generateString (char *name)     // copy the argument in a string
 }
 
 
-int yylex ()
-{
-    int i ;
-    unsigned char c ;
-    unsigned char cc ;
-    char ops_expandibles [] = "!<=>|%&+-/*" ;
-    char cadena [256] ;
-    tStop *symbol ;
+int yylex (){
+  int i ;
+  unsigned char c ;
+  unsigned char cc ;
+  char ops_expandibles [] = "!<=>|%&+-/*" ;
+  char cadena [256] ;
+  tStop *symbol ;
 
-    do {
-    	c = getchar () ;
-
-		if (c == '#') {	// Ignore the lines begin in #  (#define, #include)
-			do {		//	OJO que puede funcionar mal si una linea contiene #
-			 c = getchar () ;	
-			} while (c != '\n') ;
-		}
-		
-		if (c == '/') {	// If the line contain / could be a comment 
-			cc = getchar () ;
-			if (cc != '/') {   // If the next char is / is a comment 
-				ungetc (cc, stdin) ;
-		 } else {
-		     c = getchar () ;	// ...
-		     if (c == '@') {	// If is the sequence //@  ==> we transcribe the line
-		          do {		// Inline code (Codigo embebido en C)
-		              c = getchar () ;
-		              putchar (c) ;
-		          } while (c != '\n') ;
-		     } else {		// ==> Comment, ignore the line
-		          while (c != '\n') {
-		              c = getchar () ;
-		          }
-		     }
-		 }
-		}
-		
-		if (c == '\n')
-		 n_line++ ;
-		
-    } while (c == ' ' || c == '\n' || c == 10 || c == 13 || c == '\t') ;
-
-    if (c == '\"') {
-         i = 0 ;
-         do {
-             c = getchar () ;
-             cadena [i++] = c ;
-         } while (c != '\"' && i < 255) ;
-         if (i == 256) {
-              printf ("AVISO: string con mas de 255 caracteres en linea %d\n", n_line) ;
-         }		 	
-         cadena [--i] = '\0' ;
-         yylval.cadena = generateString (cadena) ;
-         return (STRING) ;
+  do {
+    c = getchar () ;
+  
+    if (c == '/') {	// If the line contain / could be a comment 
+      cc = getchar () ;
+      if (cc != '/') {   // If the next char is / is a comment 
+        ungetc (cc, stdin) ;
+      } else { // ==> Comment, ignore the line
+        c = getchar () ;	// ...
+        while (c != '\n') {
+            c = getchar () ;
+        }
+      }
     }
+    
+    if (c == '\n')
+    n_line++ ;
+  
+  } while (c == ' ' || c == '\n' || c == 10 || c == 13 || c == '\t') ;
 
-    if ((c >= '0' && c <= '9')) {
-         ungetc (c, stdin) ;
-         scanf ("%d", &yylval.valor) ;
-         return NUMBER ;
+  if ((c >= '0' && c <= '9')) {
+        ungetc (c, stdin) ;
+        scanf ("%d", &yylval.valor) ;
+        return NUMBER ;
+  }
+
+  if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+    i = 0 ;
+    while (((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+            (c >= '0' && c <= '9') || c == '_') && i < 255) {
+      cadena [i++] = tolower (c) ;
+      c = getchar () ;
     }
+    cadena [i] = '\0' ;
+    ungetc (c, stdin) ;
 
-    if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
-         i = 0 ;
-         while (((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
-                 (c >= '0' && c <= '9') || c == '_') && i < 255) {
-             cadena [i++] = tolower (c) ;
-             c = getchar () ;
-         }
-         cadena [i] = '\0' ;
-         ungetc (c, stdin) ;
-
-         yylval.cadena = generateString (cadena) ;
-         symbol = searchStopWord (yylval.cadena) ;
-         if (symbol == NULL) {    // isn't an stop word -> identif 
-               return (IDENTIF) ;
-         } else {
-               return (symbol->token) ;
-         }
+    yylval.cadena = generateString (cadena) ;
+    symbol = searchStopWord (yylval.cadena) ;
+    if (symbol == NULL) {    // isn't an stop word -> identif 
+      return (IDENTIF) ;
+    } else {
+      return (symbol->token) ;
     }
+  }
 
-    if (strchr (ops_expandibles, c) != NULL) { // busca c en ops_expandibles
-         cc = getchar () ;
-         sprintf (cadena, "%c%c", (char) c, (char) cc) ;
-         symbol = searchStopWord (cadena) ;
-         if (symbol == NULL) {
-              ungetc (cc, stdin) ;
-              yylval.cadena = NULL ;
-              return (c) ;
-         } else {
-              yylval.cadena = generateString (cadena) ; // aunque no se use
-              return (symbol->token) ;
-         }
+  if (strchr (ops_expandibles, c) != NULL) { // busca c en ops_expandibles
+    cc = getchar () ;
+    sprintf (cadena, "%c%c", (char) c, (char) cc) ;
+    symbol = searchStopWord (cadena) ;
+    if (symbol == NULL) {
+      ungetc (cc, stdin) ;
+      yylval.cadena = NULL ;
+      return (c) ;
+    } else {
+      yylval.cadena = generateString (cadena) ; // aunque no se use
+      return (symbol->token) ;
     }
+  }
 
-    if (c == EOF || c == 255 || c == 26) {
-         return (0) ;
-    }
+  if (c == EOF || c == 255 || c == 26) {
+    return (0) ;
+  }
 
-    return c ;
+  return c ;
 }
 
 char * toUpper(char aux[]){
@@ -1296,7 +1268,7 @@ void generateCellClass(){
 
   nodeList *p = List; //Pointer
   while(p != NULL){
-    if(p->type2 == CELL_T){
+    if(p->section == CELL_T){
         strcat(construct, p->type);
         strcat(construct, " ");
         strcat(construct, p->name);
@@ -1328,7 +1300,7 @@ void generateFoundFunction() {
     
     nodeList *p = List; //Pointer
     while(p != NULL){ 
-      if(p->type2 == CELL_T){
+      if(p->section == CELL_T){
         if (strcmp(p->type, "int") == 0 || strcmp(p->type, "bool") == 0) {
           sprintf(aux, " if (variable.compare(\"%s\")==0) { \nsprintf(aux, \"%%d\", c.%s);\n}", p->name, p->name );
         } else if (strcmp(p->type, "double") == 0) {
@@ -1380,7 +1352,7 @@ char * generateFirstLine(){
   sprintf(line, " ");
   nodeList *p = List; //Pointer
   while(p->next != NULL){
-        if( STATE_T == p->type2){
+        if( STATE_T == p->section){
           sprintf(aux, "%s", line);
           sprintf(line, ",%s", toUpper(p->name));
           strcat(line, aux);
@@ -1396,7 +1368,7 @@ char * generateFirstLine(){
   sprintf(writeFirstLine, "if (currentTick == 0){ \n");
   p = List; //Pointer
   while(p->next != NULL){
-        if( STRAIN_T == p->type2){
+        if( STRAIN_T == p->section){
           strcat(writeFirstLine, p->name);
           strcat(writeFirstLine, " << \"");
           strcat(writeFirstLine, line);
@@ -1412,13 +1384,13 @@ char * generateFirstLine(){
 
 /*-----------Fuctions for the Linked List----------*/
 // Add new nodes to the list
-int Add(char *name, char *type, int type2, char *defValue, char *actualValue)
+int Add(char *name, char *type, int section, char *defValue, char *actualValue)
 {
     nodeList *p = List;    //Pointer
 
     //We chek if this node exists
     while(p != NULL){
-        if(strcmp(name, p->name)==0 && strcmp(type, p->type)==0 && type2 == p->type2){
+        if(strcmp(name, p->name)==0 && strcmp(type, p->type)==0 && section == p->section){
             return 0; //Node already exists
         }
         p = p->next;
@@ -1430,7 +1402,7 @@ int Add(char *name, char *type, int type2, char *defValue, char *actualValue)
     strcpy(newNode->type, type);
     strcpy(newNode->defValue, defValue);
     strcpy(newNode->actualValue, actualValue);
-    newNode->type2 = type2;
+    newNode->section = section;
     newNode->next = List;    
     List = newNode;
     return 1;  
@@ -1453,11 +1425,11 @@ nodeList* Get(char *name)
 }
 
 // Delete one node with these atributes
-int Destroy(char *name, char *type, int type2) {
+int Destroy(char *name, char *type, int section) {
 
     if(List == NULL) return -1;    //The list is empty
 
-    if(strcmp(List->type, type) == 0 && List->type2 == type2 && strcmp(List->name, name) == 0){   //If the first node is the node we are looking for, deleted
+    if(strcmp(List->type, type) == 0 && List->section == section && strcmp(List->name, name) == 0){   //If the first node is the node we are looking for, deleted
         nodeList *aux = List;
         List = List->next;
         aux->next = NULL;
@@ -1469,7 +1441,7 @@ int Destroy(char *name, char *type, int type2) {
 
     
     while(p->next != NULL){
-        if(strcmp(name, p->name)==0 && strcmp(type, p->type)==0 && type2 == p->type2){
+        if(strcmp(name, p->name)==0 && strcmp(type, p->type)==0 && section == p->section){
             nodeList *aux=p->next;
             p->next=p->next->next;
             aux->next= NULL;

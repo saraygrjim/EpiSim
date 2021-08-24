@@ -1,8 +1,10 @@
+//Atributos generales del sistema
+cells 100
 ngh NEUMANN
-ticks 200
+ticks 5
 strains 2
 
-
+//Declaración de variables globales
 global double probability    = 0.6;
 global int    daysToInfect   = 4;
 global int    gincubation    = 3;
@@ -12,15 +14,17 @@ global double inmunity       = 0.5;
 global int    quaratineInit  = 100;
 global int    quaratineDays  = 7;
 
-
+//Estructura para declaración de células
 cell() {
-    int    cincubation = 0;
-    int    cduration = 0;
-    double cinmunity = 0;
-    bool medication = false;  
-    bool quarantined = false; 
-    int cquaratineDays = 0;
+    //Atributos de célula
+    int    cincubation = -1;
+    int    cduration = -1;
+    double cinmunity = -1;
+    bool   medication = false;  
+    bool   quarantined = false; 
+    int    cquaratineDays = 0;
 
+    //Estado de células
     state SINFECTED     (1.0, 0.0, 0.0)
     state NO_INFECTIOUS (1.0, 0.8, 0.6)
     state RECOVER       (0.0, 1.0, 0.0)
@@ -28,8 +32,9 @@ cell() {
     state DIE           (0.0, 0.0, 0.0)
 }
 
-
-strain NAME1(0){
+// Primera cepa
+strain NAME1(){
+    //Regla 1
     if(state == NO_CHANGE && count(state, SINFECTED)>0 && random < probability){
         state = NO_INFECTIOUS;
         infected = true;
@@ -129,7 +134,7 @@ strain NAME1(0){
 
 }
 
-strain NAME2(50){
+strain NAME2(500){
     if(state == NO_CHANGE && count(state, SINFECTED)>0 && random < probability){
         state = NO_INFECTIOUS;
         infected = true;

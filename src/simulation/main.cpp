@@ -43,12 +43,9 @@ int main(int argc, char **argv){
     glutDisplayFunc(displayCallback);
     glutReshapeFunc(reshapeCallback);
     glutTimerFunc(0, timerCallback, 0);
-    // glutSpecialFunc(keyboardCallback);
 
-    //ESTO SOLO SE HACE UNA VEZ
     newPopulation();
     infectOneCell();
-
     init();
     glutMainLoop();
     return 1;
@@ -82,8 +79,8 @@ void timerCallback(int){
 void newPopulation(){
     for (int i=0; i<N; i++){
         for (int j=0; j<N; j++){
-            Cell cell;
-            cells[i][j] = cell;
+                Cell cell;
+                cells[i][j] = cell;
         } 
     }
 }

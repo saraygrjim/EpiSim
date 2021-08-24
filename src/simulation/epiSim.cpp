@@ -30,7 +30,7 @@ ofstream name2("Data/DataStrain_name2.csv");
 
 int nStates = 6;
 int neighType = NEUMANN;
- int days = 200;
+ int days = 5;
  int nStrain  = 2;
  
  double probability = 0.6;
@@ -62,9 +62,9 @@ Cell::Cell (){
 cquaratinedays = 0;
 quarantined = false;
 medication = false;
-cinmunity = 0.0;
-cduration = 0;
-cincubation = 0;
+cinmunity = -1.0;
+cduration = -1;
+cincubation = -1;
 infected = false;
 alive = true;
 state = 0;
@@ -268,8 +268,7 @@ if(currentTick >= 0) {
 }
   
  } 
- } 
- for(int i=0; i<N; i++){
+ } for(int i=0; i<N; i++){
     for(int j=0; j<N; j++){
         results[cells[i][j].state]++;
     }
@@ -279,8 +278,9 @@ for(int i=0; i<nStates;i++){
     name1 <<  "," << results[i];
 }
 name1 << "\n";
-  } 
- if(currentTick >= 50) {
+ 
+ } 
+ if(currentTick >= 500) {
  for (int i = 0; i < N; i++){ 
 	for (int j = 0; j < N; j++){
   

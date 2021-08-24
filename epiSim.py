@@ -35,13 +35,15 @@ def main(file: str = typer.Option("", help="Path to Simulation file containing t
         subprocess.Popen("bison src/compiler_files/compiler.y", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).wait()
         subprocess.Popen("gcc compiler.tab.c -o src/compiler_files/compiler", shell=True, stdout=subprocess.PIPE).wait()
         compiler = subprocess.Popen("src/compiler_files/compiler < src/compiler_files/file.grj > src/simulation/epiSim.cpp", shell=True, stdout=subprocess.PIPE).wait()
-        if compiler == 1:
+        if compiler != 0:
             raise typer.Exit()
 
         typer.secho(f"Executing...", bold=True)
         subprocess.Popen("g++ src/simulation/main.cpp src/simulation/grid.cpp src/simulation/sim.cpp -lglut -lGLU -lGL", shell=True, stdout=subprocess.PIPE).wait()
-        subprocess.Popen("./a.out", shell=True, stdout=subprocess.PIPE).wait()
-        subprocess.Popen('rm -rf a.out compiler.tab.c src/compiler_files/compiler', shell=True, stdout=subprocess.PIPE).wait()
+        simulation = subprocess.Popen("./a.out", shell=True, stdout=subprocess.PIPE).wait()
+        subprocess.Popen('rm -rf a.out src/compiler_files/compiler.tab.c src/compiler_files/compiler', shell=True, stdout=subprocess.PIPE).wait()
+        if simulation != 0:
+            raise typer.Exit()
 
         answers = prompt(questions, style=custom_style_2)
         if answers['continue']:
