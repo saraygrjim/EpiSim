@@ -415,8 +415,8 @@ declaration:      BOOL IDENTIF '=' boolValue          { if(Get($2) == NULL) { //
                                                           clean();
                                                         }
                                                         else { //Existe una variable on ese nombre
-                                                          if(strcmp($1, "state") == 0 || strcmp($1, "alive") == 0 || strcmp($1, "infected") == 0){
-                                                            yyerror("ERROR: %s is a reserved variable", $1); exit(1);
+                                                          if(strcmp($2, "state") == 0 || strcmp($2, "alive") == 0 || strcmp($2, "infected") == 0){
+                                                            yyerror("ERROR: it is not allowed to use a variable"); exit(1);
                                                           } else {
                                                             yyerror("ERROR: duplicate variable"); exit(1);
                                                           }
@@ -433,8 +433,8 @@ declaration:      BOOL IDENTIF '=' boolValue          { if(Get($2) == NULL) { //
                                                         clean();
                                                       }
                                                       else { 
-                                                        if(strcmp($1, "state") == 0 || strcmp($1, "alive") == 0 || strcmp($1, "infected") == 0){
-                                                          yyerror("ERROR: %s is a reserved variable", $1); exit(1);
+                                                        if(strcmp($2, "state") == 0 || strcmp($2, "alive") == 0 || strcmp($2, "infected") == 0){
+                                                          yyerror("ERROR: it is not allowed to use a reserved variable"); exit(1);
                                                         } else {
                                                           yyerror("ERROR: duplicate variable"); exit(1);
                                                         }
@@ -452,10 +452,10 @@ declaration:      BOOL IDENTIF '=' boolValue          { if(Get($2) == NULL) { //
                                                         clean();
                                                       }
                                                       else { 
-                                                        if(strcmp($1, "state") == 0 || strcmp($1, "alive") == 0 || strcmp($1, "infected") == 0){
-                                                          yyerror("ERROR: %s is a reserved variable", $1); exit(1);
+                                                        if(strcmp($2, "state") == 0 || strcmp($2, "alive") == 0 || strcmp($2, "infected") == 0){
+                                                          yyerror("ERROR: it is not allowed to use a reserved variable"); exit(1);
                                                         } else {
-                                                          yyerror("ERROR:%s is a duplicate variable", $1); exit(1);
+                                                          yyerror("ERROR: duplicate variable"); exit(1);
                                                         }
                                                       }
                                                     }
@@ -469,10 +469,10 @@ declaration:      BOOL IDENTIF '=' boolValue          { if(Get($2) == NULL) { //
                                                         clean();
                                                       }
                                                       else { 
-                                                        if(strcmp($1, "state") == 0 || strcmp($1, "alive") == 0 || strcmp($1, "infected") == 0){
-                                                          yyerror("ERROR: %s is a reserved variable", $1); exit(1);
+                                                        if(strcmp($2, "state") == 0 || strcmp($2, "alive") == 0 || strcmp($2, "infected") == 0){
+                                                          yyerror("ERROR: it is not allowed to use a reserved variable"); exit(1);
                                                         } else {
-                                                          yyerror("ERROR:%s is a duplicate variable", $1); exit(1);
+                                                          yyerror("ERROR: duplicate variable"); exit(1);
                                                         }
                                                       }
                                                     }
@@ -487,10 +487,10 @@ declaration:      BOOL IDENTIF '=' boolValue          { if(Get($2) == NULL) { //
                                                         clean();
                                                       }
                                                       else { 
-                                                        if(strcmp($1, "state") == 0 || strcmp($1, "alive") == 0 || strcmp($1, "infected") == 0){
-                                                          yyerror("ERROR: %s is a reserved variable", $1); exit(1);
+                                                        if(strcmp($2, "state") == 0 || strcmp($2, "alive") == 0 || strcmp($2, "infected") == 0){
+                                                          yyerror("ERROR: it is not allowed to use a reserved variable"); exit(1);
                                                         } else {
-                                                          yyerror("ERROR:%s is a duplicate variable", $1); exit(1);
+                                                          yyerror("ERROR: duplicate variable"); exit(1);
                                                         }
                                                       }
                                                     }
@@ -504,10 +504,10 @@ declaration:      BOOL IDENTIF '=' boolValue          { if(Get($2) == NULL) { //
                                                         clean();
                                                       }
                                                       else { 
-                                                        if(strcmp($1, "state") == 0 || strcmp($1, "alive") == 0 || strcmp($1, "infected") == 0){
-                                                          yyerror("ERROR: %s is a reserved variable", $1); exit(1);
+                                                        if(strcmp($2, "state") == 0 || strcmp($2, "alive") == 0 || strcmp($2, "infected") == 0){
+                                                          yyerror("ERROR: it is not allowed to use a reserved variable"); exit(1);
                                                         } else {
-                                                          yyerror("ERROR:%s is a duplicate variable", $1); exit(1);
+                                                          yyerror("ERROR: duplicate variable"); exit(1);
                                                         }
                                                       }
                                                     }                      
@@ -656,18 +656,18 @@ initialAssigments:    /*lambda*/                      { $$ = generateString(" ")
 assignment:                                                  { clean(); }
                   IDENTIF '=' expression ';'                 { nodeList *p = Get($2);
                                                               if(p == NULL) { 
-                                                                yyerror("ERROR: Variable \"%s\" doesn't exist", $2);
+                                                                yyerror("ERROR: Variable  doesn't exist");
                                                                 exit(1);
                                                               } else {
                                                                 if(strcmp($2, "state")==0) { 
                                                                   hasState = 1; 
                                                                 }
                                                                 if (strcmp(p->type,"int") == 0 && foundType(INTEGER_T) == 1){
-                                                                  yywarning("WARNING: Maybe you're assigning a wrong type to variable \"%s\"", $2);
+                                                                  yywarning("WARNING: Maybe you're assigning a wrong type to variable");
                                                                 } else if (strcmp(p->type,"bool") == 0 && foundType(BOOLEAN_T == 1)){
-                                                                  yywarning("WARNING: Maybe you're assigning a wrong type to variable \"%s\"", $2);
+                                                                  yywarning("WARNING: Maybe you're assigning a wrong type to variable");
                                                                 } else if (strcmp(p->type,"double") && foundType(DOUBLE_T == 1)) {
-                                                                  yywarning("WARNING: Maybe you're assigning a wrong type to variable \"%s\"", $2);
+                                                                  yywarning("WARNING: Maybe you're assigning a wrong type to variable");
                                                                 } 
                                                                 clean();
                                                                 size_t needed = snprintf(NULL, 0, "cells[i][j].%s = %s; ", $2, $4) + 1;
@@ -690,7 +690,7 @@ assignment:                                                  { clean(); }
                 ;
 
 /*-------- Math expressions --------*/
-expression:        termino                        {  } 
+expression:        operand                        {  } 
                 | expression '+' expression       { size_t needed = snprintf(NULL, 0, "%s + %s", $1, $3) + 1;
                                                     char  *buffer = malloc(needed);
                                                     sprintf (buffer, "%s + %s", $1, $3);
@@ -783,21 +783,6 @@ expression:        termino                        {  }
                                                     $$ = generateString(buffer);
                                                     free(buffer); }
 
-                ; 
-
-// pendiente
-termino:          operand                           {  }
-                // | '+' NUMBER                      { sprintf (temp, "+%d", $2);
-                //                                      $$ = generateString(temp);
-                //                                      typeExpression[i] = INTEGER_T;
-                //                                      i++;
-                //                                     }
-    
-                // | '-' NUMBER                      { sprintf (temp, "-%d", $2);
-                //                                      $$ = generateString(temp);
-                //                                      typeExpression[i] = INTEGER_T;
-                //                                      i++;
-                //                                     }
                 ;
     
 /*-------- Atomic operators --------*/
@@ -808,7 +793,7 @@ operand:        IDENTIF                             { nodeList *p = Get($1);
                                                           i++;
                                                           $$ = generateString("currentTick");
                                                         } else {
-                                                          yyerror("ERROR: Variable \"%s\" doesn't exist", $1);
+                                                          yyerror("ERROR: Variable  doesn't exist");
                                                           exit(1);
                                                         }
                                                       } else {
@@ -882,7 +867,7 @@ operand:        IDENTIF                             { nodeList *p = Get($1);
 
                 | NGH '(' position ')' '.' IDENTIF  { nodeList *p = Get($6);
                                                       if(p == NULL) { 
-                                                        yyerror( "ERROR: Variable \"%s\" doesn't exist", $6);
+                                                       yyerror("ERROR: Variable  doesn't exist");
                                                         exit(1);
                                                       } else {
                                                         if(p->section == CELL_T){
@@ -981,56 +966,56 @@ position:         NORTH                             { $$ = generateString("[c_ne
                 | NORTHEAST                         { if(neighborhoodType != NEUMANN_T) {
                                                         $$ = generateString("[c_neighbours[2][0]][c_neighbours[2][1]]");
                                                       } else {
-                                                          yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
+                                                          yyerror("ERROR: position not allowed in this type of neighborhood");
                                                           exit(1);
                                                       }
                                                     }
                 | NORTHWEST                         { if(neighborhoodType != NEUMANN_T) {
                                                         $$ = generateString("[c_neighbours[0][0]][c_neighbours[0][1]]");
                                                       } else {
-                                                          yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
+                                                          yyerror("ERROR: position not allowed in this type of neighborhood");
                                                           exit(1);
                                                       }
                                                     }
                 | SOUTHEAST                         { if(neighborhoodType != NEUMANN_T) {
                                                         $$ = generateString("[c_neighbours[4][0]][c_neighbours[4][1]]");
                                                       } else {
-                                                          yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
+                                                          yyerror("ERROR: position not allowed in this type of neighborhood");
                                                           exit(1);
                                                       }
                                                     }
                 | SOUTHWEST                         { if(neighborhoodType != NEUMANN_T) {
                                                         $$ = generateString("[c_neighbours[6][0]][c_neighbours[6][1]]");
                                                       } else {
-                                                          yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
+                                                          yyerror("ERROR: position not allowed in this type of neighborhood");
                                                           exit(1);
                                                       }
                                                     }
                 | NORTHP                            { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
                                                         $$ = generateString("[c_neighbours[8][0]][c_neighbours[8][1]]");
                                                       } else {
-                                                          yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
+                                                          yyerror("ERROR: position not allowed in this type of neighborhood");
                                                           exit(1);
                                                       }
                                                     }
                 | SOUTHP                            { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
                                                         $$ = generateString("[c_neighbours[10][0]][c_neighbours[10][1]]");
                                                       } else {
-                                                          yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
+                                                          yyerror("ERROR: position not allowed in this type of neighborhood");
                                                           exit(1);
                                                       }
                                                     }
                 | WESTP                             { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
                                                         $$ = generateString("[c_neighbours[11][0]][c_neighbours[11][1]]");
                                                       } else {
-                                                          yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
+                                                          yyerror("ERROR: position not allowed in this type of neighborhood");
                                                           exit(1);
                                                       }
                                                     }
                 | EASTP                             { if(neighborhoodType != NEUMANN_T && neighborhoodType != MOORE) {
                                                         $$ = generateString("[c_neighbours[9][0]][c_neighbours[9][1]]");
                                                       } else {
-                                                          yyerror("ERROR: \"%s\" not allow in this type of neighborhood", $1);
+                                                          yyerror("ERROR: position not allowed in this type of neighborhood");
                                                           exit(1);
                                                       }
                                                     }
@@ -1053,8 +1038,8 @@ int yywarning (message)
 char *message ;
 { 
  
-    fprintf (stderr, "\033[1;33m %s in line %d\n\033[0m\n", message, n_line) ;
-    printf ( "\n") ;	// bye
+    fprintf (stderr, "\033[1;33m %s in line %d\n\033[0m", message, n_line) ;
+    // printf ( "\n") ;	// bye
     
 }
 
@@ -1124,10 +1109,10 @@ tStop stopWords [] = { // Stop words
     "nw",           NORTHWEST,
     "se",           SOUTHEAST,
     "sw",           SOUTHWEST,
-    "n+",           NORTHP,
-    "s+",           SOUTHP,
-    "w+",           WESTP,
-    "e+",           EASTP,
+    "np",           NORTHP,
+    "sp",           SOUTHP,
+    "wp",           WESTP,
+    "ep",           EASTP,
      NULL,          0               // End of table
 } ;
 

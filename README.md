@@ -1,1 +1,1 @@
-# epidemic_simulation
+# EpiSim
