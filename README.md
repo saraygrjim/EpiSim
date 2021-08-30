@@ -42,6 +42,83 @@ To execute the tool you have to execute the next command in the EpiSim directory
 
 
 # **EpiSimLanguage Sintax** #
+The language sintax has five ordered parts:
+
+1. Header
+2. Global variables
+3. Cells properties
+4. Rules
+5. Initial state
+
+## **Header**
+In this part of the code you have to choose the following properties:
+
+
+* Number of cells to represent on side of the grid(NxN cells). By default is `100`.
+
+* Type of neighbourhood. Could be `NEWUMANN`, `MOORE` and `EXTENDED`. By default is `NEUMANN`.
+
+* Number of ticks the simulation lasts. By default is `200`.
+
+* Number of strains to simulate. By default is `1`.
+
+Any of them can be omitted. In that case the default value will be taken. Example of header:
+
+```
+cells 100       // 100x100 cells represented
+ngh NEUMANN     
+ticks 200
+strains 2
+```
+
+## **Global variables**
+
+In this section the simulation global variables are selected. An example of global variable could be the mortality rate of the virus. A global variable could be an integer, double or boolean. Also, is possible to assign or not a value to the variable. In case you not assign a value the variable takes a default value, if it is a boolean will be a `false`, if it is a double a `0.0` and if it is an integer a `0`. The structure of a global variable is `global type nameVariable = value;` or `global type nameVariable;`. 
+
+```
+global double probability   = 0.6;
+global int    daysToInfect  = 4;
+global int    incubation    = 3;
+global int    duration      = 10;
+```
+
+## **Cells properties**
+
+We can determine this section like a declaration of a class in the conventional programming languages. The external strcuture is `cell() {}' and inside the brackets we are going to declare the cells atributes and it states. 
+
+The way to declare the cell atributes is the same like in the global variables but now the structure is `type nameVariable = value;` or `type nameVariable;`. 
+
+When the atributes are declared we have to declare the cell states. We have to determine a name state and an RGB color to represent this state on the visual simulation. The structure is `NAME_STATE (value, value, value);` where the field `value` are values between 0 and 1.
+
+And example of this section is:
+```
+cell() {
+    int    cincubation = 0;
+    int    cduration = 0;
+    double cinmunity = 0;
+    bool medication = false;  
+    bool quarantined = false; 
+    int cquaratineDays = 0;
+    
+    state SINFECTED     (1.0, 0.0, 0.0)
+    state NO_INFECTIOUS (1.0, 0.8, 0.6)
+    state RECOVER       (0.0, 1.0, 0.0)
+    state QUARANTINE    (0.6, 0.8, 1.0)
+    state DIE           (0.0, 0.0, 0.0)
+}
+
+```
+
+## **Rules**
+
+
+
+
+
+
+
+
+
 
 
 # **License** #
