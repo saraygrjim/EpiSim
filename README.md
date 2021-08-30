@@ -34,7 +34,7 @@ Finally, clone the repository with:
 # **Usage** # 
 `EpiSim`  has a mandatory argument that shall be given with `--file` and shall consist of a path to a `.grj` file. 
 
-EpiSim provides additional information with the command `--help`. If no more directives are given, pgnparser prints out an error message. 
+`EpiSim` provides additional information with the command `--help`. If no more directives are given, `EpiSim` prints out an error message. 
 
 To execute the tool you have to execute the next command in the EpiSim directory
 
