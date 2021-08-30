@@ -93,12 +93,12 @@ When the atributes are declared we have to declare the cell states. We have to d
 And example of this section is:
 ```
 cell() {
-    int    cincubation = 0;
-    int    cduration = 0;
-    double cinmunity = 0;
-    bool medication = false;  
-    bool quarantined = false; 
-    int cquaratineDays = 0;
+    int    cincubation    = 0;
+    int    cduration      = 0;
+    double cinmunity      = 0;
+    bool   medication     = false;  
+    bool   quarantined    = false; 
+    int    cquaratineDays = 0;
     
     state SINFECTED     (1.0, 0.0, 0.0)
     state NO_INFECTIOUS (1.0, 0.8, 0.6)
@@ -111,6 +111,69 @@ cell() {
 
 ## **Rules**
 
+In this section we are going to declare the strains and the behaviour of them with rules. The way to declare a strain is `strain STRAIN_NAME(intial_tick){}` and inside the brackets we are going to declare the rules with th conventional `if` statements. 
+
+We can ommit the `initial_tick` and by default it will be 0. Also, we have some preset functions and variables, they are:
+* `count(variable, value)`. Returns how many neighbours has assigned the `value` to the `variable`.
+
+* `continue`. This statement determine that the next rules will not be checked.
+
+* `state`. Determine the state of the cell. 
+
+* `alive`. Determine if the cell os alive or not. Boolean.
+
+* `infected`. Determine if the cell is infected or no. Boolean.
+
+* `current_tick`. Determine the current tick of the simulation. Integer.
+
+* `ngh(value).variable`. Return the value of the variable of the selected neighbour. If we need to know the state of the north neighbour: `ngh(n).state`. The neighbour identifiers are:
+
+    * n  -> north
+    * s  -> south
+    * w  -> west
+    * e  -> east
+    * ne -> northeast
+    * nw -> northwest
+    * se -> southeast
+    * sw -> southwest
+    * np -> north plus
+    * sp -> south plus
+    * wp -> west plus
+    * ep -> east plus
+
+An example is:
+
+```
+strain CEPA1(){
+    if(state == NO_CHANGE && count(state, SINFECTED)>0 && random < probability){
+        state = NO_INFECTIOUS;
+        infected = true;
+        cincubation = gincubation;
+        cduration = gduration;
+        continue;
+    } else if ( state == RECOVER && count(state, INFECTED)>0 && random < cinmunity){
+        state = NO_INFECTIOUS;
+        infected = true;
+        cincubation = gincubation;
+        cduration = gduration;
+        continue;
+    }
+}
+  
+```
+
+
+## **Initial state**
+
+To determinte the initial state to the first infected cell and if you want change the initial values of some variables. The structure is `init(){}` and inside the brackets the initial state and the atributes.
+
+An example is:
+```
+init() {
+    state = NO_INFECTIOUS;
+    cduration = gduration;
+}
+```
 
 
 
