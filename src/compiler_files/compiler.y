@@ -133,7 +133,7 @@ void clean();
 %type  <cadena> assignment 
 %type  <cadena> initialAssigments 
 %type  <cadena> expression
-%type  <cadena> termino
+// %type  <cadena> termino
 %type  <cadena> operand 
 %type  <cadena> position 
 %type  <cadena> beginIf 
@@ -853,7 +853,7 @@ operand:        IDENTIF                             { nodeList *p = Get($1);
                                                       
                 // | NGH '.' IDENTIF                   { }
 
-                | COUNT '(' IDENTIF ',' termino ')'     { if( Get($3)->section == CELL_T ) {
+                | COUNT '(' IDENTIF ',' operand ')'     { if( Get($3)->section == CELL_T ) {
                                                             size_t needed = snprintf(NULL, 0, "count(c_neighbours, string(\"%s\"), std::to_string(%s), cells)", $3, $5) + 1;
                                                             char  *buffer = malloc(needed);
                                                             sprintf (buffer, "count(c_neighbours, string(\"%s\"), std::to_string(%s), cells)", $3, $5);

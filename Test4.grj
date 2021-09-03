@@ -9,10 +9,6 @@ global int virusIncubation    = 4;
 global int deseaseDuration    = 10;
 global double initialInmunity = 0.99;
 global double deadliness      = 0.2;
-// global double probability    = 0.6;
-// global int    daysToInfect   = 4;
-// global int    quaratineInit  = 100;
-// global int    quaratineDays  = 7;
 
 //Estructura para declaración de células
 cell() {
@@ -20,16 +16,12 @@ cell() {
     int    cellVirusIncub      = -1;
     int    cellDeseaseDuration = -1;
     int    noInfectedDays      = 0;
-    double cellInmunity = -1;
-    // bool   medication = false;  
-    // bool   quarantined = false; 
-    // int    cquaratineDays = 0;
+    double cellInmunity        = -1;
 
     //Estado de células
-    state INFECT      (1.0, 0.0, 0.0)
+    state INFECT        (1.0, 0.0, 0.0)
     state NO_INFECTIOUS (1.0, 0.8, 0.6)
     state RECOVER       (0.0, 1.0, 0.0)
-    // state QUARANTINE    (0.6, 0.8, 1.0)
     state DIE           (0.0, 0.0, 0.0)
 }
 
@@ -37,7 +29,7 @@ cell() {
 strain INITIAL_STRAIN(){
     
     if ( state == NO_CHANGE && count(state, INFECT) > 0 ){
-        state = NO_INFECTIOUS;
+        state    = NO_INFECTIOUS;
         infected = true;
         cellVirusIncub = virusIncubation;
         continue;
@@ -82,13 +74,8 @@ strain INITIAL_STRAIN(){
                     cellInmunity = initialInmunity;
                 }
             }
-            
-        }
-        
+        }  
     }
-
-    
-
 }
 
 init() {
