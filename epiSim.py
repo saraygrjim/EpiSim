@@ -42,6 +42,7 @@ def main(file: str = typer.Option("", help="Path to Simulation file containing t
         subprocess.Popen("g++ src/simulation/main.cpp src/simulation/grid.cpp src/simulation/sim.cpp -lglut -lGLU -lGL", shell=True, stdout=subprocess.PIPE).wait()
         simulation = subprocess.Popen("./a.out", shell=True, stdout=subprocess.PIPE).wait()
         subprocess.Popen('rm -rf a.out compiler.tab.c src/compiler_files/compiler', shell=True, stdout=subprocess.PIPE).wait()
+
         if simulation != 0:
             raise typer.Exit()
 

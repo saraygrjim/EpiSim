@@ -1,0 +1,85 @@
+//Atributos generales del sistema
+cells 100
+ngh EXTENDED
+ticks 500
+strains 1
+
+//Declaración de variables globales
+global int virusIncubation    = 4;
+global int deseaseDuration    = 10;
+global double initialInmunity = 0.5;
+global double deadliness      = 0.1;
+
+//Estructura para declaración de células
+cell() {
+    //Atributos de célula
+    int    cellVirusIncub      = -1;
+    int    cellDeseaseDuration = -1;
+    int    timesInfected       = 0;
+    double cellInmunity        = -1;
+
+    //Estado de células
+    state INFECT        (1.0, 0.0, 0.0)
+    state NO_INFECTIOUS (1.0, 0.8, 0.6)
+    state RECOVER       (0.0, 1.0, 0.0)
+    state DIE           (0.0, 0.0, 0.0)
+}
+
+// Primera cepa
+strain INITIAL_STRAIN(){
+    
+    if ( state == NO_CHANGE && count(state, INFECT) > 0 ){
+        state           = NO_INFECTIOUS;
+        infected        = true;
+        cellVirusIncub  = virusIncubation;
+        timesInfected   = timesInfected + 1;
+        cellInmunity    = initialInmunity;
+        continue;
+    }
+
+    if ( state == RECOVER ) {
+        if ( count(state, INFECT) > 0  && random > cellInmunity){
+            state           = NO_INFECTIOUS;
+            infected        = true;
+            cellVirusIncub  = virusIncubation;
+            timesInfected   = timesInfected + 1;
+            cellInmunity    = cellInmunity + (timesInfected * 0.01);
+            continue;
+        }
+
+    }
+
+    if ( infected ){
+        if (cellVirusIncub > 0){
+            cellVirusIncub = cellVirusIncub - 1;
+            if ( cellVirusIncub == 0) {
+                state = INFECT;
+                cellDeseaseDuration = deseaseDuration;
+            }
+        } 
+        
+        if ( cellDeseaseDuration > 0 ) {
+            cellDeseaseDuration = cellDeseaseDuration - 1;
+            if ( cellDeseaseDuration == 0 ){
+                if ( random < deadliness ) {
+                    state               = DIE;
+                    alive               = false;
+                    infected            = false;
+                    cellDeseaseDuration = -1;
+                    cellVirusIncub      = -1;
+                } else {
+                    state               = RECOVER;
+                    infected            = false;
+                    cellDeseaseDuration = -1;
+                    cellVirusIncub      = -1;
+                }
+            }
+        }  
+    }
+}
+
+init() {
+    state               = INFECT;
+    infected            = true;
+    cellDeseaseDuration = deseaseDuration;
+}

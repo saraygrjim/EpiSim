@@ -38,7 +38,7 @@ int main(int argc, char **argv){
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
-    glutInitWindowSize(500,500);
+    glutInitWindowSize(750,750);
     glutCreateWindow("Epidemic Simulation");
     glutDisplayFunc(displayCallback);
     glutReshapeFunc(reshapeCallback);
