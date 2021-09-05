@@ -176,14 +176,6 @@ init() {
 ```
 
 
-
-
-
-
-
-
-
-
 # **License** #
 Copyright (c) 2021 Saray García de la Rosa
     

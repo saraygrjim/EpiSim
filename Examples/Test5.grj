@@ -2,13 +2,17 @@
 cells 100
 ngh NEUMANN
 ticks 500
-strains 1
+strains 2
 
 //Declaración de variables globales
-global int virusIncubation    = 4;
-global int deseaseDuration    = 10;
-global double initialInmunity = 0.3;
-global double deadliness      = 0.1;
+global int virus1Incubation    = 4;
+global int virus2Incubation    = 4;
+global int desease1Duration    = 10;
+global int desease2Duration    = 15;
+global double initialInmunity  = 0.5;
+global double deadliness1      = 0.1;
+global double deadliness2      = 0.01;
+global int counter = 0;
 
 //Estructura para declaración de células
 cell() {
@@ -16,7 +20,10 @@ cell() {
     int    cellVirusIncub      = -1;
     int    cellDeseaseDuration = -1;
     int    timesInfected       = 0;
-    double cellInmunity        = -1;
+    double cellInmunity1        = -1;
+    double cellInmunity2        = -1;
+    bool   virus1              = false;
+    bool   virus2              = false;
 
     //Estado de células
     state INFECT        (1.0, 0.0, 0.0)
@@ -28,22 +35,22 @@ cell() {
 // Primera cepa
 strain INITIAL_STRAIN(){
     
-    if ( state == NO_CHANGE && count(state, INFECT) > 0 ){
+    if ( state == NO_CHANGE && count(virus1, true) > 0 ){
         state           = NO_INFECTIOUS;
         infected        = true;
-        cellVirusIncub  = virusIncubation;
+        cellVirusIncub  = virus1Incubation;
         timesInfected   = timesInfected + 1;
-        cellInmunity    = initialInmunity;
+        cellInmunity1    = initialInmunity;
         continue;
     }
 
     if ( state == RECOVER ) {
-        if ( count(state, INFECT) > 0  && random > cellInmunity){
+        if ( count(virus1, true) > 0  && random > cellInmunity1){
             state           = NO_INFECTIOUS;
             infected        = true;
-            cellVirusIncub  = virusIncubation;
+            cellVirusIncub  = virus1Incubation;
             timesInfected   = timesInfected + 1;
-            cellInmunity    = cellInmunity + (timesInfected * 0.01);
+            cellInmunity1    = cellInmunity1 + (timesInfected * 0.01);
             continue;
         }
 
@@ -54,22 +61,93 @@ strain INITIAL_STRAIN(){
             cellVirusIncub = cellVirusIncub - 1;
             if ( cellVirusIncub == 0) {
                 state = INFECT;
-                cellDeseaseDuration = deseaseDuration;
+                virus1          = true;
+                cellDeseaseDuration = desease1Duration;
             }
         } 
         
         if ( cellDeseaseDuration > 0 ) {
             cellDeseaseDuration = cellDeseaseDuration - 1;
             if ( cellDeseaseDuration == 0 ){
-                if ( random < deadliness ) {
+                if ( random < deadliness1 ) {
                     state               = DIE;
                     alive               = false;
                     infected            = false;
+                    virus1              = false;
                     cellDeseaseDuration = -1;
                     cellVirusIncub      = -1;
                 } else {
                     state               = RECOVER;
                     infected            = false;
+                    virus1              = false;
+                    cellDeseaseDuration = -1;
+                    cellVirusIncub      = -1;
+                }
+            }
+        }  
+    }
+}
+
+// Segunda cepa
+strain SECOND_STRAIN(350){
+    if (random < 0.001 && counter < 100) {
+            counter = counter + 1;
+
+            state           = NO_INFECTIOUS;
+            infected        = true;
+            cellVirusIncub  = virus2Incubation;
+            timesInfected   = timesInfected + 1;
+            cellInmunity2    = initialInmunity;
+            continue;
+        
+    }
+
+    if ( state == NO_CHANGE && count(virus2, true) > 0 ){
+        state           = NO_INFECTIOUS;
+        infected        = true;
+        cellVirusIncub  = virus2Incubation;
+        timesInfected   = timesInfected + 1;
+        cellInmunity2    = initialInmunity;
+        continue;
+    }
+
+    if ( state == RECOVER ) {
+        if ( count(virus2, true) > 0  && random > cellInmunity2){
+            state           = NO_INFECTIOUS;
+            infected        = true;
+            cellVirusIncub  = virus2Incubation;
+            timesInfected   = timesInfected + 1;
+            cellInmunity2    = cellInmunity2 + (timesInfected * 0.001);
+            continue;
+        }
+
+    }
+
+
+    if ( infected ){
+        if (cellVirusIncub > 0){
+            cellVirusIncub = cellVirusIncub - 1;
+            if ( cellVirusIncub == 0) {
+                state = INFECT;
+                virus2 = true;
+                cellDeseaseDuration = desease2Duration;
+            }
+        } 
+        
+        if ( cellDeseaseDuration > 0 ) {
+            cellDeseaseDuration = cellDeseaseDuration - 1;
+            if ( cellDeseaseDuration == 0 ){
+                if ( random < deadliness2 ) {
+                    state               = DIE;
+                    alive               = false;
+                    infected            = false;
+                    virus2              = false;
+                    cellDeseaseDuration = -1;
+                    cellVirusIncub      = -1;
+                } else {
+                    state               = RECOVER;
+                    infected            = false;
+                    virus2              = false;
                     cellDeseaseDuration = -1;
                     cellVirusIncub      = -1;
                 }
@@ -80,6 +158,6 @@ strain INITIAL_STRAIN(){
 
 init() {
     state               = INFECT;
-    infected            = true;
-    cellDeseaseDuration = deseaseDuration;
+    virus1              = true;
+    cellDeseaseDuration = desease1Duration;
 }
