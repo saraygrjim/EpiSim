@@ -175,6 +175,8 @@ init() {
 }
 ```
 
+## **Examples** 
+If you want to see some examples go to `Examples` and in `Experimentation` you can see some demos and results of those executions. 
 
 # **License** #
 Copyright (c) 2021 Saray García de la Rosa
