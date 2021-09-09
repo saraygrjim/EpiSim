@@ -31,7 +31,7 @@ strain INITIAL_STRAIN(){
     if ( state == NO_CHANGE && count(state, INFECT) > 0 ){
         state    = NO_INFECTIOUS;
         infected = true;
-        cellVirusIncub = virusIncubation;
+        cellVirusIncub = virusncubation;
         continue;
     }
 

@@ -29,13 +29,18 @@ def main(file: str = typer.Option("", help="Path to Simulation file containing t
             typer.secho(f"ERROR: The file should be in .grj extension. Check the README file.", err=True, fg=typer.colors.RED, bold=True)
             raise typer.Exit()
          
-        subprocess.Popen("cp " + file + " src/compiler_files/file.grj", shell=True, stdout=subprocess.PIPE).wait()
+        simulation = subprocess.Popen("cp " + file + " src/compiler_files/file.grj", shell=True, stderr=subprocess.PIPE).wait()
+        if simulation != 0:
+            typer.secho(f"ERROR: The file doesn't exist.", err=True, fg=typer.colors.RED, bold=True)
+            raise typer.Exit()
+
 
         typer.secho(f"Compiling...", bold=True)
         subprocess.Popen("bison src/compiler_files/compiler.y", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).wait()
         subprocess.Popen("gcc compiler.tab.c -o src/compiler_files/compiler", shell=True, stdout=subprocess.PIPE).wait()
         compiler = subprocess.Popen("src/compiler_files/compiler < src/compiler_files/file.grj > src/simulation/epiSim.cpp", shell=True, stdout=subprocess.PIPE).wait()
         if compiler != 0:
+            subprocess.Popen('rm -rf a.out compiler.tab.c src/compiler_files/compiler', shell=True, stdout=subprocess.PIPE).wait()
             raise typer.Exit()
 
         typer.secho(f"Executing...", bold=True)
